@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -20,7 +21,31 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #F7F9FA;
+  color: #333333;
+}
+
+/* Classes customizadas da marca Kero */
+.bg-kero-light-soft {
+  background-color: #F7F9FA;
+}
+
+.text-kero-dark {
+  color: #333333;
+}
+
+.bg-kero-primary {
+  background-color: #FF6B6B;
+}
+
+.bg-kero-secondary {
+  background-color: #0A8585;
+}
+
+.text-kero-primary {
+  color: #FF6B6B;
+}
+
+.text-kero-secondary {
+  color: #0A8585;
 }

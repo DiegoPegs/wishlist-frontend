@@ -12,10 +12,14 @@ const config: Config = {
         primary: '#FF6B6B',
         secondary: '#0A8585',
         dark: '#333333',
-        light: '#F7F9FA',
+        light: {
+          DEFAULT: '#FFFFFF',
+          soft: '#F7F9FA',
+        },
       },
       fontFamily: {
-        sans: ['Poppins', 'Inter', 'sans-serif'],
+        sans: ['Inter', 'sans-serif'],
+        display: ['Poppins', 'sans-serif'],
       },
     },
   },
