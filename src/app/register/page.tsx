@@ -182,14 +182,10 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              className="w-full"
-              size="lg"
-            >
+          <Button type="submit" variant="primary" isLoading={isLoading}>
               Criar conta
             </Button>
+
           </div>
         </form>
       </div>

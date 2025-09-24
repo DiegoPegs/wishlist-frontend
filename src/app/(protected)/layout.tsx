@@ -59,8 +59,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/dashboard"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/dashboard' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/dashboard'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >
@@ -75,8 +75,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/dashboard"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/dashboard' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/dashboard'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >
@@ -90,8 +90,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/dashboard/shared"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/dashboard/shared' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/dashboard/shared'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >
@@ -105,8 +105,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/dashboard/reservations"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/dashboard/reservations' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/dashboard/reservations'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >
@@ -120,8 +120,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/dashboard/following"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/dashboard/following' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/dashboard/following'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >
@@ -135,8 +135,8 @@ export default function ProtectedLayout({
                 <Link
                   href="/profile"
                   className={`flex items-center px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    pathname === '/profile' 
-                      ? 'bg-primary text-white' 
+                    pathname === '/profile'
+                      ? 'bg-primary text-white'
                       : 'text-white hover:bg-primary hover:text-white'
                   }`}
                 >

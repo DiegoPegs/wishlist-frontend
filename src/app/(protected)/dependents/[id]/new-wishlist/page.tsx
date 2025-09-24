@@ -1,63 +1,63 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter, useParams } from 'next/navigation';
-import Link from 'next/link';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Button } from '@/components/ui/Button';
-import toast from 'react-hot-toast';
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useRouter, useParams } from 'next/navigation'
+import Link from 'next/link'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { Button } from '@/components/ui/Button'
+import toast from 'react-hot-toast'
 
 const createWishlistSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   isPublic: z.boolean(),
-  eventDate: z.string().optional(),
-});
+  eventDate: z.string().optional()
+})
 
-type CreateWishlistFormData = z.infer<typeof createWishlistSchema>;
+type CreateWishlistFormData = z.infer<typeof createWishlistSchema>
 
 export default function NewDependentWishlistPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const params = useParams();
-  const dependentId = params.id as string;
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+  const params = useParams()
+  const dependentId = params.id as string
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm<CreateWishlistFormData>({
     resolver: zodResolver(createWishlistSchema),
     defaultValues: {
-      isPublic: false,
-    },
-  });
+      isPublic: false
+    }
+  })
 
   const onSubmit = async (data: CreateWishlistFormData) => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
       // TODO: Implementar chamada para API para criar wishlist do dependente
-      console.log('Criando wishlist para dependente:', { dependentId, ...data });
+      console.log('Criando wishlist para dependente:', { dependentId, ...data })
 
       // Simular delay da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      toast.success('Lista de desejos criada com sucesso!');
-      router.push(`/dependents/${dependentId}`);
+      toast.success('Lista de desejos criada com sucesso!')
+      router.push(`/dependents/${dependentId}`)
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lista de desejos';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lista de desejos'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <ProtectedRoute>
@@ -73,9 +73,7 @@ export default function NewDependentWishlistPage() {
             Voltar ao Dependente
           </Link>
           <h1 className="mt-4 text-3xl font-bold text-dark">Criar Lista de Desejos</h1>
-          <p className="mt-2 text-gray-600">
-            Crie uma nova lista de desejos para este dependente.
-          </p>
+          <p className="mt-2 text-gray-600">Crie uma nova lista de desejos para este dependente.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -92,9 +90,7 @@ export default function NewDependentWishlistPage() {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Ex: Lista de Aniversário do João"
                 />
-                {errors.title && (
-                  <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
-                )}
+                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
               </div>
 
               {/* Descrição */}
@@ -108,9 +104,7 @@ export default function NewDependentWishlistPage() {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Descreva a lista de desejos para este dependente..."
                 />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
+                {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
               </div>
 
               {/* Data do Evento */}
@@ -123,9 +117,7 @@ export default function NewDependentWishlistPage() {
                   type="date"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 />
-                {errors.eventDate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.eventDate.message}</p>
-                )}
+                {errors.eventDate && <p className="mt-1 text-sm text-red-600">{errors.eventDate.message}</p>}
               </div>
 
               {/* Visibilidade */}
@@ -140,9 +132,7 @@ export default function NewDependentWishlistPage() {
                     Tornar lista pública
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Listas públicas podem ser visualizadas por outros usuários
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Listas públicas podem ser visualizadas por outros usuários</p>
               </div>
             </div>
           </div>
@@ -161,16 +151,12 @@ export default function NewDependentWishlistPage() {
             >
               Cancelar
             </Link>
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              size="md"
-            >
+            <Button type="submit" variant="primary" isLoading={isLoading}>
               Criar Lista
             </Button>
           </div>
         </form>
       </div>
     </ProtectedRoute>
-  );
+  )
 }

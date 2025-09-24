@@ -1,79 +1,74 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Button } from '@/components/ui/Button';
-import toast from 'react-hot-toast';
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { ProtectedRoute } from '@/components/ProtectedRoute'
+import { Button } from '@/components/ui/Button'
+import toast from 'react-hot-toast'
 
 const createWishlistSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
   description: z.string().optional(),
   isPublic: z.boolean(),
-  eventDate: z.string().optional(),
-});
+  eventDate: z.string().optional()
+})
 
-type CreateWishlistFormData = z.infer<typeof createWishlistSchema>;
+type CreateWishlistFormData = z.infer<typeof createWishlistSchema>
 
 export default function NewWishlistPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors }
   } = useForm<CreateWishlistFormData>({
     resolver: zodResolver(createWishlistSchema),
     defaultValues: {
-      isPublic: false,
-    },
-  });
+      isPublic: false
+    }
+  })
 
   const onSubmit = async (data: CreateWishlistFormData) => {
-    setIsLoading(true);
-    setError(null);
+    setIsLoading(true)
+    setError(null)
 
     try {
       // TODO: Implementar chamada para API para criar wishlist
-      console.log('Criando wishlist:', data);
+      console.log('Criando wishlist:', data)
 
       // Simular delay da API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      toast.success('Lista de desejos criada com sucesso!');
-      router.push('/dashboard');
+      toast.success('Lista de desejos criada com sucesso!')
+      router.push('/dashboard')
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lista de desejos';
-      setError(errorMessage);
-      toast.error(errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lista de desejos'
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <ProtectedRoute>
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <Link
-            href="/dashboard"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
-          >
+          <Link href="/dashboard" className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
             Voltar ao Dashboard
           </Link>
           <h1 className="mt-4 text-3xl font-bold text-dark">Criar Nova Lista de Desejos</h1>
-          <p className="mt-2 text-gray-600">
-            Crie uma nova lista de desejos para organizar seus itens favoritos.
-          </p>
+          <p className="mt-2 text-gray-600">Crie uma nova lista de desejos para organizar seus itens favoritos.</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -90,9 +85,7 @@ export default function NewWishlistPage() {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Ex: Lista de Aniversário"
                 />
-                {errors.title && (
-                  <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
-                )}
+                {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
               </div>
 
               {/* Descrição */}
@@ -106,9 +99,7 @@ export default function NewWishlistPage() {
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Descreva sua lista de desejos..."
                 />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
+                {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
               </div>
 
               {/* Data do Evento */}
@@ -121,9 +112,7 @@ export default function NewWishlistPage() {
                   type="date"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 />
-                {errors.eventDate && (
-                  <p className="mt-1 text-sm text-red-600">{errors.eventDate.message}</p>
-                )}
+                {errors.eventDate && <p className="mt-1 text-sm text-red-600">{errors.eventDate.message}</p>}
               </div>
 
               {/* Visibilidade */}
@@ -138,9 +127,7 @@ export default function NewWishlistPage() {
                     Tornar lista pública
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Listas públicas podem ser visualizadas por outros usuários
-                </p>
+                <p className="mt-1 text-xs text-gray-500">Listas públicas podem ser visualizadas por outros usuários</p>
               </div>
             </div>
           </div>
@@ -159,16 +146,12 @@ export default function NewWishlistPage() {
             >
               Cancelar
             </Link>
-            <Button
-              type="submit"
-              isLoading={isLoading}
-              size="md"
-            >
+            <Button type="submit" variant="primary" isLoading={isLoading}>
               Criar Lista
             </Button>
           </div>
         </form>
       </div>
     </ProtectedRoute>
-  );
+  )
 }
