@@ -1,25 +1,28 @@
-import type { Metadata } from "next";
-import { Poppins, Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
-import { QueryProvider } from "@/components/QueryProvider";
-import { DebugConnection } from "@/components/DebugConnection";
-import { Toaster } from "react-hot-toast";
+// src/app/layout.tsx
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+import type { Metadata } from 'next';
+import { Inter, Poppins } from 'next/font/google'; // 1. Importar as fontes
+import './globals.css';
+import { Toaster } from 'react-hot-toast';
+import { Providers } from '@/components/Providers';
+
+// 2. Configurar as fontes com as variáveis CSS
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter', // Define a variável CSS para a fonte Inter
+  display: 'swap',
 });
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['500', '700', '800'],
+  variable: '--font-poppins', // Define a variável CSS para a fonte Poppins
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Wishlist App",
-  description: "Sua lista de desejos personalizada",
+  title: 'Kero Wishlist',
+  description: 'Sua lista de desejos social',
 };
 
 export default function RootLayout({
@@ -28,40 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
-      <body
-        className={`${poppins.variable} ${inter.variable} antialiased font-sans`}
-      >
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-            <DebugConnection />
-            <Toaster
-              position="top-right"
-              toastOptions={{
-                duration: 4000,
-                style: {
-                  background: '#363636',
-                  color: '#fff',
-                },
-                success: {
-                  duration: 3000,
-                  iconTheme: {
-                    primary: '#4ade80',
-                    secondary: '#fff',
-                  },
-                },
-                error: {
-                  duration: 5000,
-                  iconTheme: {
-                    primary: '#ef4444',
-                    secondary: '#fff',
-                  },
-                },
-              }}
-            />
-          </AuthProvider>
-        </QueryProvider>
+    // 3. Aplicar as variáveis na tag <html>
+    <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
+      <body>
+        <Providers>
+          <Toaster position="top-right" />
+          {children}
+        </Providers>
       </body>
     </html>
   );
