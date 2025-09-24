@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
+import { Button } from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 
 const loginSchema = z.object({
   login: z.string().min(1, 'Email ou username é obrigatório'),
@@ -35,9 +37,12 @@ export default function LoginPage() {
 
     try {
       await login(data);
+      toast.success('Login realizado com sucesso!');
       router.push('/dashboard');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erro ao fazer login');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -115,13 +120,14 @@ export default function LoginPage() {
           )}
 
           <div>
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={isLoading}
+              className="w-full"
+              size="lg"
             >
-              {isLoading ? 'Entrando...' : 'Entrar'}
-            </button>
+              Entrar
+            </Button>
           </div>
         </form>
       </div>

@@ -6,6 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
+import { Button } from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
@@ -41,9 +43,12 @@ export default function RegisterPage() {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { confirmPassword, ...credentials } = data;
       await registerUser(credentials);
+      toast.success('Conta criada com sucesso!');
       setSuccess(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar conta');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar conta';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -177,13 +182,14 @@ export default function RegisterPage() {
           )}
 
           <div>
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={isLoading}
+              className="w-full"
+              size="lg"
             >
-              {isLoading ? 'Criando conta...' : 'Criar conta'}
-            </button>
+              Criar conta
+            </Button>
           </div>
         </form>
       </div>

@@ -7,6 +7,8 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Button } from '@/components/ui/Button';
+import toast from 'react-hot-toast';
 
 const createWishlistSchema = z.object({
   title: z.string().min(1, 'Título é obrigatório'),
@@ -40,14 +42,16 @@ export default function NewWishlistPage() {
     try {
       // TODO: Implementar chamada para API para criar wishlist
       console.log('Criando wishlist:', data);
-
+      
       // Simular delay da API
       await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Redirecionar para o dashboard após sucesso
+      
+      toast.success('Lista de desejos criada com sucesso!');
       router.push('/dashboard');
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Erro ao criar lista de desejos');
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao criar lista de desejos';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -155,13 +159,13 @@ export default function NewWishlistPage() {
             >
               Cancelar
             </Link>
-            <button
+            <Button
               type="submit"
-              disabled={isLoading}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={isLoading}
+              size="md"
             >
-              {isLoading ? 'Criando...' : 'Criar Lista'}
-            </button>
+              Criar Lista
+            </Button>
           </div>
         </form>
       </div>
