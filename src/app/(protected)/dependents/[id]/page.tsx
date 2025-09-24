@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import { useDependent } from '@/hooks/use-dependents';
 import { useWishlists } from '@/hooks/use-wishlists';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
+import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
 export default function DependentManagementPage() {
@@ -79,11 +80,10 @@ export default function DependentManagementPage() {
         </div>
         <h3 className="text-lg font-medium text-dark mb-2">Erro ao carregar dependente</h3>
         <p className="text-gray-600 mb-4">Ocorreu um erro ao carregar os dados do dependente.</p>
-        <Link
-          href="/dashboard"
-          className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90"
-        >
-          Voltar ao Dashboard
+        <Link href="/dashboard">
+          <Button variant="primary">
+            Voltar ao Dashboard
+          </Button>
         </Link>
       </div>
     );
@@ -136,14 +136,13 @@ export default function DependentManagementPage() {
               {wishlistsLoading ? 'Carregando...' : `${wishlists?.length || 0} ${(wishlists?.length || 0) === 1 ? 'lista' : 'listas'} encontrada${(wishlists?.length || 0) === 1 ? '' : 's'}`}
             </p>
           </div>
-          <Link
-            href={`/dependents/${dependentId}/new-wishlist`}
-            className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Nova Lista
+          <Link href={`/dependents/${dependentId}/new-wishlist`}>
+            <Button variant="ghost" className="flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Nova Lista
+            </Button>
           </Link>
         </div>
 

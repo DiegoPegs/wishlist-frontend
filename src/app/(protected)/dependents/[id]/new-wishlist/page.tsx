@@ -44,10 +44,10 @@ export default function NewDependentWishlistPage() {
     try {
       // TODO: Implementar chamada para API para criar wishlist do dependente
       console.log('Criando wishlist para dependente:', { dependentId, ...data });
-      
+
       // Simular delay da API
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Lista de desejos criada com sucesso!');
       router.push(`/dependents/${dependentId}`);
     } catch (err: unknown) {

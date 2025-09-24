@@ -42,10 +42,10 @@ export default function NewWishlistPage() {
     try {
       // TODO: Implementar chamada para API para criar wishlist
       console.log('Criando wishlist:', data);
-      
+
       // Simular delay da API
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       toast.success('Lista de desejos criada com sucesso!');
       router.push('/dashboard');
     } catch (err: unknown) {

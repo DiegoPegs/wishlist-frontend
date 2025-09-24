@@ -7,6 +7,7 @@ import { useDependents } from '@/hooks/use-dependents';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
 import { DependentCard } from '@/components/dependents/DependentCard';
 import { AddDependentModal } from '@/components/dependents/AddDependentModal';
+import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -28,14 +29,13 @@ export default function DashboardPage() {
                 {wishlistsLoading ? 'Carregando...' : `${wishlists?.length || 0} ${(wishlists?.length || 0) === 1 ? 'lista' : 'listas'} encontrada${(wishlists?.length || 0) === 1 ? '' : 's'}`}
               </p>
             </div>
-            <Link
-              href="/dashboard/new"
-              className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nova Lista
+            <Link href="/dashboard/new">
+              <Button variant="ghost" className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Nova Lista
+              </Button>
             </Link>
           </div>
 

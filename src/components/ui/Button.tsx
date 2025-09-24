@@ -1,9 +1,11 @@
 import React from 'react';
 
+type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   isLoading?: boolean;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: ButtonVariant;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
@@ -18,22 +20,21 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+
   const variantClasses = {
     primary: 'bg-primary text-white hover:bg-primary/90 focus:ring-primary',
     secondary: 'bg-secondary text-white hover:bg-secondary/90 focus:ring-secondary',
-    outline: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-primary',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-primary',
+    ghost: 'bg-transparent text-secondary hover:bg-secondary/10 focus:ring-secondary',
   };
-  
+
   const sizeClasses = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm',
     lg: 'px-6 py-3 text-base',
   };
-  
+
   const classes = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`;
-  
+
   return (
     <button
       className={classes}
