@@ -5,6 +5,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { useWishlists } from '@/hooks/use-wishlists'
 import { useDependents } from '@/hooks/use-dependents'
 import { WishlistCard } from '@/components/wishlist/WishlistCard'
+import { WishlistCardSkeleton } from '@/components/wishlist/WishlistCardSkeleton'
 import { DependentCard } from '@/components/dependents/DependentCard'
 import { AddDependentModal } from '@/components/dependents/AddDependentModal'
 import { Button } from '@/components/ui/Button'
@@ -13,7 +14,7 @@ import Link from 'next/link'
 export default function DashboardPage() {
   const [showAddDependent, setShowAddDependent] = useState(false)
 
-  const { data: wishlists, isLoading: wishlistsLoading } = useWishlists()
+  const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useWishlists()
   const { data: dependents, isLoading: dependentsLoading } = useDependents()
 
   return (
@@ -40,25 +41,32 @@ export default function DashboardPage() {
           {wishlistsLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
-                  <div className="p-6">
-                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                    <div className="space-y-2">
-                      <div className="h-3 bg-gray-200 rounded"></div>
-                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    </div>
-                  </div>
-                </div>
+                <WishlistCardSkeleton key={i} />
               ))}
             </div>
-          ) : wishlists && (wishlists.length || 0) > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {wishlists.map((wishlist) => (
-                <WishlistCard key={wishlist.id} wishlist={wishlist} />
-              ))}
+          ) : wishlistsError ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-12 h-12 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-dark mb-2">Erro ao carregar listas</h3>
+              <p className="text-gray-600 mb-6">Não foi possível carregar suas listas de desejos. Tente novamente.</p>
+              <Button
+                onClick={() => window.location.reload()}
+                variant="primary"
+                className="px-6 py-3 text-base"
+              >
+                Tentar novamente
+              </Button>
             </div>
-          ) : (
+          ) : wishlists && wishlists.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
               <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +86,13 @@ export default function DashboardPage() {
                 </Button>
               </Link>
             </div>
-          )}
+          ) : wishlists && wishlists.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {wishlists.map((wishlist) => (
+                <WishlistCard key={wishlist.id} wishlist={wishlist} />
+              ))}
+            </div>
+          ) : null}
         </section>
 
         {/* Meus Dependentes */}
