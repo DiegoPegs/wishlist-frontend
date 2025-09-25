@@ -22,14 +22,14 @@ export default function DashboardPage() {
 
   // Função auxiliar para decidir o que renderizar
   const renderWishlistContent = () => {
-    // 1. Enquanto estiver carregando, mostre o esqueleto
+    // a. Primeiro, verifique isLoading. Se for true, mostre o(s) WishlistCardSkeleton
     if (wishlistsLoading) {
       return Array.from({ length: 3 }).map((_, index) => (
         <WishlistCardSkeleton key={index} />
       ));
     }
 
-    // 2. Se der erro na busca, mostre uma mensagem de erro
+    // b. Segundo, verifique isError. Se for true, mostre uma mensagem de erro
     if (wishlistsError) {
       return (
         <div className="col-span-full text-center text-red-500 py-10">
@@ -39,8 +39,8 @@ export default function DashboardPage() {
       );
     }
 
-    // 3. Se a busca for um sucesso e não houver listas, mostre o estado vazio
-    if (wishlists && wishlists.length === 0) {
+    // c. Terceiro, verifique se wishlists existe. Se não existir ou se wishlists.length === 0, mostre a mensagem e a ilustração de estado vazio
+    if (!wishlists || wishlists.length === 0) {
       return (
         <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
@@ -59,10 +59,10 @@ export default function DashboardPage() {
       );
     }
 
-    // 4. Se a busca for um sucesso e HOUVER listas, renderize os cards
+    // d. Por último, se nenhuma das condições acima for atendida, faça o map de wishlists e renderize os componentes WishlistCard
     return (
       <>
-        {wishlists?.map((wishlist) => (
+        {wishlists.map((wishlist) => (
           <WishlistCard key={wishlist.id} wishlist={wishlist} />
         ))}
       </>
@@ -142,7 +142,7 @@ export default function DashboardPage() {
             <p className="text-gray-600 mb-6">Adicione dependentes para gerenciar suas listas de desejos.</p>
             <Button
               onClick={() => setShowAddDependent(true)}
-              variant="primary"
+              variant="secondary"
               className="px-6 py-3 text-base"
             >
               Adicionar primeiro dependente

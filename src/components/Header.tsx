@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export function Header({ onLogout }: HeaderProps) {
-  const { user } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <header className="bg-light border-b">
@@ -21,7 +21,7 @@ export function Header({ onLogout }: HeaderProps) {
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-dark">
-              Olá, {user?.name}
+              Olá, {user?.name || 'Usuário'}
             </span>
             <button
               onClick={onLogout}
