@@ -86,6 +86,7 @@ export default function NewDependentWishlistPage() {
                 </label>
                 <input
                   {...register('title')}
+                  id="title"
                   type="text"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Ex: Lista de Aniversário do João"
@@ -100,6 +101,7 @@ export default function NewDependentWishlistPage() {
                 </label>
                 <textarea
                   {...register('description')}
+                  id="description"
                   rows={3}
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Descreva a lista de desejos para este dependente..."
@@ -114,6 +116,7 @@ export default function NewDependentWishlistPage() {
                 </label>
                 <input
                   {...register('eventDate')}
+                  id="eventDate"
                   type="date"
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 />
@@ -125,6 +128,7 @@ export default function NewDependentWishlistPage() {
                 <div className="flex items-center">
                   <input
                     {...register('isPublic')}
+                    id="isPublic"
                     type="checkbox"
                     className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
                   />

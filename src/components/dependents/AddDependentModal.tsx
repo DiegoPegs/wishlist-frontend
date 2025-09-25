@@ -81,6 +81,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
               </label>
               <input
                 {...register('name')}
+                id="name"
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 placeholder="Nome do dependente"
@@ -96,6 +97,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
               </label>
               <input
                 {...register('birthDate')}
+                id="birthDate"
                 type="date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               />
@@ -110,6 +112,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
               </label>
               <select
                 {...register('relationship')}
+                id="relationship"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 <option value="">Selecione o parentesco</option>

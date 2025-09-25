@@ -13,6 +13,11 @@ export interface WishlistItem {
   updatedAt: string;
 }
 
+export interface WishlistSharing {
+  isPublic: boolean;
+  publicLink?: string;
+}
+
 export interface Wishlist {
   id: string;
   title: string;
@@ -21,6 +26,7 @@ export interface Wishlist {
   ownerId: string;
   ownerName: string;
   items: WishlistItem[];
+  sharing: WishlistSharing;
   createdAt: string;
   updatedAt: string;
 }
@@ -28,13 +34,16 @@ export interface Wishlist {
 export interface CreateWishlistData {
   title: string;
   description?: string;
-  isPublic: boolean;
 }
 
 export interface UpdateWishlistData {
   title?: string;
   description?: string;
   isPublic?: boolean;
+}
+
+export interface UpdateWishlistSharingData {
+  isPublic: boolean;
 }
 
 export interface CreateItemData {

@@ -105,6 +105,7 @@ export function ReserveItemModal({ item, onReserve, onClose }: ReserveItemModalP
               </label>
               <input
                 {...register('quantity', { valueAsNumber: true })}
+                id="quantity"
                 type="number"
                 min="1"
                 max={item.quantity || 1}
@@ -126,6 +127,7 @@ export function ReserveItemModal({ item, onReserve, onClose }: ReserveItemModalP
               </label>
               <textarea
                 {...register('message')}
+                id="message"
                 rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 placeholder="Deixe uma mensagem para o dono da lista..."

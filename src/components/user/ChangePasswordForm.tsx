@@ -84,6 +84,7 @@ export function ChangePasswordForm({ onSuccess, onError }: ChangePasswordFormPro
         </label>
         <input
           {...register('oldPassword')}
+          id="oldPassword"
           type="password"
           autoComplete="current-password"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
@@ -100,6 +101,7 @@ export function ChangePasswordForm({ onSuccess, onError }: ChangePasswordFormPro
         </label>
         <input
           {...register('newPassword')}
+          id="newPassword"
           type="password"
           autoComplete="new-password"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
@@ -116,6 +118,7 @@ export function ChangePasswordForm({ onSuccess, onError }: ChangePasswordFormPro
         </label>
         <input
           {...register('confirmPassword')}
+          id="confirmPassword"
           type="password"
           autoComplete="new-password"
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"

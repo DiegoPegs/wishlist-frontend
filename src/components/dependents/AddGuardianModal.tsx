@@ -78,6 +78,7 @@ export function AddGuardianModal({ dependentId, dependentName, onClose, onSucces
                 Buscar usuário
               </label>
               <input
+                id="search"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}

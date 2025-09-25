@@ -119,6 +119,7 @@ export default function RegisterPage() {
               </label>
               <input
                 {...register('name')}
+                id="name"
                 type="text"
                 autoComplete="name"
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-dark rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
@@ -134,6 +135,7 @@ export default function RegisterPage() {
               </label>
               <input
                 {...register('email')}
+                id="email"
                 type="email"
                 autoComplete="email"
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-dark rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
@@ -149,6 +151,7 @@ export default function RegisterPage() {
               </label>
               <input
                 {...register('password')}
+                id="password"
                 type="password"
                 autoComplete="new-password"
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-dark rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"
@@ -164,6 +167,7 @@ export default function RegisterPage() {
               </label>
               <input
                 {...register('confirmPassword')}
+                id="confirmPassword"
                 type="password"
                 autoComplete="new-password"
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-dark rounded-md focus:outline-none focus:ring-primary focus:border-primary focus:z-10 sm:text-sm"

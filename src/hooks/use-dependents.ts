@@ -27,7 +27,7 @@ export function useDependent(id: string) {
   return useQuery({
     queryKey: dependentKeys.list(id),
     queryFn: async (): Promise<Dependent> => {
-      const response = await api.get(`/dependents/${id}`);
+      const response = await api.get(`/users/${id}`);
       return response.data;
     },
     enabled: !!id,
@@ -56,7 +56,7 @@ export function useUpdateDependent() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateDependentData }): Promise<Dependent> => {
-      const response = await api.put(`/dependents/${id}`, data);
+      const response = await api.put(`/users/${id}`, data);
       return response.data;
     },
     onSuccess: (data) => {
@@ -72,7 +72,7 @@ export function useDeleteDependent() {
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      await api.delete(`/dependents/${id}`);
+      await api.delete(`/users/dependents/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
@@ -86,7 +86,7 @@ export function useAddGuardian() {
 
   return useMutation({
     mutationFn: async ({ dependentId, data }: { dependentId: string; data: AddGuardianData }): Promise<Dependent> => {
-      const response = await api.post(`/dependents/${dependentId}/add-guardian`, data);
+      const response = await api.post(`/users/dependents/${dependentId}/add-guardian`, data);
       return response.data;
     },
     onSuccess: (data) => {
@@ -102,7 +102,7 @@ export function useRemoveGuardian() {
 
   return useMutation({
     mutationFn: async (dependentId: string): Promise<Dependent> => {
-      const response = await api.delete(`/dependents/${dependentId}/remove-guardian`);
+      const response = await api.delete(`/users/dependents/${dependentId}/guardianship`);
       return response.data;
     },
     onSuccess: (data) => {

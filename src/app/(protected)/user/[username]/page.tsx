@@ -22,10 +22,10 @@ export default function PublicProfilePage() {
 
     try {
       if (isFollowing) {
-        await unfollowUserMutation.mutateAsync(profile.id);
+        await unfollowUserMutation.mutateAsync(profile.username);
         setIsFollowing(false);
       } else {
-        await followUserMutation.mutateAsync({ userId: profile.id });
+        await followUserMutation.mutateAsync(profile.username);
         setIsFollowing(true);
       }
     } catch (error) {

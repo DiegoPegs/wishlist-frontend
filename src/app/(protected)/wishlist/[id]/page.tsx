@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useWishlist, useReserveItem, useDeleteWishlist } from '@/hooks/use-wishlists';
 import { ItemCard } from '@/components/wishlist/ItemCard';
+import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,6 +14,7 @@ export default function WishlistDetailPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const wishlistId = params.id as string;
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const { data: wishlist, isLoading, error } = useWishlist(wishlistId);
   const reserveItemMutation = useReserveItem();
@@ -156,21 +159,27 @@ export default function WishlistDetailPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            <button className="text-gray-400 hover:text-gray-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-            </button>
             {isOwner && (
-              <button
-                onClick={handleDeleteWishlist}
-                className="text-gray-400 hover:text-red-600"
-                disabled={deleteWishlistMutation.isPending}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+              <>
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="bg-secondary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary/90 flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                  </svg>
+                  Compartilhar
+                </button>
+                <button
+                  onClick={handleDeleteWishlist}
+                  className="text-gray-400 hover:text-red-600 p-2"
+                  disabled={deleteWishlistMutation.isPending}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -241,6 +250,15 @@ export default function WishlistDetailPage() {
             />
           ))}
         </div>
+      )}
+
+      {/* Modal de Compartilhamento */}
+      {wishlist && (
+        <ShareWishlistModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          wishlist={wishlist}
+        />
       )}
     </div>
   );

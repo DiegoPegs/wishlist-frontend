@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { PublicUser, UserProfile, FollowUserData, UserSearchResult } from '@/types/user';
+import { PublicUser, UserProfile, UserSearchResult } from '@/types/user';
 
 // Query Keys
 export const followKeys = {
@@ -29,7 +29,7 @@ export function useUserProfile() {
   return useQuery({
     queryKey: ['user', 'profile'],
     queryFn: async (): Promise<UserProfile> => {
-      const response = await api.get('/users/me/profile');
+      const response = await api.get('/users/me');
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -37,40 +37,43 @@ export function useUserProfile() {
 }
 
 // Hook para buscar seguidores de um usuário
-export function useFollowers(userId: string) {
+export function useFollowers(username: string) {
   return useQuery({
-    queryKey: followKeys.followers(userId),
+    queryKey: followKeys.followers(username),
     queryFn: async (): Promise<PublicUser[]> => {
-      const response = await api.get(`/users/${userId}/followers`);
+      const response = await api.get(`/users/${username}/followers`);
       return response.data;
     },
-    enabled: !!userId,
+    enabled: !!username,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 }
 
 // Hook para buscar usuários que um usuário segue
-export function useFollowing(userId: string) {
+export function useFollowing(username: string) {
   return useQuery({
-    queryKey: followKeys.following(userId),
+    queryKey: followKeys.following(username),
     queryFn: async (): Promise<PublicUser[]> => {
-      const response = await api.get(`/users/${userId}/following`);
+      const response = await api.get(`/users/${username}/following`);
       return response.data;
     },
-    enabled: !!userId,
+    enabled: !!username,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 }
 
 // Hook para buscar usuários (para adicionar guardião)
+// NOTA: Endpoint /users/search não está implementado no backend
 export function useUserSearch(query: string) {
   return useQuery({
     queryKey: followKeys.search(query),
     queryFn: async (): Promise<UserSearchResult[]> => {
-      const response = await api.get(`/users/search?q=${encodeURIComponent(query)}`);
-      return response.data;
+      // TODO: Implementar endpoint de busca no backend
+      // Por enquanto, retorna array vazio
+      console.warn('Endpoint /users/search não implementado no backend');
+      return [];
     },
-    enabled: query.length >= 2,
+    enabled: false, // Desabilitado até implementar no backend
     staleTime: 2 * 60 * 1000, // 2 minutos
   });
 }
@@ -80,13 +83,13 @@ export function useFollowUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: FollowUserData): Promise<void> => {
-      await api.post('/users/follow', data);
+    mutationFn: async (username: string): Promise<void> => {
+      await api.post(`/users/${username}/follow`);
     },
-    onSuccess: (_, variables) => {
+    onSuccess: (_, username) => {
       // Invalidar queries relacionadas ao usuário seguido
-      queryClient.invalidateQueries({ queryKey: followKeys.profile(variables.userId) });
-      queryClient.invalidateQueries({ queryKey: followKeys.followers(variables.userId) });
+      queryClient.invalidateQueries({ queryKey: followKeys.profile(username) });
+      queryClient.invalidateQueries({ queryKey: followKeys.followers(username) });
       // Invalidar perfil do usuário logado para atualizar contadores
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
@@ -98,13 +101,13 @@ export function useUnfollowUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (userId: string): Promise<void> => {
-      await api.delete(`/users/${userId}/follow`);
+    mutationFn: async (username: string): Promise<void> => {
+      await api.delete(`/users/${username}/follow`);
     },
-    onSuccess: (_, userId) => {
+    onSuccess: (_, username) => {
       // Invalidar queries relacionadas ao usuário
-      queryClient.invalidateQueries({ queryKey: followKeys.profile(userId) });
-      queryClient.invalidateQueries({ queryKey: followKeys.followers(userId) });
+      queryClient.invalidateQueries({ queryKey: followKeys.profile(username) });
+      queryClient.invalidateQueries({ queryKey: followKeys.followers(username) });
       // Invalidar perfil do usuário logado para atualizar contadores
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
