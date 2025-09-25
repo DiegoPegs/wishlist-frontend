@@ -5,6 +5,7 @@ import { Inter, Poppins } from 'next/font/google'; // 1. Importar as fontes
 import './globals.css';
 import { Toaster } from 'react-hot-toast';
 import { Providers } from '@/components/Providers';
+import { AuthProvider } from '@/components/AuthProvider';
 
 // 2. Configurar as fontes com as variáveis CSS
 const inter = Inter({
@@ -35,8 +36,10 @@ export default function RootLayout({
     <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
       <body>
         <Providers>
-          <Toaster position="top-right" />
-          {children}
+          <AuthProvider>
+            <Toaster position="top-right" />
+            {children}
+          </AuthProvider>
         </Providers>
       </body>
     </html>

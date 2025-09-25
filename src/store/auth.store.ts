@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { AuthState, User, LoginCredentials, RegisterCredentials } from '@/types/auth';
+import { AuthState, User, LoginCredentials, RegisterCredentials, AuthStatus } from '@/types/auth';
 import { authService } from '@/lib/authService';
 
 interface AuthStore extends AuthState {
@@ -11,6 +11,7 @@ interface AuthStore extends AuthState {
   setUser: (user: User | null) => void;
   setAccessToken: (token: string | null) => void;
   setLoading: (loading: boolean) => void;
+  setAuthStatus: (status: AuthStatus) => void;
   clearAuth: () => void;
   checkAuthStatus: () => Promise<void>;
 }
@@ -23,6 +24,7 @@ export const useAuthStore = create<AuthStore>()(
       accessToken: null,
       isAuthenticated: false,
       isLoading: false,
+      authStatus: 'PENDING',
 
       // Actions
       login: async (credentials: LoginCredentials) => {
@@ -49,7 +51,7 @@ export const useAuthStore = create<AuthStore>()(
             updatedAt: userProfile.updatedAt,
           };
 
-          set({ user, isAuthenticated: true });
+          set({ user, isAuthenticated: true, authStatus: 'AUTHENTICATED' });
 
           // Salvar dados do usuário no localStorage
           if (typeof window !== 'undefined') {
@@ -87,6 +89,7 @@ export const useAuthStore = create<AuthStore>()(
             accessToken: null,
             isAuthenticated: false,
             isLoading: false,
+            authStatus: 'UNAUTHENTICATED',
           });
 
           // Limpar localStorage
@@ -109,25 +112,29 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: loading });
       },
 
+      setAuthStatus: (status: AuthStatus) => {
+        set({ authStatus: status });
+      },
+
       clearAuth: () => {
         set({
           user: null,
           accessToken: null,
           isAuthenticated: false,
           isLoading: false,
+          authStatus: 'UNAUTHENTICATED',
         });
       },
 
       checkAuthStatus: async () => {
-        set({ isLoading: true });
+        set({ isLoading: true, authStatus: 'PENDING' });
 
         try {
           // Verificar se há token no localStorage
           if (typeof window !== 'undefined') {
             const savedToken = localStorage.getItem('accessToken');
-            const savedUser = localStorage.getItem('user');
 
-            if (savedToken && savedUser) {
+            if (savedToken) {
               try {
                 // Definir o token no estado para que o interceptor do Axios funcione
                 set({ accessToken: savedToken });
@@ -143,7 +150,7 @@ export const useAuthStore = create<AuthStore>()(
                   updatedAt: userProfile.updatedAt,
                 };
 
-                set({ user, isAuthenticated: true });
+                set({ user, isAuthenticated: true, authStatus: 'AUTHENTICATED' });
 
                 // Atualizar dados no localStorage
                 localStorage.setItem('user', JSON.stringify(user));
@@ -152,13 +159,39 @@ export const useAuthStore = create<AuthStore>()(
                 console.error('Token inválido:', error);
                 localStorage.removeItem('accessToken');
                 localStorage.removeItem('user');
-                set({ user: null, accessToken: null, isAuthenticated: false });
+                set({
+                  user: null,
+                  accessToken: null,
+                  isAuthenticated: false,
+                  authStatus: 'UNAUTHENTICATED'
+                });
               }
+            } else {
+              // Não há token, usuário não autenticado
+              set({
+                user: null,
+                accessToken: null,
+                isAuthenticated: false,
+                authStatus: 'UNAUTHENTICATED'
+              });
             }
+          } else {
+            // Server-side, definir como não autenticado
+            set({
+              user: null,
+              accessToken: null,
+              isAuthenticated: false,
+              authStatus: 'UNAUTHENTICATED'
+            });
           }
         } catch (error) {
           console.error('Erro ao verificar status de autenticação:', error);
-          set({ user: null, accessToken: null, isAuthenticated: false });
+          set({
+            user: null,
+            accessToken: null,
+            isAuthenticated: false,
+            authStatus: 'UNAUTHENTICATED'
+          });
         } finally {
           set({ isLoading: false });
         }
@@ -170,6 +203,7 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         accessToken: state.accessToken,
         isAuthenticated: state.isAuthenticated,
+        authStatus: state.authStatus,
       }),
     }
   )
