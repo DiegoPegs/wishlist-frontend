@@ -1,10 +1,8 @@
-// src/app/(protected)/dashboard/page.tsx
-
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useWishlists } from '@/hooks/use-wishlists';
+import { useMyWishlists } from '@/hooks/useMyWishlists';
 import { useDependents } from '@/hooks/use-dependents';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
 import { WishlistCardSkeleton } from '@/components/wishlist/WishlistCardSkeleton';
@@ -17,19 +15,19 @@ export default function DashboardPage() {
   const [showAddDependent, setShowAddDependent] = useState(false);
 
   // Hooks para buscar dados
-  const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useWishlists();
+  const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useMyWishlists();
   const { data: dependents, isLoading: dependentsLoading } = useDependents();
 
-  // Função auxiliar para decidir o que renderizar
+  // Função auxiliar para decidir o que renderizar - ordem correta: isLoading, isError, sucesso com dados, sucesso sem dados
   const renderWishlistContent = () => {
-    // a. Primeiro, verifique isLoading. Se for true, mostre o(s) WishlistCardSkeleton
+    // 1. Primeiro, verifique isLoading
     if (wishlistsLoading) {
       return Array.from({ length: 3 }).map((_, index) => (
         <WishlistCardSkeleton key={index} />
       ));
     }
 
-    // b. Segundo, verifique isError. Se for true, mostre uma mensagem de erro
+    // 2. Segundo, verifique isError
     if (wishlistsError) {
       return (
         <div className="col-span-full text-center text-red-500 py-10">
@@ -39,33 +37,29 @@ export default function DashboardPage() {
       );
     }
 
-    // c. Terceiro, verifique se wishlists existe. Se não existir ou se wishlists.length === 0, mostre a mensagem e a ilustração de estado vazio
-    if (!wishlists || wishlists.length === 0) {
-      return (
-        <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
-          <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-          </div>
-          <h3 className="text-lg font-medium text-dark mb-2">Nenhuma lista encontrada</h3>
-          <p className="text-gray-600 mb-6">Você ainda não criou nenhuma lista de desejos.</p>
-          <Link href="/dashboard/new">
-            <Button variant="primary" className="px-6 py-3 text-base">
-              Criar primeira lista
-            </Button>
-          </Link>
-        </div>
-      );
+    // 3. Terceiro, verifique sucesso com dados - garanta que está fazendo .map() no array
+    if (wishlists && wishlists.length > 0) {
+      return wishlists.map((wishlist) => (
+        <WishlistCard key={wishlist.id} wishlist={wishlist} />
+      ));
     }
 
-    // d. Por último, se nenhuma das condições acima for atendida, faça o map de wishlists e renderize os componentes WishlistCard
+    // 4. Por último, sucesso sem dados - estado vazio
     return (
-      <>
-        {wishlists.map((wishlist) => (
-          <WishlistCard key={wishlist.id} wishlist={wishlist} />
-        ))}
-      </>
+      <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-dark mb-2">Nenhuma lista encontrada</h3>
+        <p className="text-gray-600 mb-6">Você ainda não criou nenhuma lista de desejos.</p>
+        <Link href="/dashboard/new">
+          <Button variant="primary" className="px-6 py-3 text-base">
+            Criar primeira lista
+          </Button>
+        </Link>
+      </div>
     );
   };
 

@@ -1,36 +1,38 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
+import { Button } from './ui/Button';
 
-interface HeaderProps {
-  onLogout: () => void;
-}
-
-export function Header({ onLogout }: HeaderProps) {
+export function Header() {
+  const router = useRouter();
+  // Pega o usuário e a função de logout do store
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  };
 
   return (
-    <header className="bg-light border-b">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link href="/dashboard" className="text-xl font-bold text-dark">
-              Kero Wishlist
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-dark">
-              Olá, {user?.name || 'Usuário'}
-            </span>
-            <button
-              onClick={onLogout}
-              className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
+    <header className="flex h-16 shrink-0 items-center justify-between border-b bg-light px-6">
+      <div className="flex items-center">
+        <Link href="/dashboard" className="text-xl font-bold text-dark">
+          Kero Wishlist
+        </Link>
+      </div>
+      <div className="flex items-center space-x-4">
+        {/* Renderiza o nome do usuário se ele existir, senão um fallback */}
+        <span className="text-sm text-dark-light">Olá, {user?.name || 'Usuário'}</span>
+        <Button onClick={handleLogout} variant="primary">
+          Sair
+        </Button>
       </div>
     </header>
   );

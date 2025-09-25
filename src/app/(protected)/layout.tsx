@@ -10,17 +10,8 @@ export default function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { authStatus, logout } = useAuthStore();
+  const { authStatus } = useAuthStore();
   const router = useRouter();
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      router.push('/login');
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-    }
-  };
 
   // Se ainda está verificando o status de autenticação, mostrar loading
   if (authStatus === 'PENDING') {
@@ -45,7 +36,7 @@ export default function ProtectedLayout({
     return (
       <div className="min-h-screen bg-light">
         {/* Header */}
-        <Header onLogout={handleLogout} />
+        <Header />
 
         <div className="flex">
           {/* Sidebar */}
