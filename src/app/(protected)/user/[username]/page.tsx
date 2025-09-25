@@ -2,10 +2,10 @@
 
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { usePublicProfile, useFollowUser, useUnfollowUser } from '@/hooks/use-follow';
+import { usePublicProfile, useFollowUser, useUnfollowUser, useUserProfile, useFollowing } from '@/hooks/use-follow';
 import { useWishlists } from '@/hooks/use-wishlists';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PublicProfilePage() {
   const params = useParams();
@@ -13,9 +13,21 @@ export default function PublicProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
 
   const { data: profile, isLoading: profileLoading, error: profileError } = usePublicProfile(username);
+  const { data: currentUser } = useUserProfile();
+  const { data: following } = useFollowing(currentUser?.username || '');
   const { data: wishlists, isLoading: wishlistsLoading } = useWishlists();
   const followUserMutation = useFollowUser();
   const unfollowUserMutation = useUnfollowUser();
+
+  // Determinar se o usuário logado está seguindo o perfil visitado
+  useEffect(() => {
+    if (following && profile) {
+      const isCurrentlyFollowing = following.some(
+        (user) => user.id === profile.id
+      );
+      setIsFollowing(isCurrentlyFollowing);
+    }
+  }, [following, profile]);
 
   const handleFollow = async () => {
     if (!profile) return;
@@ -23,10 +35,8 @@ export default function PublicProfilePage() {
     try {
       if (isFollowing) {
         await unfollowUserMutation.mutateAsync(profile.username);
-        setIsFollowing(false);
       } else {
         await followUserMutation.mutateAsync(profile.username);
-        setIsFollowing(true);
       }
     } catch (error) {
       console.error('Erro ao seguir/deixar de seguir:', error);
@@ -88,10 +98,6 @@ export default function PublicProfilePage() {
     );
   }
 
-  // Atualizar estado local quando o perfil carregar
-  if (profile.isFollowing !== isFollowing) {
-    setIsFollowing(profile.isFollowing);
-  }
 
   return (
     <div className="space-y-6">
@@ -183,7 +189,7 @@ export default function PublicProfilePage() {
               </div>
             ))}
           </div>
-        ) : wishlists && wishlists.length > 0 ? (
+        ) : wishlists && (wishlists.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlists.map((wishlist) => (
               <WishlistCard key={wishlist.id} wishlist={wishlist} />

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Wishlist, CreateWishlistData, UpdateWishlistData, CreateItemData, UpdateItemData, ReservationData } from '@/types/wishlist';
+import { dependentWishlistKeys } from './use-dependent-wishlists';
 
 // Query Keys
 export const wishlistKeys = {
@@ -96,6 +97,18 @@ export function useAddItem() {
   });
 }
 
+// Hook para criar item (alias para useAddItem com interface simplificada)
+export function useCreateItem(wishlistId: string) {
+  const addItemMutation = useAddItem();
+
+  return {
+    ...addItemMutation,
+    mutateAsync: async (data: CreateItemData) => {
+      return addItemMutation.mutateAsync({ wishlistId, data });
+    },
+  };
+}
+
 // Hook para atualizar um item
 export function useUpdateItem() {
   const queryClient = useQueryClient();
@@ -145,6 +158,7 @@ export function useReserveItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
     },
   });
 }

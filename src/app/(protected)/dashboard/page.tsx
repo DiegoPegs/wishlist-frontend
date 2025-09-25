@@ -52,7 +52,7 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          ) : wishlists && wishlists.length > 0 ? (
+          ) : wishlists && (wishlists.length || 0) > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {wishlists.map((wishlist) => (
                 <WishlistCard key={wishlist.id} wishlist={wishlist} />
@@ -121,7 +121,7 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
-          ) : dependents && dependents.length > 0 ? (
+          ) : dependents && (dependents.length || 0) > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {dependents.map((dependent) => (
                 <DependentCard key={dependent.id} dependent={dependent} />

@@ -23,16 +23,25 @@ export function useDependentWishlists(dependentId: string) {
 }
 
 // Hook para criar wishlist para um dependente
-export function useCreateDependentWishlist() {
+export function useCreateDependentWishlist(dependentId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: async ({ dependentId, data }: { dependentId: string; data: CreateWishlistData }): Promise<Wishlist> => {
-      const response = await api.post(`/users/dependents/${dependentId}/wishlists`, data);
+  return {
+    ...useMutation({
+      mutationFn: async (data: CreateWishlistData): Promise<Wishlist> => {
+        const response = await api.post(`/dependents/${dependentId}/wishlists`, data);
+        return response.data;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+        queryClient.invalidateQueries({ queryKey: ['dependents'] });
+      },
+    }),
+    mutateAsync: async (data: CreateWishlistData) => {
+      const response = await api.post(`/dependents/${dependentId}/wishlists`, data);
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+      queryClient.invalidateQueries({ queryKey: ['dependents'] });
       return response.data;
     },
-    onSuccess: (_, { dependentId }) => {
-      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
-    },
-  });
+  };
 }

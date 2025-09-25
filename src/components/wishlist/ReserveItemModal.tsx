@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,10 +17,10 @@ interface ReserveItemModalProps {
   item: WishlistItem;
   onReserve: (quantity: number, message?: string) => void;
   onClose: () => void;
+  isLoading?: boolean;
 }
 
-export function ReserveItemModal({ item, onReserve, onClose }: ReserveItemModalProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export function ReserveItemModal({ item, onReserve, onClose, isLoading = false }: ReserveItemModalProps) {
 
   const {
     register,
@@ -39,12 +38,7 @@ export function ReserveItemModal({ item, onReserve, onClose }: ReserveItemModalP
   const watchedQuantity = watch('quantity');
 
   const onSubmit = async (data: ReserveFormData) => {
-    setIsSubmitting(true);
-    try {
-      onReserve(data.quantity, data.message);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onReserve(data.quantity, data.message);
   };
 
   const formatPrice = (price?: number, currency?: string) => {
@@ -158,10 +152,10 @@ export function ReserveItemModal({ item, onReserve, onClose }: ReserveItemModalP
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isLoading}
                 className="px-4 py-2 text-sm font-medium text-white bg-secondary rounded-md hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Reservando...' : 'Confirmar Reserva'}
+                {isLoading ? 'Reservando...' : 'Confirmar Reserva'}
               </button>
             </div>
           </form>

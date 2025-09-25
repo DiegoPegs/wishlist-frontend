@@ -6,6 +6,36 @@ interface WishlistCardProps {
 }
 
 export function WishlistCard({ wishlist }: WishlistCardProps) {
+  // Verificação de robustez contra dados faltantes
+  if (!wishlist || !wishlist.id) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
+        <div className="p-6">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2 mb-3"></div>
+            </div>
+            <div className="h-6 bg-gray-200 rounded w-16 ml-4"></div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="h-4 bg-gray-200 rounded w-20"></div>
+            <div className="h-4 bg-gray-200 rounded w-24"></div>
+            <div className="h-4 bg-gray-200 rounded w-16"></div>
+            <div className="h-4 bg-gray-200 rounded w-28"></div>
+          </div>
+          <div className="mt-6 flex items-center justify-between">
+            <div className="h-8 bg-gray-200 rounded w-24"></div>
+            <div className="flex space-x-2">
+              <div className="h-8 w-8 bg-gray-200 rounded"></div>
+              <div className="h-8 w-8 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
       day: '2-digit',
@@ -22,13 +52,13 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
     }).format(price);
   };
 
-  const totalValue = wishlist.items.reduce((sum, item) => {
+  const totalValue = wishlist.items?.reduce((sum, item) => {
     const price = item.price || 0;
     const quantity = item.quantity || 1;
     return sum + (price * quantity);
-  }, 0);
+  }, 0) || 0;
 
-  const reservedItems = wishlist.items.filter(item => item.reservedBy).length;
+  const reservedItems = wishlist.items?.filter(item => item.reservedBy).length || 0;
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
@@ -57,7 +87,7 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
 
         <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-600">
           <div>
-            <span className="font-medium">Itens:</span> {wishlist.items.length}
+            <span className="font-medium">Itens:</span> {wishlist.items?.length || 0}
           </div>
           <div>
             <span className="font-medium">Valor total:</span> {formatPrice(totalValue)}
@@ -70,11 +100,11 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
           </div>
         </div>
 
-        {wishlist.items.length > 0 && (
+        {(wishlist.items?.length || 0) > 0 && (
           <div className="mt-4">
             <h4 className="text-sm font-medium text-gray-700 mb-2">Últimos itens:</h4>
             <div className="space-y-1">
-              {wishlist.items.slice(0, 3).map((item) => (
+              {wishlist.items?.slice(0, 3).map((item) => (
                 <div key={item.id} className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 truncate">{item.name}</span>
                   {item.price && (
@@ -84,9 +114,9 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
                   )}
                 </div>
               ))}
-              {wishlist.items.length > 3 && (
+              {(wishlist.items?.length || 0) > 3 && (
                 <p className="text-xs text-gray-500">
-                  +{wishlist.items.length - 3} mais itens
+                  +{(wishlist.items?.length || 0) - 3} mais itens
                 </p>
               )}
             </div>

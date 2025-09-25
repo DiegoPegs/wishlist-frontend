@@ -1,3 +1,5 @@
+export type ItemType = 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
+
 export interface WishlistItem {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface WishlistItem {
   url?: string;
   imageUrl?: string;
   quantity?: number;
+  itemType: ItemType;
   reservedBy?: string;
   reservedAt?: string;
   createdAt: string;
@@ -54,6 +57,7 @@ export interface CreateItemData {
   url?: string;
   imageUrl?: string;
   quantity?: number;
+  itemType: ItemType;
 }
 
 export interface UpdateItemData {
@@ -64,6 +68,7 @@ export interface UpdateItemData {
   url?: string;
   imageUrl?: string;
   quantity?: number;
+  itemType?: ItemType;
 }
 
 export interface ReservationData {

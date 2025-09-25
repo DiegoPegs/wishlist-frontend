@@ -2,10 +2,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { WishlistItem } from '@/types/wishlist';
 import { ReserveItemModal } from './ReserveItemModal';
+import { useReserveItem } from '@/hooks/use-wishlists';
+import { useAuthStore } from '@/store/auth.store';
+import toast from 'react-hot-toast';
 
 interface ItemCardProps {
   item: WishlistItem;
-  wishlistId: string;
+  ownerId: string; // ID do dono da wishlist
   isOwner?: boolean;
   onReserve?: (itemId: string, quantity: number, message?: string) => void;
   onEdit?: (itemId: string) => void;
@@ -14,12 +17,18 @@ interface ItemCardProps {
 
 export function ItemCard({
   item,
+  ownerId,
   isOwner = false,
   onReserve,
   onEdit,
   onDelete
 }: ItemCardProps) {
   const [showReserveModal, setShowReserveModal] = useState(false);
+  const { user } = useAuthStore();
+  const reserveItemMutation = useReserveItem();
+
+  // Verificar se o usuário logado é diferente do dono da wishlist
+  const canReserve = user && user.id !== ownerId && !item.reservedBy;
 
   const formatPrice = (price?: number, currency?: string) => {
     if (!price) return 'Preço não informado';
@@ -37,9 +46,19 @@ export function ItemCard({
     });
   };
 
-  const handleReserve = (quantity: number, message?: string) => {
-    onReserve?.(item.id, quantity, message);
-    setShowReserveModal(false);
+  const handleReserve = async (quantity: number, message?: string) => {
+    try {
+      await reserveItemMutation.mutateAsync({
+        itemId: item.id,
+        quantity,
+        message,
+      });
+      toast.success('Item reservado com sucesso!');
+      setShowReserveModal(false);
+      onReserve?.(item.id, quantity, message);
+    } catch {
+      toast.error('Erro ao reservar item. Tente novamente.');
+    }
   };
 
   return (
@@ -112,7 +131,7 @@ export function ItemCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {!isOwner && !item.reservedBy && onReserve && (
+              {canReserve && (
                 <button
                   onClick={() => setShowReserveModal(true)}
                   className="bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
@@ -156,6 +175,7 @@ export function ItemCard({
           item={item}
           onReserve={handleReserve}
           onClose={() => setShowReserveModal(false)}
+          isLoading={reserveItemMutation.isPending}
         />
       )}
     </>

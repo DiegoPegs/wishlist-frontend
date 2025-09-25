@@ -1,18 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useDependent } from '@/hooks/use-dependents';
-import { useWishlists } from '@/hooks/use-wishlists';
+import { useDependentWishlists } from '@/hooks/use-dependent-wishlists';
+import { useCreateDependentWishlist } from '@/hooks/use-dependent-wishlists';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
+import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function DependentManagementPage() {
   const params = useParams();
   const dependentId = params.id as string;
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data: dependent, isLoading: dependentLoading, error: dependentError } = useDependent(dependentId);
-  const { data: wishlists, isLoading: wishlistsLoading } = useWishlists();
+  const { data: wishlists, isLoading: wishlistsLoading } = useDependentWishlists(dependentId);
+  const createWishlistMutation = useCreateDependentWishlist(dependentId);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -43,6 +49,16 @@ export default function DependentManagementPage() {
     nephew: 'Sobrinho',
     niece: 'Sobrinha',
     other: 'Outro',
+  };
+
+  const handleCreateWishlist = async (data: { title: string; description?: string }) => {
+    try {
+      await createWishlistMutation.mutateAsync(data);
+      toast.success('Lista de desejos criada com sucesso!');
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      throw error; // Re-throw para o modal tratar
+    }
   };
 
   if (dependentLoading) {
@@ -136,14 +152,16 @@ export default function DependentManagementPage() {
               {wishlistsLoading ? 'Carregando...' : `${wishlists?.length || 0} ${(wishlists?.length || 0) === 1 ? 'lista' : 'listas'} encontrada${(wishlists?.length || 0) === 1 ? '' : 's'}`}
             </p>
           </div>
-          <Link href={`/dependents/${dependentId}/new-wishlist`}>
-            <Button variant="ghost" className="flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Nova Lista
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setIsCreateModalOpen(true)}
+            variant="ghost"
+            className="flex items-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Nova Lista
+          </Button>
         </div>
 
         {wishlistsLoading ? (
@@ -161,7 +179,7 @@ export default function DependentManagementPage() {
               </div>
             ))}
           </div>
-        ) : wishlists && wishlists.length > 0 ? (
+        ) : wishlists && (wishlists.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlists.map((wishlist) => (
               <WishlistCard key={wishlist.id} wishlist={wishlist} />
@@ -176,15 +194,28 @@ export default function DependentManagementPage() {
             </div>
             <h3 className="text-lg font-medium text-dark mb-2">Nenhuma lista encontrada</h3>
             <p className="text-gray-600 mb-6">Crie listas de desejos para {dependent.name}.</p>
-            <Link
-              href={`/dependents/${dependentId}/new-wishlist`}
-              className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              variant="primary"
+              className="px-6 py-3 text-base"
             >
               Criar primeira lista
-            </Link>
+            </Button>
           </div>
         )}
       </div>
+
+      {/* Modal de Criação de Wishlist */}
+      <CreateWishlistModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateWishlist}
+        title={`Criar Lista para ${dependent?.name}`}
+        description={`Crie uma nova lista de desejos para ${dependent?.name}.`}
+        submitLabel="Criar Lista"
+        titlePlaceholder={`Ex: Lista de Aniversário do ${dependent?.name}`}
+        descriptionPlaceholder={`Descreva a lista de desejos para ${dependent?.name}...`}
+      />
     </div>
   );
 }

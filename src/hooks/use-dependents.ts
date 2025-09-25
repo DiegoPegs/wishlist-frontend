@@ -46,6 +46,7 @@ export function useCreateDependent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 }

@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { useWishlist, useReserveItem, useDeleteWishlist } from '@/hooks/use-wishlists';
 import { ItemCard } from '@/components/wishlist/ItemCard';
 import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
+import { AddItemModal } from '@/components/item/AddItemModal';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -15,6 +16,7 @@ export default function WishlistDetailPage() {
   const { user } = useAuthStore();
   const wishlistId = params.id as string;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
 
   const { data: wishlist, isLoading, error } = useWishlist(wishlistId);
   const reserveItemMutation = useReserveItem();
@@ -122,13 +124,13 @@ export default function WishlistDetailPage() {
     );
   }
 
-  const totalValue = wishlist.items.reduce((sum, item) => {
+  const totalValue = wishlist.items?.reduce((sum, item) => {
     const price = item.price || 0;
     const quantity = item.quantity || 1;
     return sum + (price * quantity);
-  }, 0);
+  }, 0) || 0;
 
-  const reservedItems = wishlist.items.filter(item => item.reservedBy).length;
+  const reservedItems = wishlist.items?.filter(item => item.reservedBy).length || 0;
 
   return (
     <div className="space-y-6">
@@ -187,7 +189,7 @@ export default function WishlistDetailPage() {
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
             <span className="font-medium text-gray-700">Total de itens:</span>
-            <p className="text-lg font-semibold text-dark">{wishlist.items.length}</p>
+            <p className="text-lg font-semibold text-dark">{wishlist.items?.length || 0}</p>
           </div>
           <div>
             <span className="font-medium text-gray-700">Valor total:</span>
@@ -199,7 +201,7 @@ export default function WishlistDetailPage() {
           </div>
           <div>
             <span className="font-medium text-gray-700">Disponíveis:</span>
-            <p className="text-lg font-semibold text-dark">{wishlist.items.length - reservedItems}</p>
+            <p className="text-lg font-semibold text-dark">{(wishlist.items?.length || 0) - reservedItems}</p>
           </div>
         </div>
       </div>
@@ -208,7 +210,10 @@ export default function WishlistDetailPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-dark">Itens da Lista</h2>
         {isOwner && (
-          <button className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center">
+          <button
+            onClick={() => setIsAddItemModalOpen(true)}
+            className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
+          >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -218,7 +223,7 @@ export default function WishlistDetailPage() {
       </div>
 
       {/* Items Grid */}
-      {wishlist.items.length === 0 ? (
+      {(wishlist.items?.length || 0) === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
           <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,18 +238,21 @@ export default function WishlistDetailPage() {
             }
           </p>
           {isOwner && (
-            <button className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90">
+            <button
+              onClick={() => setIsAddItemModalOpen(true)}
+              className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
+            >
               Adicionar primeiro item
             </button>
           )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {wishlist.items.map((item) => (
+          {wishlist.items?.map((item) => (
             <ItemCard
               key={item.id}
               item={item}
-              wishlistId={wishlistId}
+              ownerId={wishlist.ownerId}
               isOwner={isOwner}
               onReserve={handleReserveItem}
             />
@@ -260,6 +268,13 @@ export default function WishlistDetailPage() {
           wishlist={wishlist}
         />
       )}
+
+      {/* Modal de Adicionar Item */}
+      <AddItemModal
+        isOpen={isAddItemModalOpen}
+        onClose={() => setIsAddItemModalOpen(false)}
+        wishlistId={wishlistId}
+      />
     </div>
   );
 }
