@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
+import { DebugAuth } from '@/components/DebugAuth';
 
 export default function ProtectedLayout({
   children,
@@ -12,6 +14,13 @@ export default function ProtectedLayout({
 }) {
   const { authStatus } = useAuthStore();
   const router = useRouter();
+
+  // Efeito para redirecionar quando não autenticado
+  useEffect(() => {
+    if (authStatus === 'UNAUTHENTICATED') {
+      router.push('/login');
+    }
+  }, [authStatus, router]);
 
   // Se ainda está verificando o status de autenticação, mostrar loading
   if (authStatus === 'PENDING') {
@@ -25,10 +34,16 @@ export default function ProtectedLayout({
     );
   }
 
-  // Se não está autenticado, redirecionar para login
+  // Se não está autenticado, mostrar loading enquanto redireciona
   if (authStatus === 'UNAUTHENTICATED') {
-    router.push('/login');
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-light">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-dark">Redirecionando para login...</p>
+        </div>
+      </div>
+    );
   }
 
   // Se está autenticado, renderizar o layout normal
@@ -47,6 +62,7 @@ export default function ProtectedLayout({
             {children}
           </main>
         </div>
+        <DebugAuth />
       </div>
     );
   }

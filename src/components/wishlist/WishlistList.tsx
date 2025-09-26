@@ -10,6 +10,10 @@ export function WishlistList() {
   // Hook para buscar dados das wishlists
   const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useMyWishlists();
 
+  console.log('WishlistList: wishlists =', wishlists);
+  console.log('WishlistList: isLoading =', wishlistsLoading);
+  console.log('WishlistList: isError =', wishlistsError);
+
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">

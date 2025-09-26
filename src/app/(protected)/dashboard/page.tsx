@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { WishlistList } from '@/components/wishlist/WishlistList';
 import { DependentSection } from '@/components/dependents/DependentSection';
+import { TestWishlists } from '@/components/TestWishlists';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 
@@ -8,6 +9,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <TestWishlists />
       {/* Seção Minhas Listas de Desejos */}
       <section>
         <div className="flex items-center justify-between mb-4">

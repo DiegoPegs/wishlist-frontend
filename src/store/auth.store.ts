@@ -127,12 +127,25 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       checkAuthStatus: async () => {
+        console.log('AuthStore: Iniciando checkAuthStatus');
         set({ isLoading: true, authStatus: 'PENDING' });
 
         try {
           // Verificar se há token no localStorage
           if (typeof window !== 'undefined') {
             const savedToken = localStorage.getItem('accessToken');
+            const savedUser = localStorage.getItem('user');
+            console.log('AuthStore: Token encontrado:', !!savedToken);
+            console.log('AuthStore: User salvo encontrado:', !!savedUser);
+
+            if (savedUser) {
+              try {
+                const parsedUser = JSON.parse(savedUser);
+                console.log('AuthStore: User parseado do localStorage:', parsedUser);
+              } catch (e) {
+                console.log('AuthStore: Erro ao parsear user do localStorage:', e);
+              }
+            }
 
             if (savedToken) {
               try {
@@ -141,6 +154,7 @@ export const useAuthStore = create<AuthStore>()(
 
                 // Buscar dados atualizados do usuário
                 const userProfile = await authService.getCurrentUser();
+                console.log('AuthStore: UserProfile recebido:', userProfile);
                 const user: User = {
                   id: userProfile.id,
                   email: userProfile.email,
@@ -149,8 +163,10 @@ export const useAuthStore = create<AuthStore>()(
                   createdAt: userProfile.createdAt,
                   updatedAt: userProfile.updatedAt,
                 };
+                console.log('AuthStore: User mapeado:', user);
 
                 set({ user, isAuthenticated: true, authStatus: 'AUTHENTICATED' });
+                console.log('AuthStore: Usuário autenticado:', user.name);
 
                 // Atualizar dados no localStorage
                 localStorage.setItem('user', JSON.stringify(user));

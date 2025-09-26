@@ -15,6 +15,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     // Verificar status de autenticação apenas no cliente
     if (isClient) {
+      console.log('AuthProvider: Executando checkAuthStatus');
       checkAuthStatus();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
