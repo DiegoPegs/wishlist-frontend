@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Wishlist, CreateWishlistData, UpdateWishlistData, CreateItemData, UpdateItemData, ReservationData } from '@/types/wishlist';
+import { Wishlist } from '@/types';
+import { CreateWishlistData, UpdateWishlistData, CreateItemData, UpdateItemData, ReservationData } from '@/types/wishlist';
 import { dependentWishlistKeys } from './use-dependent-wishlists';
 
 // Query Keys

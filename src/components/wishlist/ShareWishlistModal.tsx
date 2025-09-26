@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useUpdateWishlistSharing } from '@/hooks/useUpdateWishlistSharing';
-import { Wishlist } from '@/types/wishlist';
+import { Wishlist } from '@/types';
 import { Button } from '@/components/ui/Button';
 import toast from 'react-hot-toast';
 

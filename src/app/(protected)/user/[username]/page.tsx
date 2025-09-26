@@ -67,7 +67,7 @@ export default function PublicProfilePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200">
+              <div key={`user-skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200">
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -177,7 +177,7 @@ export default function PublicProfilePage() {
         {wishlistsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
+              <div key={`wishlist-skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
                 <div className="p-6">
                   <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
@@ -191,8 +191,8 @@ export default function PublicProfilePage() {
           </div>
         ) : wishlists && (wishlists.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {wishlists.map((wishlist) => (
-              <WishlistCard key={wishlist.id} wishlist={wishlist} />
+            {wishlists.map((wishlist, index) => (
+              <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} />
             ))}
           </div>
         ) : (

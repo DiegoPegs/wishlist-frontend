@@ -68,7 +68,7 @@ export function DebugConnection() {
       {results.length > 0 && (
         <div className="mt-3 space-y-1">
           {results.map((result, index) => (
-            <div key={index} className="text-xs">
+            <div key={`debug-result-${index}`} className="text-xs">
               <span className={result.result ? 'text-green-600' : 'text-red-600'}>
                 {result.result ? '✅' : '❌'}
               </span>

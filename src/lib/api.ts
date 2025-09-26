@@ -152,16 +152,6 @@ Soluções:
 );
 
 // Suprimir erros de runtime.lastError (extensões do navegador)
-if (typeof window !== 'undefined') {
-  const originalConsoleError = console.error;
-  console.error = (...args) => {
-    // Filtrar erros de runtime.lastError
-    if (args[0] && typeof args[0] === 'string' &&
-        args[0].includes('runtime.lastError')) {
-      return;
-    }
-    originalConsoleError.apply(console, args);
-  };
-}
+// Esta verificação será feita apenas no cliente através de useEffect
 
 export default api;
