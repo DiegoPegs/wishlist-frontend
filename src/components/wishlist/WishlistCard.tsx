@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Wishlist } from '@/types/wishlist';
+import { Wishlist } from '@/types';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
