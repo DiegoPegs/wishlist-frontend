@@ -44,8 +44,35 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
     });
   };
 
-  const formatPrice = (price?: number, currency?: string) => {
+  const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
     if (!price) return 'Preço não informado';
+
+    // Se for a nova estrutura de objeto
+    if (typeof price === 'object') {
+      const { min, max } = price;
+      if (min && max) {
+        return `${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)} - ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      } else if (min) {
+        return `A partir de ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)}`;
+      } else if (max) {
+        return `Até ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      }
+      return 'Preço não informado';
+    }
+
+    // Se for a estrutura antiga de número
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: currency || 'BRL',
@@ -53,7 +80,14 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
   };
 
   const totalValue = wishlist.items?.reduce((sum, item) => {
-    const price = item.price || 0;
+    let price = 0;
+    if (typeof item.price === 'number') {
+      price = item.price;
+    } else if (typeof item.price === 'object' && item.price) {
+      // Usar o preço mínimo se disponível
+      const priceObj = item.price as { min?: number; max?: number };
+      price = priceObj.min || 0;
+    }
     const quantity = item.quantity || 1;
     return sum + (price * quantity);
   }, 0) || 0;

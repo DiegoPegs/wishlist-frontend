@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import CurrencyInput from 'react-currency-input-field';
 import { Button } from '@/components/ui/Button';
 import { CreateItemData, UpdateItemData } from '@/types/wishlist';
 import toast from 'react-hot-toast';
@@ -11,7 +12,10 @@ import toast from 'react-hot-toast';
 const itemFormSchema = z.object({
   name: z.string().min(1, 'Nome do item é obrigatório'),
   description: z.string().optional(),
-  price: z.number().min(0, 'Preço deve ser maior ou igual a zero').optional(),
+  price: z.object({
+    min: z.coerce.number().min(0, 'Preço mínimo deve ser maior ou igual a zero').optional(),
+    max: z.coerce.number().min(0, 'Preço máximo deve ser maior ou igual a zero').optional(),
+  }).optional(),
   currency: z.string().optional(),
   url: z.string().url('URL inválida').optional().or(z.literal('')),
   imageUrl: z.string().url('URL da imagem inválida').optional().or(z.literal('')),
@@ -42,12 +46,14 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     register,
     handleSubmit,
     watch,
+    control,
     formState: { errors },
     reset,
   } = useForm<ItemFormData>({
     resolver: zodResolver(itemFormSchema),
     defaultValues: {
       itemType: 'SPECIFIC_PRODUCT',
+      quantity: 1,
       ...initialData,
     },
   });
@@ -147,25 +153,62 @@ export const ItemForm: React.FC<ItemFormProps> = ({
           </div>
 
           {/* Preço */}
-          <div>
-            <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-              Preço (opcional)
-            </label>
-            <div className="mt-1 flex rounded-md shadow-sm">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                R$
-              </span>
-              <input
-                {...register('price', { valueAsNumber: true })}
-                id="price"
-                type="number"
-                step="0.01"
-                min="0"
-                className="flex-1 min-w-0 block w-full px-3 py-2 border border-gray-300 rounded-none rounded-r-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-                placeholder="0.00"
-              />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Faixa de Preço (opcional)
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="price.min" className="block text-xs text-gray-600 mb-1">
+                    Preço Mínimo
+                  </label>
+                  <Controller
+                    name="price.min"
+                    control={control}
+                    render={({ field }) => (
+                      <CurrencyInput
+                        {...field}
+                        id="price.min"
+                        placeholder="0,00"
+                        intlConfig={{ locale: 'pt-BR', currency: 'BRL' }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        prefix="R$ "
+                        decimalsLimit={2}
+                        onValueChange={(value) => field.onChange(value ? parseFloat(value) : undefined)}
+                      />
+                    )}
+                  />
+                  {errors.price?.min && (
+                    <p className="mt-1 text-xs text-red-600">{errors.price.min.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="price.max" className="block text-xs text-gray-600 mb-1">
+                    Preço Máximo
+                  </label>
+                  <Controller
+                    name="price.max"
+                    control={control}
+                    render={({ field }) => (
+                      <CurrencyInput
+                        {...field}
+                        id="price.max"
+                        placeholder="0,00"
+                        intlConfig={{ locale: 'pt-BR', currency: 'BRL' }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                        prefix="R$ "
+                        decimalsLimit={2}
+                        onValueChange={(value) => field.onChange(value ? parseFloat(value) : undefined)}
+                      />
+                    )}
+                  />
+                  {errors.price?.max && (
+                    <p className="mt-1 text-xs text-red-600">{errors.price.max.message}</p>
+                  )}
+                </div>
+              </div>
             </div>
-            {errors.price && <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>}
           </div>
 
           {/* Quantidade - Renderização Condicional */}
@@ -189,7 +232,7 @@ export const ItemForm: React.FC<ItemFormProps> = ({
           {/* URL */}
           <div>
             <label htmlFor="url" className="block text-sm font-medium text-gray-700">
-              URL do Produto (opcional)
+              Link do Produto (opcional)
             </label>
             <input
               {...register('url')}

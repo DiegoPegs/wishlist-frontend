@@ -21,10 +21,8 @@ interface ApiWishlist {
 
 // Função assíncrona para buscar minhas wishlists
 const fetchMyWishlists = async (): Promise<Wishlist[]> => {
-  console.log('fetchMyWishlists: Iniciando busca de wishlists');
   try {
     const response = await api.get('/wishlists/mine');
-    console.log('fetchMyWishlists: Resposta recebida:', response.data);
 
     // Transformar dados da API para o formato esperado pelo componente
     const transformedWishlists = response.data.map((wishlist: ApiWishlist) => ({
@@ -44,10 +42,8 @@ const fetchMyWishlists = async (): Promise<Wishlist[]> => {
       updatedAt: wishlist.updatedAt || new Date().toISOString()
     }));
 
-    console.log('fetchMyWishlists: Dados transformados:', transformedWishlists);
     return transformedWishlists;
   } catch (error) {
-    console.error('fetchMyWishlists: Erro na busca:', error);
     throw error;
   }
 };
@@ -55,10 +51,6 @@ const fetchMyWishlists = async (): Promise<Wishlist[]> => {
 // Hook customizado para buscar minhas wishlists
 export const useMyWishlists = () => {
   const { authStatus, isAuthenticated } = useAuthStore();
-
-  console.log('useMyWishlists: authStatus =', authStatus);
-  console.log('useMyWishlists: isAuthenticated =', isAuthenticated);
-  console.log('useMyWishlists: enabled =', authStatus === 'AUTHENTICATED' && isAuthenticated);
 
   return useQuery({
     queryKey: ['my-wishlists'],

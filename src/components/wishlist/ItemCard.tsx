@@ -30,8 +30,35 @@ export function ItemCard({
   // Verificar se o usuário logado é diferente do dono da wishlist
   const canReserve = user && user.id !== ownerId && !item.reservedBy;
 
-  const formatPrice = (price?: number, currency?: string) => {
+  const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
     if (!price) return 'Preço não informado';
+
+    // Se for a nova estrutura de objeto
+    if (typeof price === 'object') {
+      const { min, max } = price;
+      if (min && max) {
+        return `${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)} - ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      } else if (min) {
+        return `A partir de ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)}`;
+      } else if (max) {
+        return `Até ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      }
+      return 'Preço não informado';
+    }
+
+    // Se for a estrutura antiga de número
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: currency || 'BRL',

@@ -43,7 +43,6 @@ export default function NewDependentWishlistPage() {
 
     try {
       // TODO: Implementar chamada para API para criar wishlist do dependente
-      console.log('Criando wishlist para dependente:', { dependentId, ...data })
 
       // Simular delay da API
       await new Promise((resolve) => setTimeout(resolve, 1000))

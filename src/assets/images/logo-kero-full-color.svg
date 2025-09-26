@@ -1,0 +1,23 @@
+<svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="30" cy="30" r="25" fill="#8B5CF6" opacity="0.1"/>
+
+  <!-- Main icon - Gift box -->
+  <g transform="translate(15, 15)">
+    <!-- Gift box base -->
+    <rect x="8" y="12" width="14" height="10" fill="#8B5CF6" rx="1"/>
+    <!-- Gift box lid -->
+    <rect x="6" y="8" width="18" height="6" fill="#A855F7" rx="1"/>
+    <!-- Ribbon vertical -->
+    <rect x="14" y="8" width="2" height="14" fill="#F59E0B"/>
+    <!-- Ribbon horizontal -->
+    <rect x="6" y="13" width="18" height="2" fill="#F59E0B"/>
+    <!-- Bow -->
+    <circle cx="12" cy="11" r="2" fill="#F59E0B"/>
+    <circle cx="18" cy="11" r="2" fill="#F59E0B"/>
+  </g>
+
+  <!-- Text -->
+  <text x="70" y="25" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#1F2937">Kero</text>
+  <text x="70" y="45" font-family="Inter, sans-serif" font-size="14" font-weight="400" fill="#6B7280">Nunca mais erre no presente</text>
+</svg>

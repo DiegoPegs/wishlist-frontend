@@ -7,6 +7,7 @@ import { z } from 'zod';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { Button } from '@/components/ui/Button';
+import { BackButton } from '@/components/ui/BackButton';
 import toast from 'react-hot-toast';
 
 const registerSchema = z.object({
@@ -58,6 +59,10 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-light py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
+          {/* Botão Voltar */}
+          <div className="flex justify-start">
+            <BackButton />
+          </div>
           <div className="text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
               <svg
@@ -97,6 +102,10 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-light py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Botão Voltar */}
+        <div className="flex justify-start">
+          <BackButton />
+        </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold text-dark">
             Crie sua conta

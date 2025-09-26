@@ -41,15 +41,42 @@ export function ReserveItemModal({ item, onReserve, onClose, isLoading = false }
     onReserve(data.quantity, data.message);
   };
 
-  const formatPrice = (price?: number, currency?: string) => {
+  const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
     if (!price) return 'Preço não informado';
+
+    // Se for a nova estrutura de objeto
+    if (typeof price === 'object') {
+      const { min, max } = price;
+      if (min && max) {
+        return `${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)} - ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      } else if (min) {
+        return `A partir de ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(min)}`;
+      } else if (max) {
+        return `Até ${new Intl.NumberFormat('pt-BR', {
+          style: 'currency',
+          currency: currency || 'BRL',
+        }).format(max)}`;
+      }
+      return 'Preço não informado';
+    }
+
+    // Se for a estrutura antiga de número
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: currency || 'BRL',
     }).format(price);
   };
 
-  const totalPrice = item.price ? item.price * watchedQuantity : 0;
+  const totalPrice = typeof item.price === 'number' ? item.price * watchedQuantity : 0;
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

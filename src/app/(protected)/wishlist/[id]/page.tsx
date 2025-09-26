@@ -125,7 +125,14 @@ export default function WishlistDetailPage() {
   }
 
   const totalValue = wishlist.items?.reduce((sum, item) => {
-    const price = item.price || 0;
+    let price = 0;
+    if (typeof item.price === 'number') {
+      price = item.price;
+    } else if (typeof item.price === 'object' && item.price) {
+      // Usar o preço mínimo se disponível
+      const priceObj = item.price as { min?: number; max?: number };
+      price = priceObj.min || 0;
+    }
     const quantity = item.quantity || 1;
     return sum + (price * quantity);
   }, 0) || 0;

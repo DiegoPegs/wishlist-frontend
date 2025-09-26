@@ -52,7 +52,10 @@ export interface UpdateWishlistSharingData {
 export interface CreateItemData {
   name: string;
   description?: string;
-  price?: number;
+  price?: {
+    min?: number;
+    max?: number;
+  };
   currency?: string;
   url?: string;
   imageUrl?: string;
@@ -63,7 +66,10 @@ export interface CreateItemData {
 export interface UpdateItemData {
   name?: string;
   description?: string;
-  price?: number;
+  price?: {
+    min?: number;
+    max?: number;
+  };
   currency?: string;
   url?: string;
   imageUrl?: string;

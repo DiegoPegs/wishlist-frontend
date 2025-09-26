@@ -26,6 +26,15 @@ export interface ResetPasswordDto {
   newPassword: string;
 }
 
+export interface UpdateUserDto {
+  name: string;
+  birthDate: {
+    day: number;
+    month: number;
+    year?: number; // Ano opcional
+  };
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken?: string;
@@ -43,6 +52,11 @@ export interface UserProfile {
   id: string;
   email: string;
   name: string;
+  birthDate?: {
+    day: number;
+    month: number;
+    year?: number;
+  };
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;

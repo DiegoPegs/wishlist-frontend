@@ -2,6 +2,11 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  birthDate?: {
+    day: number;
+    month: number;
+    year?: number;
+  };
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;

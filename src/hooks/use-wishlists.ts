@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Wishlist } from '@/types';
 import { CreateWishlistData, UpdateWishlistData, CreateItemData, UpdateItemData, ReservationData } from '@/types/wishlist';
+import { CreateItemDto } from '@/types/item-dto';
 import { dependentWishlistKeys } from './use-dependent-wishlists';
 
 // Query Keys
@@ -87,7 +88,7 @@ export function useAddItem() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ wishlistId, data }: { wishlistId: string; data: CreateItemData }): Promise<Wishlist> => {
+    mutationFn: async ({ wishlistId, data }: { wishlistId: string; data: CreateItemDto }): Promise<Wishlist> => {
       const response = await api.post(`/wishlists/${wishlistId}/items`, data);
       return response.data;
     },
@@ -104,7 +105,7 @@ export function useCreateItem(wishlistId: string) {
 
   return {
     ...addItemMutation,
-    mutateAsync: async (data: CreateItemData) => {
+    mutateAsync: async (data: CreateItemDto) => {
       return addItemMutation.mutateAsync({ wishlistId, data });
     },
   };

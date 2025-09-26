@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ItemForm } from './ItemForm';
 import { CreateItemData, UpdateItemData } from '@/types/wishlist';
+import { CreateItemDto } from '@/types/item-dto';
 import { useCreateItem } from '@/hooks/use-wishlists';
 
 interface AddItemModalProps {
@@ -22,7 +23,24 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
   const handleSubmit = async (data: CreateItemData | UpdateItemData) => {
     setIsLoading(true);
     try {
-      await createItemMutation.mutateAsync(data as CreateItemData);
+      // Mapear dados do formulário para o DTO do backend
+      const payload: CreateItemDto = {
+        title: data.name, // name -> title
+        description: data.description,
+        price: data.price,
+        currency: data.currency,
+        link: data.url && data.url.trim() !== '' ? data.url : undefined, // url -> link, remove se vazio
+        imageUrl: data.imageUrl && data.imageUrl.trim() !== '' ? data.imageUrl : undefined, // remove se vazio
+        quantity: data.quantity ? { desired: data.quantity } : undefined, // quantity -> { desired: number }
+        itemType: data.itemType,
+      };
+
+      // Remover propriedades undefined do payload
+      const cleanPayload = Object.fromEntries(
+        Object.entries(payload).filter(([_, value]) => value !== undefined)
+      ) as CreateItemDto;
+
+      await createItemMutation.mutateAsync(cleanPayload);
       onClose();
     } catch (error) {
       throw error; // Re-throw para o ItemForm tratar

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
-import { DebugAuth } from '@/components/DebugAuth';
 
 export default function ProtectedLayout({
   children,
@@ -62,7 +61,6 @@ export default function ProtectedLayout({
             {children}
           </main>
         </div>
-        <DebugAuth />
       </div>
     );
   }
