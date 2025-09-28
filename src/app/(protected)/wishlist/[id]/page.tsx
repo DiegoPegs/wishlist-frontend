@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useWishlist, useDeleteWishlist } from '@/hooks/use-wishlists';
 import { useDeleteItem } from '@/hooks/useDeleteItem';
@@ -8,12 +8,11 @@ import { ItemCard } from '@/components/item/ItemCard';
 import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
 import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
 import { AddItemModal } from '@/components/item/AddItemModal';
-import EditItemModal from '@/components/item/EditItemModal';
+import { EditItemModal } from '@/components/item/EditItemModal';
 import { DeleteItemModal } from '@/components/item/DeleteItemModal';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { formatDate } from '@/lib/formatters';
 import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
 
@@ -32,8 +31,34 @@ export default function WishlistDetailPage() {
   const deleteWishlistMutation = useDeleteWishlist();
   const deleteItemMutation = useDeleteItem({ wishlistId });
 
-  const isOwner = currentUser?.id === wishlist?.ownerId;
+  const isOwner = currentUser?._id === wishlist?.ownerId;
 
+  // Calcular faixa de preço dos itens (antes dos returns condicionais)
+  const priceRange = useMemo(() => {
+    if (!wishlist?.items || wishlist.items.length === 0) {
+      return null;
+    }
+
+    let minPrice: number | null = null;
+    let maxPrice: number | null = null;
+
+    wishlist.items.forEach(item => {
+      if (typeof item.price === 'number') {
+        minPrice = minPrice === null ? item.price : Math.min(minPrice, item.price);
+        maxPrice = maxPrice === null ? item.price : Math.max(maxPrice, item.price);
+      } else if (typeof item.price === 'object' && item.price) {
+        const priceObj = item.price as { min?: number; max?: number };
+        if (priceObj.min !== undefined) {
+          minPrice = minPrice === null ? priceObj.min : Math.min(minPrice, priceObj.min);
+        }
+        if (priceObj.max !== undefined) {
+          maxPrice = maxPrice === null ? priceObj.max : Math.max(maxPrice, priceObj.max);
+        }
+      }
+    });
+
+    return { min: minPrice, max: maxPrice };
+  }, [wishlist?.items]);
 
   const handleDeleteWishlist = async () => {
     if (window.confirm('Tem certeza que deseja excluir esta lista? Esta ação não pode ser desfeita.')) {
@@ -127,25 +152,7 @@ export default function WishlistDetailPage() {
     );
   }
 
-  const totalValue = wishlist.items?.reduce((sum, item) => {
-    let price = 0;
-    if (typeof item.price === 'number') {
-      price = item.price;
-    } else if (typeof item.price === 'object' && item.price) {
-      // Usar o preço mínimo se disponível
-      const priceObj = item.price as { min?: number; max?: number };
-      price = priceObj.min || 0;
-    }
-    let quantity = 1;
-    if (typeof item.quantity === 'object' && item.quantity) {
-      quantity = (item.quantity as { desired?: number }).desired || 1;
-    } else if (typeof item.quantity === 'number') {
-      quantity = item.quantity;
-    }
-    return sum + (price * quantity);
-  }, 0) || 0;
-
-  const reservedItems = wishlist.items?.filter(item => item.reservedBy).length || 0;
+  const reservedItems = wishlist?.items?.filter(item => item.reservedBy).length || 0;
 
   return (
     <div className="space-y-6">
@@ -165,9 +172,7 @@ export default function WishlistDetailPage() {
               </p>
             )}
             <div className="flex items-center space-x-4 text-sm text-gray-600">
-              <span>Criado por <strong>{wishlist.ownerName || 'Usuário desconhecido'}</strong></span>
-              <span>•</span>
-              <span>Em {formatDate(wishlist.createdAt)}</span>
+              <span>Criado por <strong>{wishlist?.userId?.name || 'Usuário desconhecido'}</strong></span>
               <span>•</span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 wishlist.isPublic
@@ -213,14 +218,19 @@ export default function WishlistDetailPage() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className={`mt-6 grid gap-4 text-sm ${isOwner ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
           <div>
             <span className="font-medium text-gray-700">Total de itens:</span>
             <p className="text-lg font-semibold text-dark">{wishlist.items?.length || 0}</p>
           </div>
           <div>
-            <span className="font-medium text-gray-700">Valor total:</span>
-            <p className="text-lg font-semibold text-dark">{formatPrice(totalValue)}</p>
+            <span className="font-medium text-gray-700">Faixa de Preço:</span>
+            <p className="text-lg font-semibold text-dark">
+              {priceRange && priceRange.min !== null && priceRange.max !== null
+                ? `${formatPrice(priceRange.min)} - ${formatPrice(priceRange.max)}`
+                : 'Não informado'
+              }
+            </p>
           </div>
           {!isOwner && (
             <>
@@ -319,12 +329,12 @@ export default function WishlistDetailPage() {
       />
 
       {/* Modal de Editar Item */}
-      {editingItem && (
-        <EditItemModal
-          item={editingItem}
-          onClose={() => setEditingItem(null)}
-        />
-      )}
+      <EditItemModal
+        isOpen={!!editingItem}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        wishlistId={wishlistId}
+      />
 
       {/* Modal de Excluir Item */}
       <DeleteItemModal

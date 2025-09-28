@@ -7,7 +7,7 @@ export interface WishlistItem {
   description?: string;
   price?: number;
   currency?: string;
-  url?: string;
+  link?: string;
   imageUrl?: string;
   quantity?: number;
   itemType: ItemType;

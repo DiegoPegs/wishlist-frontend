@@ -47,6 +47,11 @@ export function EditWishlistModal({
   });
 
   const onSubmit = async (data: EditWishlistFormData) => {
+    if (!wishlistId) {
+      toast.error('ID da wishlist não encontrado');
+      return;
+    }
+
     setIsLoading(true);
     try {
       await updateWishlistMutation.mutateAsync({

@@ -67,6 +67,7 @@ export function useUpdateUser() {
 
       // Atualizar dados do usuário no store
       const updatedUser = {
+        _id: data.id,
         id: data.id,
         email: data.email,
         name: data.name,

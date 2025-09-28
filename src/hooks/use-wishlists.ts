@@ -31,7 +31,26 @@ export function useWishlist(id: string) {
     queryKey: wishlistKeys.list(id),
     queryFn: async (): Promise<Wishlist> => {
       const response = await api.get(`/wishlists/${id}`);
-      return response.data;
+      const data = response.data;
+
+      // Transformar dados da API para o formato esperado pelo componente
+      return {
+        _id: data._id,
+        id: data._id, // Usar _id como id
+        title: data.title,
+        description: data.description || '',
+        isPublic: data.sharing?.isPublic || false,
+        ownerId: data.userId?._id || data.userId,
+        ownerName: data.userId?.name || 'Usuário',
+        userId: data.userId || { _id: data.userId, name: 'Usuário' },
+        items: data.items || [],
+        sharing: {
+          isPublic: data.sharing?.isPublic || false,
+          publicLink: data.sharing?.publicLink
+        },
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString()
+      };
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutos
@@ -50,6 +69,8 @@ export function useCreateWishlist() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
       queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as queries de wishlists
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
 }
@@ -67,6 +88,8 @@ export function useUpdateWishlist() {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
       queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(data.id) });
+      // Invalidar todas as queries de wishlists
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
 }
@@ -79,9 +102,14 @@ export function useDeleteWishlist() {
     mutationFn: async (id: string): Promise<void> => {
       await api.delete(`/wishlists/${id}`);
     },
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      // Invalidar a query da wishlist específica
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.list(id) });
+      // Invalidar a lista de wishlists do usuário
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
       queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as queries de wishlists
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
 }
@@ -101,6 +129,8 @@ export function useAddItem() {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(data.id) });
       // Invalidar a query específica da wishlist usando a chave correta
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(wishlistId) });
+      // Invalidar todas as queries de wishlists
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
 }

@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Chrome DevTools MCP",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/chrome-devtools-mcp",
+      "args": ["--port", "9222", "--headless", "false"],
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Start Chrome with Debug",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/scripts/start-chrome.js",
+      "console": "integratedTerminal"
+    }
+  ]
+}

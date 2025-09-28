@@ -1,0 +1,16 @@
+{
+  "mcp.servers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp", "--browserUrl", "http://127.0.0.1:9222"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  },
+  "mcp.enabled": true,
+  "mcp.autoStart": true,
+  "mcp.autoConnect": true,
+  "mcp.retryAttempts": 3,
+  "mcp.retryDelay": 1000
+}

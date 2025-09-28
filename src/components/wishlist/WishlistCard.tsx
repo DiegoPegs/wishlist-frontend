@@ -4,9 +4,10 @@ import { formatDate } from '@/lib/formatters';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
+  isOwner?: boolean;
 }
 
-export function WishlistCard({ wishlist }: WishlistCardProps) {
+export function WishlistCard({ wishlist, isOwner = true }: WishlistCardProps) {
   // Verificação de robustez contra dados faltantes
   if (!wishlist || !wishlist.id) {
     return (
@@ -118,16 +119,18 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mt-4 text-sm text-gray-600">
+        <div className={`grid gap-4 mt-4 text-sm text-gray-600 ${isOwner ? 'grid-cols-2' : 'grid-cols-2'}`}>
           <div>
             <span className="font-medium">Itens:</span> {wishlist.items?.length || 0}
           </div>
           <div>
             <span className="font-medium">Valor total:</span> {formatPrice(totalValue)}
           </div>
-          <div>
-            <span className="font-medium">Reservados:</span> {reservedItems}
-          </div>
+          {!isOwner && (
+            <div>
+              <span className="font-medium">Reservados:</span> {reservedItems}
+            </div>
+          )}
           <div>
             <span className="font-medium">Criado em:</span> {formatDate(wishlist.createdAt)}
           </div>

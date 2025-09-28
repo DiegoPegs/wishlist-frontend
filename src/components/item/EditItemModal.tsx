@@ -1,101 +1,133 @@
 'use client';
 
-import { useState } from 'react';
 import { ItemForm } from './ItemForm';
-import { UpdateItemData } from '@/types/wishlist';
-import { useUpdateItem } from '@/hooks/use-items';
+import { useUpdateItem } from '@/hooks/useUpdateItem';
+import { useChangeItemQuantity } from '@/hooks/useChangeItemQuantity';
 import { WishlistItem } from '@/types/wishlist';
 
+// Função helper para validar URL
+const isValidUrl = (url: string): boolean => {
+  if (!url || url.trim() === '') return false;
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 interface EditItemModalProps {
-  item: WishlistItem;
+  item: WishlistItem | null;
+  isOpen: boolean;
   onClose: () => void;
+  wishlistId: string;
 }
 
-export const EditItemModal: React.FC<EditItemModalProps> = ({
-  item,
-  onClose,
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const updateItemMutation = useUpdateItem();
+export function EditItemModal({ item, isOpen, onClose, wishlistId }: EditItemModalProps) {
+  const updateItemMutation = useUpdateItem({ wishlistId });
+  const changeQuantityMutation = useChangeItemQuantity({ wishlistId });
 
-  // Converter o item para o formato do formulário
+  // Função para obter dados iniciais do item
   const getInitialData = (item: WishlistItem) => {
-    // Converter quantidade de objeto para número se necessário
-    let quantity = 1;
-    if (typeof item.quantity === 'object' && item.quantity) {
-      quantity = (item.quantity as { desired?: number }).desired || 1;
-    } else if (typeof item.quantity === 'number') {
-      quantity = item.quantity;
-    }
-
-    // Converter preço de número para objeto se necessário
-    let price = undefined;
-    if (typeof item.price === 'number') {
-      price = { min: item.price };
-    } else if (typeof item.price === 'object' && item.price) {
-      price = item.price;
-    }
-
     return {
       title: item.title,
       description: item.description || '',
-      price,
+      price: typeof item.price === 'object' ? item.price :
+             typeof item.price === 'number' ? { min: item.price } : undefined,
       currency: item.currency || 'BRL',
-      url: item.url || '',
-      imageUrl: item.imageUrl || '',
-      quantity,
-      itemType: item.itemType || 'SPECIFIC_PRODUCT',
+      url: item.link || undefined, // Não enviar string vazia
+      imageUrl: item.imageUrl || undefined, // Não enviar string vazia
+      quantity: typeof item.quantity === 'object' ?
+                (item.quantity as { desired?: number }).desired || 1 :
+                item.quantity || 1,
+      itemType: item.itemType,
     };
   };
 
-  const handleSubmit = async (data: UpdateItemData) => {
-    setIsLoading(true);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleSubmit = async (data: any) => {
+    if (!item) return;
+
     try {
+      // Criar payload que corresponde exatamente ao UpdateItemMetadataDto
+      const payload: {
+        title: string;
+        description?: string;
+        price?: number | { min?: number; max?: number };
+        link?: string;
+        imageUrl?: string;
+        notes?: string;
+      } = {
+        title: data.title,
+        description: data.description,
+        price: data.price,
+      };
+
+      // Só incluir link se for uma URL válida
+      if (data.url && isValidUrl(data.url)) {
+        payload.link = data.url;
+      }
+
+      // Só incluir imageUrl se for uma URL válida
+      if (data.imageUrl && isValidUrl(data.imageUrl)) {
+        payload.imageUrl = data.imageUrl;
+      }
+
+      // Só incluir notes se description for diferente de vazio
+      if (data.description && data.description.trim() !== '') {
+        payload.notes = data.description;
+      }
+
+      // Atualizar item geral
       await updateItemMutation.mutateAsync({
-        id: item.id,
-        data,
+        itemId: item._id,
+        data: payload,
       });
+
+      // Se a quantidade mudou e é SPECIFIC_PRODUCT, atualizar quantidade separadamente
+      if (data.itemType === 'SPECIFIC_PRODUCT' && data.quantity && data.quantity !== getInitialData(item).quantity) {
+        await changeQuantityMutation.mutateAsync({
+          itemId: item._id,
+          data: { desired: data.quantity },
+        });
+      }
+
       onClose();
     } catch (error) {
-      throw error; // Re-throw para o ItemForm tratar
-    } finally {
-      setIsLoading(false);
+      console.error('Erro ao atualizar item:', error);
     }
   };
 
+  if (!isOpen || !item) return null;
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-screen items-center justify-center p-4 text-center sm:p-0">
-        {/* Backdrop */}
-        <div
-          className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-          onClick={onClose}
-        />
-
-        {/* Modal */}
-        <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-          <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900">
-                Editar Item
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Edite as informações do item &quot;{item.title}&quot;.
-              </p>
-            </div>
-
-            <ItemForm
-              onSubmit={handleSubmit}
-              onCancel={onClose}
-              initialData={getInitialData(item)}
-              isLoading={isLoading}
-              submitLabel="Salvar Alterações"
-            />
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
+      <div className="relative bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">Editar Item</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
+
+          <ItemForm
+            onSubmit={handleSubmit}
+            onCancel={onClose}
+            initialData={getInitialData(item)}
+            isLoading={updateItemMutation.isPending || changeQuantityMutation.isPending}
+            submitLabel="Salvar Alterações"
+          />
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default EditItemModal;

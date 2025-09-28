@@ -182,7 +182,7 @@ export default function DependentManagementPage() {
         ) : wishlists && (wishlists.length || 0) > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlists.map((wishlist, index) => (
-              <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} />
+              <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} isOwner={true} />
             ))}
           </div>
         ) : (

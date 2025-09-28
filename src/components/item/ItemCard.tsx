@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { Users } from 'lucide-react';
 import { WishlistItem } from '@/types/wishlist';
+import { formatDate } from '@/lib/formatters';
 
 interface ItemCardProps {
   item: WishlistItem;
@@ -10,14 +11,6 @@ interface ItemCardProps {
 }
 
 export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
-  // Função helper para formatar data
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
 
   // Função helper para formatar preço
   const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
@@ -131,10 +124,10 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
         )}
 
         {/* Link */}
-        {item.url && (
+        {item.link && (
           <div className="mb-4">
             <a
-              href={item.url}
+              href={item.link}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-medium transition-colors"

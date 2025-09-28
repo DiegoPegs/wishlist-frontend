@@ -24,7 +24,7 @@ export function WishlistList() {
         </div>
       ) : wishlists && wishlists.length > 0 ? (
         wishlists.map((wishlist, index) => (
-          <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} />
+          <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} isOwner={true} />
         ))
       ) : (
         <div key="empty-state" className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">

@@ -152,10 +152,10 @@ export function ItemCard({
             )}
           </div>
 
-          {item.url && (
+          {item.link && (
             <div className="mb-4">
               <a
-                href={item.url}
+                href={item.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:text-primary/80 text-sm font-medium"

@@ -8,6 +8,10 @@ export interface Wishlist {
   isPublic: boolean;
   ownerId: string;
   ownerName: string;
+  userId: {
+    _id: string;
+    name: string;
+  };
   items: WishlistItem[];
   sharing: {
     isPublic: boolean;

@@ -28,10 +28,12 @@ export function useUpdateWishlist(wishlistId: string) {
     },
     onSuccess: () => {
       // Invalidar a query da wishlist específica
-      queryClient.invalidateQueries({ queryKey: ['wishlist', wishlistId] });
+      queryClient.invalidateQueries({ queryKey: ['wishlists', 'detail', wishlistId] });
       // Invalidar a lista de wishlists do usuário
       queryClient.invalidateQueries({ queryKey: ['wishlists', 'mine'] });
       queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as queries de wishlists
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
 }

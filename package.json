@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack -p 3001",
     "build": "next build --turbopack",
     "start": "next start -p 3001",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:mcp": "npx chrome-devtools-mcp --browserUrl http://127.0.0.1:9222",
+    "dev:chrome": "node scripts/start-chrome.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run dev:mcp\" \"npm run dev:chrome\"",
+    "mcp:start": "./scripts/start-mcp.sh",
+    "mcp:test": "curl http://localhost:9222/json/version"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -29,6 +34,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^8.2.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "postcss": "^8.5.6",

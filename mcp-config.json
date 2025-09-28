@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-chrome-devtools",
+        "--port=9222",
+        "--headless=false"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "CHROME_DEBUG_PORT": "9222"
+      }
+    }
+  }
+}
