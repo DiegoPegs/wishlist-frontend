@@ -2,40 +2,38 @@
 
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useWishlist, useReserveItem, useDeleteWishlist } from '@/hooks/use-wishlists';
-import { ItemCard } from '@/components/wishlist/ItemCard';
+import { useWishlist, useDeleteWishlist } from '@/hooks/use-wishlists';
+import { useDeleteItem } from '@/hooks/useDeleteItem';
+import { ItemCard } from '@/components/item/ItemCard';
 import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
+import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
 import { AddItemModal } from '@/components/item/AddItemModal';
+import EditItemModal from '@/components/item/EditItemModal';
+import { DeleteItemModal } from '@/components/item/DeleteItemModal';
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { formatDate } from '@/lib/formatters';
+import { WishlistItem } from '@/types/wishlist';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function WishlistDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuthStore();
+  const { user: currentUser } = useAuthStore();
   const wishlistId = params.id as string;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<WishlistItem | null>(null);
 
   const { data: wishlist, isLoading, error } = useWishlist(wishlistId);
-  const reserveItemMutation = useReserveItem();
   const deleteWishlistMutation = useDeleteWishlist();
+  const deleteItemMutation = useDeleteItem({ wishlistId });
 
-  const isOwner = wishlist?.ownerId === user?.id;
+  const isOwner = currentUser?.id === wishlist?.ownerId;
 
-  const handleReserveItem = async (itemId: string, quantity: number, message?: string) => {
-    try {
-      await reserveItemMutation.mutateAsync({
-        itemId,
-        quantity,
-        message,
-      });
-      // A UI será atualizada automaticamente pelo react-query
-    } catch (error) {
-      console.error('Erro ao reservar item:', error);
-    }
-  };
 
   const handleDeleteWishlist = async () => {
     if (window.confirm('Tem certeza que deseja excluir esta lista? Esta ação não pode ser desfeita.')) {
@@ -48,13 +46,18 @@ export default function WishlistDetailPage() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
+  const handleDeleteConfirm = async () => {
+    console.log('Tentando deletar o item:', itemToDelete);
+    if (itemToDelete) {
+      try {
+        await deleteItemMutation.mutateAsync(itemToDelete._id);
+        setItemToDelete(null);
+      } catch (error) {
+        console.error('Erro ao excluir item:', error);
+      }
+    }
   };
+
 
   const formatPrice = (price?: number, currency?: string) => {
     if (!price) return 'Preço não informado';
@@ -133,7 +136,12 @@ export default function WishlistDetailPage() {
       const priceObj = item.price as { min?: number; max?: number };
       price = priceObj.min || 0;
     }
-    const quantity = item.quantity || 1;
+    let quantity = 1;
+    if (typeof item.quantity === 'object' && item.quantity) {
+      quantity = (item.quantity as { desired?: number }).desired || 1;
+    } else if (typeof item.quantity === 'number') {
+      quantity = item.quantity;
+    }
     return sum + (price * quantity);
   }, 0) || 0;
 
@@ -141,6 +149,9 @@ export default function WishlistDetailPage() {
 
   return (
     <div className="space-y-6">
+      {/* Back Button */}
+      <BackButton />
+
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-start justify-between">
@@ -154,7 +165,7 @@ export default function WishlistDetailPage() {
               </p>
             )}
             <div className="flex items-center space-x-4 text-sm text-gray-600">
-              <span>Criado por <strong>{wishlist.ownerName}</strong></span>
+              <span>Criado por <strong>{wishlist.ownerName || 'Usuário desconhecido'}</strong></span>
               <span>•</span>
               <span>Em {formatDate(wishlist.createdAt)}</span>
               <span>•</span>
@@ -170,6 +181,15 @@ export default function WishlistDetailPage() {
           <div className="flex items-center space-x-2 ml-4">
             {isOwner && (
               <>
+                <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Editar Lista
+                </button>
                 <button
                   onClick={() => setIsShareModalOpen(true)}
                   className="bg-secondary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary/90 flex items-center"
@@ -202,14 +222,18 @@ export default function WishlistDetailPage() {
             <span className="font-medium text-gray-700">Valor total:</span>
             <p className="text-lg font-semibold text-dark">{formatPrice(totalValue)}</p>
           </div>
-          <div>
-            <span className="font-medium text-gray-700">Reservados:</span>
-            <p className="text-lg font-semibold text-dark">{reservedItems}</p>
-          </div>
-          <div>
-            <span className="font-medium text-gray-700">Disponíveis:</span>
-            <p className="text-lg font-semibold text-dark">{(wishlist.items?.length || 0) - reservedItems}</p>
-          </div>
+          {!isOwner && (
+            <>
+              <div>
+                <span className="font-medium text-gray-700">Reservados:</span>
+                <p className="text-lg font-semibold text-dark">{reservedItems}</p>
+              </div>
+              <div>
+                <span className="font-medium text-gray-700">Disponíveis:</span>
+                <p className="text-lg font-semibold text-dark">{(wishlist.items?.length || 0) - reservedItems}</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -255,16 +279,27 @@ export default function WishlistDetailPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {wishlist.items?.map((item) => (
+          {wishlist.items?.map((item, index) => (
             <ItemCard
-              key={item.id}
+              key={item._id || `item-${index}`}
               item={item}
-              ownerId={wishlist.ownerId}
               isOwner={isOwner}
-              onReserve={handleReserveItem}
+              onEdit={() => setEditingItem(item)}
+              onDelete={() => setItemToDelete(item)}
             />
           ))}
         </div>
+      )}
+
+      {/* Modal de Edição */}
+      {wishlist && (
+        <EditWishlistModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          wishlistId={wishlist.id}
+          currentTitle={wishlist.title}
+          currentDescription={wishlist.description}
+        />
       )}
 
       {/* Modal de Compartilhamento */}
@@ -281,6 +316,23 @@ export default function WishlistDetailPage() {
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
         wishlistId={wishlistId}
+      />
+
+      {/* Modal de Editar Item */}
+      {editingItem && (
+        <EditItemModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+        />
+      )}
+
+      {/* Modal de Excluir Item */}
+      <DeleteItemModal
+        isOpen={!!itemToDelete}
+        onClose={() => setItemToDelete(null)}
+        onConfirm={handleDeleteConfirm}
+        item={itemToDelete}
+        isLoading={deleteItemMutation.isPending}
       />
     </div>
   );

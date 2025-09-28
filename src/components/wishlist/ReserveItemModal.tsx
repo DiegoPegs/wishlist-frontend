@@ -101,14 +101,14 @@ export function ReserveItemModal({ item, onReserve, onClose, isLoading = false }
               {item.imageUrl && (
                 <Image
                   src={item.imageUrl}
-                  alt={item.name}
+                  alt={item.title}
                   width={64}
                   height={64}
                   className="w-16 h-16 object-cover rounded-md"
                 />
               )}
               <div className="flex-1">
-                <h4 className="font-medium text-dark">{item.name}</h4>
+                <h4 className="font-medium text-dark">{item.title}</h4>
                 <p className="text-sm text-gray-600">{formatPrice(item.price, item.currency)}</p>
                 {item.description && (
                   <p className="text-sm text-gray-500 mt-1 line-clamp-2">
@@ -129,15 +129,15 @@ export function ReserveItemModal({ item, onReserve, onClose, isLoading = false }
                 id="quantity"
                 type="number"
                 min="1"
-                max={item.quantity || 1}
+                max={typeof item.quantity === 'object' && item.quantity ? (item.quantity as { desired?: number }).desired || 1 : item.quantity || 1}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               />
               {errors.quantity && (
                 <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>
               )}
-              {item.quantity && (
+              {(typeof item.quantity === 'object' && item.quantity ? (item.quantity as { desired?: number }).desired : item.quantity) && (
                 <p className="mt-1 text-xs text-gray-500">
-                  Disponível: {item.quantity} unidades
+                  Disponível: {typeof item.quantity === 'object' && item.quantity ? (item.quantity as { desired?: number }).desired || 1 : item.quantity || 1} unidades
                 </p>
               )}
             </div>

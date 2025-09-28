@@ -73,6 +73,15 @@ export function ItemCard({
     });
   };
 
+  const getQuantity = (quantity: unknown): number => {
+    if (typeof quantity === 'object' && quantity) {
+      return (quantity as { desired?: number }).desired || 1;
+    } else if (typeof quantity === 'number') {
+      return quantity;
+    }
+    return 1;
+  };
+
   const handleReserve = async (quantity: number, message?: string) => {
     try {
       await reserveItemMutation.mutateAsync({
@@ -95,7 +104,7 @@ export function ItemCard({
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-dark mb-2">
-                {item.name}
+                {item.title}
               </h3>
               {item.description && (
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
@@ -103,7 +112,7 @@ export function ItemCard({
                 </p>
               )}
             </div>
-            {item.reservedBy && (
+            {!isOwner && item.reservedBy && (
               <div className="ml-4">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                   Reservado
@@ -116,7 +125,7 @@ export function ItemCard({
             <div className="mb-4">
               <Image
                 src={item.imageUrl}
-                alt={item.name}
+                alt={item.title}
                 width={300}
                 height={128}
                 className="w-full h-32 object-cover rounded-md"
@@ -129,9 +138,9 @@ export function ItemCard({
               <span className="font-medium">Preço:</span> {formatPrice(item.price, item.currency)}
             </div>
             <div>
-              <span className="font-medium">Quantidade:</span> {item.quantity || 1}
+              <span className="font-medium">Quantidade:</span> {getQuantity(item.quantity)}
             </div>
-            {item.reservedBy && (
+            {!isOwner && item.reservedBy && (
               <>
                 <div>
                   <span className="font-medium">Reservado por:</span> {item.reservedBy}
@@ -158,7 +167,7 @@ export function ItemCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {canReserve && (
+              {!isOwner && canReserve && (
                 <button
                   onClick={() => setShowReserveModal(true)}
                   className="bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"

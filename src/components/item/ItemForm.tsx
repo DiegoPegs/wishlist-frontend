@@ -10,11 +10,11 @@ import { CreateItemData, UpdateItemData } from '@/types/wishlist';
 import toast from 'react-hot-toast';
 
 const itemFormSchema = z.object({
-  name: z.string().min(1, 'Nome do item é obrigatório'),
+  title: z.string().min(1, 'Nome do item é obrigatório'),
   description: z.string().optional(),
   price: z.object({
-    min: z.coerce.number().min(0, 'Preço mínimo deve ser maior ou igual a zero').optional(),
-    max: z.coerce.number().min(0, 'Preço máximo deve ser maior ou igual a zero').optional(),
+    min: z.number().min(0, 'Preço mínimo deve ser maior ou igual a zero').optional(),
+    max: z.number().min(0, 'Preço máximo deve ser maior ou igual a zero').optional(),
   }).optional(),
   currency: z.string().optional(),
   url: z.string().url('URL inválida').optional().or(z.literal('')),
@@ -124,17 +124,17 @@ export const ItemForm: React.FC<ItemFormProps> = ({
 
           {/* Nome */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
               Nome do Item *
             </label>
             <input
-              {...register('name')}
-              id="name"
+              {...register('title')}
+              id="title"
               type="text"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder="Ex: iPhone 15 Pro"
             />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
           </div>
 
           {/* Descrição */}

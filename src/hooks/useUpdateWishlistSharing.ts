@@ -21,6 +21,7 @@ export function useUpdateWishlistSharing() {
       queryClient.invalidateQueries({ queryKey: ['wishlist', wishlistId] });
       // Invalidar também a lista de wishlists do usuário
       queryClient.invalidateQueries({ queryKey: ['wishlists', 'mine'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
     },
   });
 }

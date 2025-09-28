@@ -132,7 +132,6 @@ export const useAuthStore = create<AuthStore>()(
           // Verificar se há token no localStorage
           if (typeof window !== 'undefined') {
             const savedToken = localStorage.getItem('accessToken');
-            const savedUser = localStorage.getItem('user');
 
             if (savedToken) {
               try {

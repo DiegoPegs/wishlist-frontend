@@ -25,22 +25,18 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
     try {
       // Mapear dados do formulário para o DTO do backend
       const payload: CreateItemDto = {
-        title: data.name, // name -> title
+        title: data.title || '', // Agora usando title diretamente
         description: data.description,
+        itemType: data.itemType || 'SPECIFIC_PRODUCT',
+        quantity: data.quantity ? { desired: Number(data.quantity) } : undefined, // Estruturado como objeto
         price: data.price,
         currency: data.currency,
-        link: data.url && data.url.trim() !== '' ? data.url : undefined, // url -> link, remove se vazio
-        imageUrl: data.imageUrl && data.imageUrl.trim() !== '' ? data.imageUrl : undefined, // remove se vazio
-        quantity: data.quantity ? { desired: data.quantity } : undefined, // quantity -> { desired: number }
-        itemType: data.itemType,
+        // Envia link e imageUrl apenas se não forem vazios
+        ...(data.url && data.url.trim() !== '' && { link: data.url }),
+        ...(data.imageUrl && data.imageUrl.trim() !== '' && { imageUrl: data.imageUrl }),
       };
 
-      // Remover propriedades undefined do payload
-      const cleanPayload = Object.fromEntries(
-        Object.entries(payload).filter(([_, value]) => value !== undefined)
-      ) as CreateItemDto;
-
-      await createItemMutation.mutateAsync(cleanPayload);
+      await createItemMutation.mutateAsync(payload);
       onClose();
     } catch (error) {
       throw error; // Re-throw para o ItemForm tratar

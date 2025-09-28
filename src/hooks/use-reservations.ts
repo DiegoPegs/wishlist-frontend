@@ -66,6 +66,11 @@ export function useCreateReservation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-reservations'] });
+      // Invalidar wishlists que podem ter itens reservados
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -81,7 +86,12 @@ export function useUpdateReservationQuantity() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-reservations'] });
       queryClient.invalidateQueries({ queryKey: reservationKeys.detail(data.id) });
+      // Invalidar wishlists que podem ter itens reservados
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -97,7 +107,12 @@ export function useConfirmPurchase() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-reservations'] });
       queryClient.invalidateQueries({ queryKey: reservationKeys.detail(data.id) });
+      // Invalidar wishlists que podem ter itens reservados
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -113,7 +128,12 @@ export function useCancelReservation() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: reservationKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-reservations'] });
       queryClient.invalidateQueries({ queryKey: reservationKeys.detail(data.id) });
+      // Invalidar wishlists que podem ter itens reservados
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }

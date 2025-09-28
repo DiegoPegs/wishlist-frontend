@@ -36,12 +36,16 @@ export function useCreateDependentWishlist(dependentId: string) {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
         queryClient.invalidateQueries({ queryKey: ['dependents'] });
+        queryClient.invalidateQueries({ queryKey: ['me'] });
+        queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
       },
     }),
     mutateAsync: async (data: CreateWishlistData) => {
       const response = await api.post(`/dependents/${dependentId}/wishlists`, data);
       queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
       queryClient.invalidateQueries({ queryKey: ['dependents'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
       return response.data;
     },
   };

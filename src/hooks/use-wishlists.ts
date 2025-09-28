@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Wishlist } from '@/types';
-import { CreateWishlistData, UpdateWishlistData, CreateItemData, UpdateItemData, ReservationData } from '@/types/wishlist';
+import { CreateWishlistData, UpdateWishlistData, UpdateItemData, ReservationData } from '@/types/wishlist';
 import { CreateItemDto } from '@/types/item-dto';
 import { dependentWishlistKeys } from './use-dependent-wishlists';
 
@@ -49,6 +49,7 @@ export function useCreateWishlist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
     },
   });
 }
@@ -64,6 +65,7 @@ export function useUpdateWishlist() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(data.id) });
     },
   });
@@ -79,6 +81,7 @@ export function useDeleteWishlist() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
     },
   });
 }
@@ -92,9 +95,12 @@ export function useAddItem() {
       const response = await api.post(`/wishlists/${wishlistId}/items`, data);
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, { wishlistId }) => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(data.id) });
+      // Invalidar a query específica da wishlist usando a chave correta
+      queryClient.invalidateQueries({ queryKey: wishlistKeys.list(wishlistId) });
     },
   });
 }
@@ -130,6 +136,7 @@ export function useUpdateItem() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(data.id) });
     },
   });
@@ -145,6 +152,7 @@ export function useDeleteItem() {
     },
     onSuccess: (_, { wishlistId }) => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: wishlistKeys.list(wishlistId) });
     },
   });
@@ -160,7 +168,9 @@ export function useReserveItem() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: wishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
+      queryClient.invalidateQueries({ queryKey: ['my-reservations'] });
     },
   });
 }

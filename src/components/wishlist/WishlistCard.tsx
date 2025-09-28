@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Wishlist } from '@/types';
+import { formatDate } from '@/lib/formatters';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
@@ -36,13 +37,6 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
     );
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
 
   const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
     if (!price) return 'Preço não informado';
@@ -88,7 +82,12 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
       const priceObj = item.price as { min?: number; max?: number };
       price = priceObj.min || 0;
     }
-    const quantity = item.quantity || 1;
+    let quantity = 1;
+    if (typeof item.quantity === 'object' && item.quantity) {
+      quantity = (item.quantity as { desired?: number }).desired || 1;
+    } else if (typeof item.quantity === 'number') {
+      quantity = item.quantity;
+    }
     return sum + (price * quantity);
   }, 0) || 0;
 
@@ -138,9 +137,9 @@ export function WishlistCard({ wishlist }: WishlistCardProps) {
           <div className="mt-4">
             <h4 className="text-sm font-medium text-gray-700 mb-2">Últimos itens:</h4>
             <div className="space-y-1">
-              {wishlist.items?.slice(0, 3).map((item) => (
-                <div key={item.id} className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 truncate">{item.name}</span>
+                {wishlist.items?.slice(0, 3).map((item, index) => (
+                <div key={item.id || `wishlist-item-${index}`} className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 truncate">{item.title}</span>
                   {item.price && (
                     <span className="text-gray-500 font-medium">
                       {formatPrice(item.price, item.currency)}

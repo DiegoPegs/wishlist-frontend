@@ -90,8 +90,10 @@ export function useFollowUser() {
       // Invalidar queries relacionadas ao usuário seguido
       queryClient.invalidateQueries({ queryKey: followKeys.profile(username) });
       queryClient.invalidateQueries({ queryKey: followKeys.followers(username) });
+      queryClient.invalidateQueries({ queryKey: ['user', username] });
       // Invalidar perfil do usuário logado para atualizar contadores
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 }
@@ -108,8 +110,10 @@ export function useUnfollowUser() {
       // Invalidar queries relacionadas ao usuário
       queryClient.invalidateQueries({ queryKey: followKeys.profile(username) });
       queryClient.invalidateQueries({ queryKey: followKeys.followers(username) });
+      queryClient.invalidateQueries({ queryKey: ['user', username] });
       // Invalidar perfil do usuário logado para atualizar contadores
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
     },
   });
 }

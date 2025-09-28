@@ -47,6 +47,7 @@ export function useCreateDependent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
       queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
   });
 }
@@ -63,6 +64,8 @@ export function useUpdateDependent() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
       queryClient.invalidateQueries({ queryKey: dependentKeys.list(data.id) });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
   });
 }
@@ -77,6 +80,8 @@ export function useDeleteDependent() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
   });
 }
@@ -93,6 +98,8 @@ export function useAddGuardian() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
       queryClient.invalidateQueries({ queryKey: dependentKeys.list(data.id) });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
   });
 }
@@ -109,6 +116,8 @@ export function useRemoveGuardian() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
       queryClient.invalidateQueries({ queryKey: dependentKeys.list(data.id) });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+      queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
     },
   });
 }

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { UserProfile, UpdateUserDto } from '@/types/auth-dto';
+import { UserProfile, UpdateUserDto, UpdateProfileDto } from '@/types/auth-dto';
 import { useAuthStore } from '@/store/auth.store';
 import { isValidBirthDate } from '@/lib/dateUtils';
 
@@ -13,37 +13,49 @@ export function useUpdateUser() {
   const { setUser } = useAuthStore();
 
   return useMutation({
-    mutationFn: async (data: UpdateUserData): Promise<UserProfile> => {
+    mutationFn: async (data: UpdateUserData | UpdateProfileDto): Promise<UserProfile> => {
       try {
-        // Validar dados antes de enviar
-        if (!data.name || !data.birthDate) {
-          throw new Error('Nome e data de nascimento são obrigatórios');
+        // Verificar se é UpdateProfileDto
+        if ('giftingProfile' in data) {
+          // Estrutura de dados para UpdateProfileDto
+          const requestData = {
+            name: data.name.trim(),
+            giftingProfile: data.giftingProfile,
+          };
+
+          const response = await api.put('/users/profile', requestData);
+          return response.data;
+        } else {
+          // Estrutura original para UpdateUserData
+          if (!data.name || !data.birthDate) {
+            throw new Error('Nome e data de nascimento são obrigatórios');
+          }
+
+          // Validar estrutura da data de nascimento
+          const { day, month, year } = data.birthDate;
+          if (!day || !month) {
+            throw new Error('Dia e mês são obrigatórios');
+          }
+
+          // Validar se a data é válida
+          if (!isValidBirthDate(data.birthDate)) {
+            throw new Error('Data de nascimento inválida');
+          }
+
+          // Estrutura de dados para o backend
+          const requestData = {
+            name: data.name.trim(),
+            birthDate: {
+              day: Number(day),
+              month: Number(month),
+              year: year ? Number(year) : undefined,
+            },
+          };
+
+          const response = await api.put('/users/me', requestData);
+          return response.data;
         }
-
-        // Validar estrutura da data de nascimento
-        const { day, month, year } = data.birthDate;
-        if (!day || !month) {
-          throw new Error('Dia e mês são obrigatórios');
-        }
-
-        // Validar se a data é válida
-        if (!isValidBirthDate(data.birthDate)) {
-          throw new Error('Data de nascimento inválida');
-        }
-
-        // Estrutura de dados para o backend
-        const requestData = {
-          name: data.name.trim(),
-          birthDate: {
-            day: Number(day),
-            month: Number(month),
-            year: year ? Number(year) : undefined,
-          },
-        };
-
-        const response = await api.put('/users/me', requestData);
-        return response.data;
-      } catch (error: any) {
+      } catch (error: unknown) {
         throw error;
       }
     },
@@ -51,6 +63,7 @@ export function useUpdateUser() {
       // Invalidar queries relacionadas ao usuário
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
       queryClient.invalidateQueries({ queryKey: ['users', 'me'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
 
       // Atualizar dados do usuário no store
       const updatedUser = {

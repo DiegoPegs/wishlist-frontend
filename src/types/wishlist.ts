@@ -1,8 +1,9 @@
 export type ItemType = 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
 
 export interface WishlistItem {
+  _id: string;
   id: string;
-  name: string;
+  title: string;
   description?: string;
   price?: number;
   currency?: string;
@@ -50,7 +51,7 @@ export interface UpdateWishlistSharingData {
 }
 
 export interface CreateItemData {
-  name: string;
+  title: string;
   description?: string;
   price?: {
     min?: number;
@@ -64,7 +65,7 @@ export interface CreateItemData {
 }
 
 export interface UpdateItemData {
-  name?: string;
+  title?: string;
   description?: string;
   price?: {
     min?: number;

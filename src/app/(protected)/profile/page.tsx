@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useAuthStore } from '@/store/auth.store';
 import { ChangePasswordForm } from '@/components/user/ChangePasswordForm';
 import { useUpdateUser, UpdateUserData } from '@/hooks/useUpdateUser';
+import { UpdateProfileDto } from '@/types/auth-dto';
 import { formatBirthDate } from '@/lib/dateUtils';
 
 export default function ProfilePage() {
@@ -24,9 +25,9 @@ export default function ProfilePage() {
     defaultValues: {
       name: user?.name || '',
       birthDate: {
-        day: user?.birthDate?.day || '',
-        month: user?.birthDate?.month || '',
-        year: user?.birthDate?.year || '',
+        day: user?.birthDate?.day || undefined,
+        month: user?.birthDate?.month || undefined,
+        year: user?.birthDate?.year || undefined,
       },
     },
   });
@@ -55,9 +56,9 @@ export default function ProfilePage() {
     reset({
       name: user?.name || '',
       birthDate: {
-        day: user?.birthDate?.day || '',
-        month: user?.birthDate?.month || '',
-        year: user?.birthDate?.year || '',
+        day: user?.birthDate?.day || undefined,
+        month: user?.birthDate?.month || undefined,
+        year: user?.birthDate?.year || undefined,
       },
     });
   };
@@ -67,27 +68,41 @@ export default function ProfilePage() {
     reset({
       name: user?.name || '',
       birthDate: {
-        day: user?.birthDate?.day || '',
-        month: user?.birthDate?.month || '',
-        year: user?.birthDate?.year || '',
+        day: user?.birthDate?.day || undefined,
+        month: user?.birthDate?.month || undefined,
+        year: user?.birthDate?.year || undefined,
       },
     });
   };
 
   const onSubmit = async (data: UpdateUserData) => {
     try {
-      await updateUserMutation.mutateAsync(data);
+      // Criar payload com apenas as propriedades permitidas pelo UpdateProfileDto
+      const payload: UpdateProfileDto = {
+        name: data.name,
+        giftingProfile: {
+          interests: [],
+          budget: {
+            min: 0,
+            max: 1000,
+          },
+          preferences: [],
+        },
+      };
+
+      await updateUserMutation.mutateAsync(payload);
       setIsEditing(false);
       setError(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erro ao atualizar perfil:', error);
 
       // Mostrar erro mais específico
-      if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else if (error.response?.status === 400) {
+      const errorObj = error as { response?: { data?: { message?: string }; status?: number } };
+      if (errorObj.response?.data?.message) {
+        setError(errorObj.response.data.message);
+      } else if (errorObj.response?.status === 400) {
         setError('Dados inválidos. Verifique se o email está correto e tente novamente.');
-      } else if (error.response?.status === 409) {
+      } else if (errorObj.response?.status === 409) {
         setError('Este email já está em uso por outro usuário.');
       } else {
         setError('Erro ao atualizar perfil. Tente novamente.');

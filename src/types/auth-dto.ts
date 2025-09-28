@@ -35,6 +35,18 @@ export interface UpdateUserDto {
   };
 }
 
+export interface UpdateProfileDto {
+  name: string;
+  giftingProfile: {
+    interests?: string[];
+    budget?: {
+      min?: number;
+      max?: number;
+    };
+    preferences?: string[];
+  };
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken?: string;

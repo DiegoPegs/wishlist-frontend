@@ -4,7 +4,7 @@ import api from '@/lib/api';
 // Tipos para itens (baseado no backend)
 export interface Item {
   id: string;
-  name: string;
+  title: string;
   description?: string;
   price?: number;
   currency?: string;
@@ -18,12 +18,23 @@ export interface Item {
 }
 
 export interface UpdateItemMetadataData {
-  name?: string;
+  title?: string;
   description?: string;
   price?: number;
   currency?: string;
   url?: string;
   imageUrl?: string;
+}
+
+export interface UpdateItemData {
+  title?: string;
+  description?: string;
+  price?: number | { min?: number; max?: number };
+  currency?: string;
+  url?: string;
+  imageUrl?: string;
+  quantity?: number;
+  itemType?: 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
 }
 
 export interface ChangeDesiredQuantityData {
@@ -52,8 +63,31 @@ export function useUpdateItemMetadata() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: itemKeys.detail(data.id) });
-      // Invalidar wishlists que podem conter este item
+      // Invalidar todas as wishlists que podem conter este item
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as wishlists individuais
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+  });
+}
+
+// Hook para atualizar item completo
+export function useUpdateItem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateItemData }): Promise<Item> => {
+      const response = await api.put(`/items/${id}`, data);
+      return response.data;
+    },
+    onSuccess: (data, { id }) => {
+      queryClient.invalidateQueries({ queryKey: itemKeys.detail(id) });
+      // Invalidar todas as wishlists que podem conter este item
+      queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as wishlists individuais
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -69,8 +103,11 @@ export function useChangeDesiredQuantity() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: itemKeys.detail(data.id) });
-      // Invalidar wishlists que podem conter este item
+      // Invalidar todas as wishlists que podem conter este item
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as wishlists individuais
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -86,8 +123,11 @@ export function useMarkAsReceived() {
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: itemKeys.detail(id) });
-      // Invalidar wishlists que podem conter este item
+      // Invalidar todas as wishlists que podem conter este item
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as wishlists individuais
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
@@ -102,8 +142,11 @@ export function useDeleteItem() {
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: itemKeys.detail(id) });
-      // Invalidar wishlists que podem conter este item
+      // Invalidar todas as wishlists que podem conter este item
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
+      queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
+      // Invalidar todas as wishlists individuais
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
     },
   });
 }
