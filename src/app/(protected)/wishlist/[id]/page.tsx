@@ -32,12 +32,7 @@ export default function WishlistDetailPage() {
   const deleteWishlistMutation = useDeleteWishlist();
   const deleteItemMutation = useDeleteItem({ wishlistId });
 
-  // Verificação robusta de propriedade da wishlist
-  const isOwner = !!(
-    currentUser &&
-    wishlist &&
-    (currentUser.id === wishlist.ownerId || currentUser._id === wishlist.ownerId)
-  );
+  const isOwner = currentUser?._id === wishlist?.userId?._id;
 
   // Calcular faixa de preço dos itens (antes dos returns condicionais)
   const priceRange = useMemo(() => {
