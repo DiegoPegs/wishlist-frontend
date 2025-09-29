@@ -5,8 +5,13 @@ import { useMyWishlists } from '@/hooks/useMyWishlists';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
 import { WishlistCardSkeleton } from '@/components/wishlist/WishlistCardSkeleton';
 import { Button } from '@/components/ui/Button';
+import { Wishlist } from '@/types';
 
-export function WishlistList() {
+interface WishlistListProps {
+  onShare?: (wishlist: Wishlist) => void;
+}
+
+export function WishlistList({ onShare }: WishlistListProps) {
   // Hook para buscar dados das wishlists
   const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useMyWishlists();
 
@@ -24,7 +29,12 @@ export function WishlistList() {
         </div>
       ) : wishlists && wishlists.length > 0 ? (
         wishlists.map((wishlist, index) => (
-          <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} isOwner={true} />
+          <WishlistCard
+            key={wishlist.id || wishlist._id || `wishlist-${index}`}
+            wishlist={wishlist}
+            isOwner={true}
+            onShare={() => onShare?.(wishlist)}
+          />
         ))
       ) : (
         <div key="empty-state" className="col-span-full text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">

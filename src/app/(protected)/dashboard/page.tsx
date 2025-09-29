@@ -1,10 +1,22 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { WishlistList } from '@/components/wishlist/WishlistList';
+import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
 import { DependentSection } from '@/components/dependents/DependentSection';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
+import { Wishlist } from '@/types';
 
 export default function DashboardPage() {
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [wishlistToShare, setWishlistToShare] = useState<Wishlist | null>(null);
+
+  const handleShareClick = (wishlist: Wishlist) => {
+    setWishlistToShare(wishlist);
+    setIsShareModalOpen(true);
+  };
 
   return (
     <div className="space-y-8">
@@ -24,11 +36,23 @@ export default function DashboardPage() {
             </Button>
           </Link>
         </div>
-        <WishlistList />
+        <WishlistList onShare={handleShareClick} />
       </section>
 
       {/* Seção Meus Dependentes */}
       <DependentSection />
+
+      {/* Modal de Compartilhamento */}
+      {wishlistToShare && (
+        <ShareWishlistModal
+          isOpen={isShareModalOpen}
+          onClose={() => {
+            setIsShareModalOpen(false);
+            setWishlistToShare(null);
+          }}
+          wishlist={wishlistToShare}
+        />
+      )}
     </div>
   );
 }
