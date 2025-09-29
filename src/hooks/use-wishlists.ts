@@ -25,7 +25,7 @@ export const fetchWishlist = async (id: string): Promise<Wishlist> => {
     title: data.title,
     description: data.description || '',
     isPublic: data.sharing?.isPublic || false,
-    ownerId: data.userId?._id || data.userId,
+    ownerId: data.userId?.id || data.userId?._id || data.userId,
     ownerName: data.userId?.name || 'Usuário',
     userId: data.userId || { _id: data.userId, name: 'Usuário' },
     items: data.items || [],

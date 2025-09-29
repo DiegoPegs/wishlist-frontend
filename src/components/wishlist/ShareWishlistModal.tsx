@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { useUpdateWishlistSharing } from '@/hooks/useUpdateWishlistSharing';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
-import { Clipboard, Check } from 'lucide-react';
+import { Clipboard, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -22,11 +22,11 @@ export function ShareWishlistModal({
 }: ShareWishlistModalProps) {
   const [copied, setCopied] = useState(false);
 
-  const updateSharingMutation = useUpdateWishlistSharing();
+  const { mutate, isPending } = useUpdateWishlistSharing();
 
   const handleToggleSharing = (isPublic: boolean) => {
     if (wishlist) {
-      updateSharingMutation.mutate({
+      mutate({
         wishlistId: wishlist.id,
         data: { isPublic },
       });
@@ -58,12 +58,17 @@ export function ShareWishlistModal({
               : 'Ative para gerar um link compartilhável.'}
           </p>
         </div>
-        <Switch
-          id="public-toggle"
-          checked={wishlist.sharing?.isPublic || false}
-          onCheckedChange={handleToggleSharing}
-          disabled={updateSharingMutation.isPending}
-        />
+        <div className="flex items-center space-x-2">
+          {isPending && (
+            <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+          )}
+          <Switch
+            id="public-toggle"
+            checked={wishlist.sharing?.isPublic || false}
+            onCheckedChange={handleToggleSharing}
+            disabled={isPending}
+          />
+        </div>
       </div>
 
       {/* Seção que só aparece se a lista for pública */}

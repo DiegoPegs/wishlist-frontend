@@ -5,11 +5,11 @@ export interface WishlistItem {
   id: string;
   title: string;
   description?: string;
-  price?: number;
+  price?: number | { min?: number; max?: number };
   currency?: string;
   link?: string;
   imageUrl?: string;
-  quantity?: number;
+  quantity?: number | { desired?: number };
   itemType: ItemType;
   reservedBy?: string;
   reservedAt?: string;

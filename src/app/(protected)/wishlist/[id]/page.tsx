@@ -13,14 +13,12 @@ import { AddItemModal } from '@/components/item/AddItemModal';
 import { EditItemModal } from '@/components/item/EditItemModal';
 import { DeleteItemModal } from '@/components/item/DeleteItemModal';
 import { useAuthStore } from '@/store/auth.store';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
 
 export default function WishlistDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const { user: currentUser } = useAuthStore();
   const wishlistId = params.id as string;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -34,7 +32,12 @@ export default function WishlistDetailPage() {
   const deleteWishlistMutation = useDeleteWishlist();
   const deleteItemMutation = useDeleteItem({ wishlistId });
 
-  const isOwner = currentUser?._id === wishlist?.ownerId;
+  // Verificação robusta de propriedade da wishlist
+  const isOwner = !!(
+    currentUser &&
+    wishlist &&
+    (currentUser.id === wishlist.ownerId || currentUser._id === wishlist.ownerId)
+  );
 
   // Calcular faixa de preço dos itens (antes dos returns condicionais)
   const priceRange = useMemo(() => {

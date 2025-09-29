@@ -4,6 +4,7 @@ import { usePublicWishlist } from '@/hooks/usePublicWishlist';
 import { PublicItemCard } from '@/components/item/PublicItemCard';
 import { formatDate } from '@/lib/formatters';
 import { Heart, Calendar, Package, DollarSign } from 'lucide-react';
+import Link from 'next/link';
 
 interface PublicWishlistPageProps {
   params: {
@@ -49,12 +50,12 @@ export default function PublicWishlistPage({ params }: PublicWishlistPageProps) 
             <p className="text-gray-600 mb-4">
               Esta lista de desejos não existe, foi removida ou é privada.
             </p>
-            <a
+            <Link
               href="/"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90"
             >
               Voltar ao início
-            </a>
+            </Link>
           </div>
         </div>
       </div>

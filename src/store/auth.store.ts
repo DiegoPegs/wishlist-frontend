@@ -43,8 +43,8 @@ export const useAuthStore = create<AuthStore>()(
           // Buscar dados do usuário
           const userProfile = await authService.getCurrentUser();
           const user: User = {
-            _id: userProfile._id,
-            id: userProfile._id,
+            _id: userProfile.id,
+            id: userProfile.id,
             email: userProfile.email,
             name: userProfile.name,
             emailVerified: userProfile.emailVerified,
@@ -142,8 +142,8 @@ export const useAuthStore = create<AuthStore>()(
                 // Buscar dados atualizados do usuário
                 const userProfile = await authService.getCurrentUser();
                 const user: User = {
-                  _id: userProfile._id,
-                  id: userProfile._id,
+                  _id: userProfile.id,
+                  id: userProfile.id,
                   email: userProfile.email,
                   name: userProfile.name,
                   emailVerified: userProfile.emailVerified,

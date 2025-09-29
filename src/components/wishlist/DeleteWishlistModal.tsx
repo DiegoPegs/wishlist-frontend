@@ -60,7 +60,7 @@ export function DeleteWishlistModal({
         <div className="mb-6">
           <p className="text-gray-600 mb-4">
             Tem certeza que deseja excluir a wishlist{' '}
-            <span className="font-semibold text-gray-900">"{wishlistTitle}"</span>?
+            <span className="font-semibold text-gray-900">&ldquo;{wishlistTitle}&rdquo;</span>?
           </p>
           <div className="bg-red-50 border border-red-200 rounded-md p-3">
             <p className="text-sm text-red-800">

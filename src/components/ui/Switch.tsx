@@ -6,14 +6,12 @@ interface SwitchProps extends Omit<ComponentProps<'button'>, 'onClick'> {
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   disabled?: boolean;
-  id?: string;
 }
 
 export function Switch({
   checked,
   onCheckedChange,
   disabled = false,
-  id,
   className = '',
   ...props
 }: SwitchProps) {
