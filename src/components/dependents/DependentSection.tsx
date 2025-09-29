@@ -63,7 +63,7 @@ export function DependentSection() {
           <p className="text-gray-600 mb-6">Adicione dependentes para gerenciar suas listas de desejos.</p>
           <Button
             onClick={() => setShowAddDependent(true)}
-            variant="secondary"
+            variant="primary"
             className="px-6 py-3 text-base"
           >
             Adicionar primeiro dependente

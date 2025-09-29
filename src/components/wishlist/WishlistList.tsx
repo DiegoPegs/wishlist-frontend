@@ -28,9 +28,9 @@ export function WishlistList({ onShare }: WishlistListProps) {
           <p className="text-sm">Não foi possível carregar suas listas de desejos.</p>
         </div>
       ) : wishlists && wishlists.length > 0 ? (
-        wishlists.map((wishlist, index) => (
+        wishlists.map((wishlist) => (
           <WishlistCard
-            key={wishlist.id || wishlist._id || `wishlist-${index}`}
+            key={wishlist._id}
             wishlist={wishlist}
             isOwner={true}
             onShare={() => onShare?.(wishlist)}

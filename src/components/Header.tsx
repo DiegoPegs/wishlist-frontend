@@ -7,9 +7,8 @@ import { Button } from '@/components/ui/Button';
 
 export function Header() {
   const router = useRouter();
-  // Pega o usuário, authStatus e a função de logout do store
+  // Pega o usuário e a função de logout do store
   const user = useAuthStore((state) => state.user);
-  const authStatus = useAuthStore((state) => state.authStatus);
   const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = async () => {
@@ -31,7 +30,7 @@ export function Header() {
       <div className="flex items-center space-x-4">
         {/* Renderiza o nome do usuário apenas se autenticado, senão um placeholder */}
         <span className="text-sm text-dark-light">
-          Olá, {authStatus === 'AUTHENTICATED' ? (user?.name || user?.email?.split('@')[0] || 'Usuário') : '...'}
+          Olá, {user?.name || 'Usuário'}
         </span>
         <Button onClick={handleLogout} variant="primary">
           Sair
