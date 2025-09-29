@@ -2,11 +2,13 @@
 
 import { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useWishlist, useDeleteWishlist } from '@/hooks/use-wishlists';
+import { useWishlist } from '@/hooks/use-wishlists';
+import { useDeleteWishlist } from '@/hooks/useDeleteWishlist';
 import { useDeleteItem } from '@/hooks/useDeleteItem';
 import { ItemCard } from '@/components/item/ItemCard';
 import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
 import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
+import { DeleteWishlistModal } from '@/components/wishlist/DeleteWishlistModal';
 import { AddItemModal } from '@/components/item/AddItemModal';
 import { EditItemModal } from '@/components/item/EditItemModal';
 import { DeleteItemModal } from '@/components/item/DeleteItemModal';
@@ -23,6 +25,7 @@ export default function WishlistDetailPage() {
   const wishlistId = params.id as string;
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<WishlistItem | null>(null);
@@ -61,13 +64,10 @@ export default function WishlistDetailPage() {
   }, [wishlist?.items]);
 
   const handleDeleteWishlist = async () => {
-    if (window.confirm('Tem certeza que deseja excluir esta lista? Esta ação não pode ser desfeita.')) {
-      try {
-        await deleteWishlistMutation.mutateAsync(wishlistId);
-        router.push('/dashboard');
-      } catch (error) {
-        console.error('Erro ao excluir lista:', error);
-      }
+    try {
+      await deleteWishlistMutation.mutateAsync(wishlistId);
+    } catch (error) {
+      console.error('Erro ao excluir wishlist:', error);
     }
   };
 
@@ -205,7 +205,7 @@ export default function WishlistDetailPage() {
                   Compartilhar
                 </button>
                 <button
-                  onClick={handleDeleteWishlist}
+                  onClick={() => setIsDeleteModalOpen(true)}
                   className="text-gray-400 hover:text-red-600 p-2"
                   disabled={deleteWishlistMutation.isPending}
                 >
@@ -318,6 +318,17 @@ export default function WishlistDetailPage() {
           isOpen={isShareModalOpen}
           onClose={() => setIsShareModalOpen(false)}
           wishlist={wishlist}
+        />
+      )}
+
+      {/* Modal de Exclusão */}
+      {wishlist && (
+        <DeleteWishlistModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleDeleteWishlist}
+          wishlistTitle={wishlist.title}
+          isLoading={deleteWishlistMutation.isPending}
         />
       )}
 
