@@ -20,6 +20,7 @@ export interface WishlistItem {
 export interface WishlistSharing {
   isPublic: boolean;
   publicLink?: string;
+  publicLinkToken?: string;
 }
 
 export interface Wishlist {

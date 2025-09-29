@@ -16,6 +16,7 @@ export interface Wishlist {
   sharing: {
     isPublic: boolean;
     publicLink?: string;
+    publicLinkToken?: string;
   };
   createdAt: string;
   updatedAt: string;

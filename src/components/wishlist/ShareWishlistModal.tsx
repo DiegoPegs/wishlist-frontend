@@ -1,6 +1,6 @@
 'use client';
 
-import { Wishlist } from '@/types';
+import { Wishlist } from '@/types/wishlist';
 import { Modal } from '@/components/ui/Modal';
 import { useUpdateWishlistSharing } from '@/hooks/useUpdateWishlistSharing';
 import { Switch } from '@/components/ui/Switch';
@@ -34,8 +34,9 @@ export function ShareWishlistModal({
   };
 
   const handleCopyLink = () => {
-    if (wishlist?.sharing?.publicLink) {
-      navigator.clipboard.writeText(wishlist.sharing.publicLink);
+    if (wishlist?.sharing?.publicLinkToken) {
+      const publicLink = `${window.location.origin}/public/${wishlist.sharing.publicLinkToken}`;
+      navigator.clipboard.writeText(publicLink);
       setCopied(true);
       toast.success('Link copiado!');
       setTimeout(() => setCopied(false), 2500); // Reseta o ícone após 2.5 segundos
@@ -76,7 +77,7 @@ export function ShareWishlistModal({
               id="share-link"
               type="text"
               readOnly
-              value={wishlist.sharing.publicLink || 'Gerando link...'}
+              value={wishlist.sharing?.publicLinkToken ? `${window.location.origin}/public/${wishlist.sharing.publicLinkToken}` : 'Gerando link...'}
               className="w-full rounded-md border bg-light-soft p-2 text-sm text-dark-light focus:outline-none focus:ring-2 focus:ring-primary-light"
               onClick={(e) => e.currentTarget.select()} // Seleciona o texto ao clicar
             />
