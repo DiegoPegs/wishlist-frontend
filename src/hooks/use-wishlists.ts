@@ -13,6 +13,31 @@ export const wishlistKeys = {
   mine: () => [...wishlistKeys.lists(), 'mine'] as const,
 };
 
+// Função para buscar uma wishlist específica (exportada para prefetching)
+export const fetchWishlist = async (id: string): Promise<Wishlist> => {
+  const response = await api.get(`/wishlists/${id}`);
+  const data = response.data;
+
+  // Transformar dados da API para o formato esperado pelo componente
+  return {
+    _id: data._id,
+    id: data._id, // Usar _id como id
+    title: data.title,
+    description: data.description || '',
+    isPublic: data.sharing?.isPublic || false,
+    ownerId: data.userId?._id || data.userId,
+    ownerName: data.userId?.name || 'Usuário',
+    userId: data.userId || { _id: data.userId, name: 'Usuário' },
+    items: data.items || [],
+    sharing: {
+      isPublic: data.sharing?.isPublic || false,
+      publicLink: data.sharing?.publicLink
+    },
+    createdAt: data.createdAt || new Date().toISOString(),
+    updatedAt: data.updatedAt || new Date().toISOString()
+  };
+};
+
 // Hook para buscar minhas wishlists
 export function useWishlists() {
   return useQuery({
@@ -29,29 +54,7 @@ export function useWishlists() {
 export function useWishlist(id: string) {
   return useQuery({
     queryKey: wishlistKeys.list(id),
-    queryFn: async (): Promise<Wishlist> => {
-      const response = await api.get(`/wishlists/${id}`);
-      const data = response.data;
-
-      // Transformar dados da API para o formato esperado pelo componente
-      return {
-        _id: data._id,
-        id: data._id, // Usar _id como id
-        title: data.title,
-        description: data.description || '',
-        isPublic: data.sharing?.isPublic || false,
-        ownerId: data.userId?._id || data.userId,
-        ownerName: data.userId?.name || 'Usuário',
-        userId: data.userId || { _id: data.userId, name: 'Usuário' },
-        items: data.items || [],
-        sharing: {
-          isPublic: data.sharing?.isPublic || false,
-          publicLink: data.sharing?.publicLink
-        },
-        createdAt: data.createdAt || new Date().toISOString(),
-        updatedAt: data.updatedAt || new Date().toISOString()
-      };
-    },
+    queryFn: () => fetchWishlist(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000, // 5 minutos
   });

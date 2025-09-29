@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { useQueryClient } from '@tanstack/react-query';
 import { Wishlist } from '@/types';
 import { formatDate } from '@/lib/formatters';
+import { fetchWishlist, wishlistKeys } from '@/hooks/use-wishlists';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
@@ -9,6 +11,19 @@ interface WishlistCardProps {
 }
 
 export function WishlistCard({ wishlist, isOwner = true, onShare }: WishlistCardProps) {
+  const queryClient = useQueryClient();
+
+  // Função para prefetch da wishlist no hover
+  const prefetchWishlist = () => {
+    if (wishlist.id) {
+      queryClient.prefetchQuery({
+        queryKey: wishlistKeys.list(wishlist.id),
+        queryFn: () => fetchWishlist(wishlist.id),
+        staleTime: 5 * 60 * 1000, // 5 minutos
+      });
+    }
+  };
+
   // Verificação de robustez contra dados faltantes
   if (!wishlist || !wishlist.id) {
     return (
@@ -96,7 +111,10 @@ export function WishlistCard({ wishlist, isOwner = true, onShare }: WishlistCard
   const reservedItems = wishlist.items?.filter(item => item.reservedBy).length || 0;
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+    <div
+      className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+      onMouseEnter={prefetchWishlist}
+    >
       <div className="p-6">
         <div className="flex items-start justify-between">
           <div className="flex-1">
