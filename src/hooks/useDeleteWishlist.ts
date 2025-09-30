@@ -10,13 +10,13 @@ export function useDeleteWishlist() {
 
   return useMutation({
     mutationFn: async (wishlistId: string): Promise<void> => {
-      await api.delete(`/wishlists/${wishlistId}`);
+      await api.delete(`/wishlists/${wishlistId}/permanent`);
     },
     onSuccess: (_, wishlistId) => {
       // Invalidar a query da wishlist específica
       queryClient.invalidateQueries({ queryKey: ['wishlists', 'detail', wishlistId] });
       // Invalidar a lista de wishlists do usuário
-      queryClient.invalidateQueries({ queryKey: ['wishlists', 'mine'] });
+      queryClient.invalidateQueries({ queryKey: ['wishlists', 'list', 'mine'] });
       queryClient.invalidateQueries({ queryKey: ['my-wishlists'] });
       // Invalidar todas as queries de wishlists
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });

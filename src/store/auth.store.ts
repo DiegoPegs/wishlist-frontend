@@ -42,14 +42,19 @@ export const useAuthStore = create<AuthStore>()(
 
           // Buscar dados do usuário
           const userProfile = await authService.getCurrentUser();
+          const userId = userProfile._id || userProfile.id;
+          if (!userId) {
+            throw new Error('ID do usuário não encontrado na resposta da API');
+          }
+
           const user: User = {
-            _id: userProfile.id,
-            id: userProfile.id,
+            _id: userId,
+            id: userId,
             email: userProfile.email,
             name: userProfile.name,
-            emailVerified: userProfile.emailVerified,
-            createdAt: userProfile.createdAt,
-            updatedAt: userProfile.updatedAt,
+            emailVerified: userProfile.emailVerified || userProfile.isEmailVerified || false,
+            createdAt: userProfile.createdAt || new Date().toISOString(),
+            updatedAt: userProfile.updatedAt || new Date().toISOString(),
           };
 
           set({ user, isAuthenticated: true, authStatus: 'AUTHENTICATED' });
@@ -141,14 +146,19 @@ export const useAuthStore = create<AuthStore>()(
 
                 // Buscar dados atualizados do usuário
                 const userProfile = await authService.getCurrentUser();
+                const userId = userProfile._id || userProfile.id;
+                if (!userId) {
+                  throw new Error('ID do usuário não encontrado na resposta da API');
+                }
+
                 const user: User = {
-                  _id: userProfile.id,
-                  id: userProfile.id,
+                  _id: userId,
+                  id: userId,
                   email: userProfile.email,
                   name: userProfile.name,
-                  emailVerified: userProfile.emailVerified,
-                  createdAt: userProfile.createdAt,
-                  updatedAt: userProfile.updatedAt,
+                  emailVerified: userProfile.emailVerified || userProfile.isEmailVerified || false,
+                  createdAt: userProfile.createdAt || new Date().toISOString(),
+                  updatedAt: userProfile.updatedAt || new Date().toISOString(),
                 };
 
                 set({ user, isAuthenticated: true, authStatus: 'AUTHENTICATED' });
@@ -206,6 +216,13 @@ export const useAuthStore = create<AuthStore>()(
         isAuthenticated: state.isAuthenticated,
         authStatus: state.authStatus,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Verificar se o usuário tem ID após rehidratação
+        if (state?.user && (!state.user._id && !state.user.id)) {
+          console.log('Debug - Usuário sem ID após rehidratação, recarregando...');
+          state.checkAuthStatus();
+        }
+      },
     }
   )
 );

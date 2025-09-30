@@ -31,7 +31,8 @@ export const fetchWishlist = async (id: string): Promise<Wishlist> => {
     items: data.items || [],
     sharing: {
       isPublic: data.sharing?.isPublic || false,
-      publicLink: data.sharing?.publicLink
+      publicLink: data.sharing?.publicLink,
+      publicLinkToken: data.sharing?.publicLinkToken
     },
     createdAt: data.createdAt || new Date().toISOString(),
     updatedAt: data.updatedAt || new Date().toISOString()

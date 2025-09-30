@@ -61,7 +61,8 @@ export interface AuthResponse {
 }
 
 export interface UserProfile {
-  id: string;
+  _id: string;
+  id?: string;
   email: string;
   name: string;
   birthDate?: {
@@ -69,7 +70,8 @@ export interface UserProfile {
     month: number;
     year?: number;
   };
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
+  emailVerified?: boolean;
+  isEmailVerified?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

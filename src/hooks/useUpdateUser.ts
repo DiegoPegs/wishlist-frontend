@@ -66,15 +66,20 @@ export function useUpdateUser() {
       queryClient.invalidateQueries({ queryKey: ['me'] });
 
       // Atualizar dados do usuário no store
+      const userId = data._id || data.id;
+      if (!userId) {
+        throw new Error('ID do usuário não encontrado na resposta da API');
+      }
+
       const updatedUser = {
-        _id: data.id,
-        id: data.id,
+        _id: userId,
+        id: userId,
         email: data.email,
         name: data.name,
         birthDate: data.birthDate,
-        emailVerified: data.emailVerified,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt,
+        emailVerified: data.emailVerified || data.isEmailVerified || false,
+        createdAt: data.createdAt || new Date().toISOString(),
+        updatedAt: data.updatedAt || new Date().toISOString(),
       };
 
       setUser(updatedUser);

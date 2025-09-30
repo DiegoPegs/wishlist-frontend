@@ -3,6 +3,7 @@
 import { Wishlist } from '@/types/wishlist';
 import { Modal } from '@/components/ui/Modal';
 import { useUpdateWishlistSharing } from '@/hooks/useUpdateWishlistSharing';
+import { useWishlist } from '@/hooks/use-wishlists';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
 import { Clipboard, Check, Loader2 } from 'lucide-react';
@@ -22,28 +23,43 @@ export function ShareWishlistModal({
 }: ShareWishlistModalProps) {
   const [copied, setCopied] = useState(false);
 
+  // Buscar dados atualizados da wishlist
+  const { data: updatedWishlist, isLoading: isLoadingWishlist } = useWishlist(
+    wishlist?.id || ''
+  );
+
   const { mutate, isPending } = useUpdateWishlistSharing();
 
+  // Usar dados atualizados se disponíveis, senão usar os dados passados como prop
+  const currentWishlist = updatedWishlist || wishlist;
+
   const handleToggleSharing = (isPublic: boolean) => {
-    if (wishlist) {
+    if (currentWishlist) {
       mutate({
-        wishlistId: wishlist.id,
+        wishlistId: currentWishlist.id,
         data: { isPublic },
       });
     }
   };
 
   const handleCopyLink = () => {
-    if (wishlist?.sharing?.publicLinkToken) {
-      const publicLink = `${window.location.origin}/public/${wishlist.sharing.publicLinkToken}`;
-      navigator.clipboard.writeText(publicLink);
-      setCopied(true);
-      toast.success('Link copiado!');
-      setTimeout(() => setCopied(false), 2500); // Reseta o ícone após 2.5 segundos
+    if (currentWishlist?.sharing?.publicLinkToken) {
+      const publicLink = `${window.location.origin}/public/${currentWishlist.sharing.publicLinkToken}`;
+
+      navigator.clipboard.writeText(publicLink).then(() => {
+        setCopied(true);
+        toast.success('Link copiado!');
+        setTimeout(() => setCopied(false), 2500); // Reseta o ícone após 2.5 segundos
+      }).catch((error) => {
+        console.error('Erro ao copiar link:', error);
+        toast.error('Erro ao copiar link');
+      });
+    } else {
+      toast.error('Token de compartilhamento não encontrado');
     }
   };
 
-  if (!isOpen || !wishlist) return null;
+  if (!isOpen || !currentWishlist) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Compartilhar Lista">
@@ -53,7 +69,7 @@ export function ShareWishlistModal({
             Compartilhamento por link público
           </label>
           <p className="text-sm text-dark-light">
-            {wishlist.sharing?.isPublic
+            {currentWishlist.sharing?.isPublic
               ? 'Qualquer pessoa com o link pode ver.'
               : 'Ative para gerar um link compartilhável.'}
           </p>
@@ -64,7 +80,7 @@ export function ShareWishlistModal({
           )}
           <Switch
             id="public-toggle"
-            checked={wishlist.sharing?.isPublic || false}
+            checked={currentWishlist.sharing?.isPublic || false}
             onCheckedChange={handleToggleSharing}
             disabled={isPending}
           />
@@ -72,7 +88,7 @@ export function ShareWishlistModal({
       </div>
 
       {/* Seção que só aparece se a lista for pública */}
-      {wishlist.sharing?.isPublic && (
+      {currentWishlist.sharing?.isPublic && (
         <div className="mt-4">
           <label htmlFor="share-link" className="text-sm font-medium text-dark">
             Copie o link abaixo para compartilhar
@@ -82,7 +98,7 @@ export function ShareWishlistModal({
               id="share-link"
               type="text"
               readOnly
-              value={wishlist.sharing?.publicLinkToken ? `${window.location.origin}/public/${wishlist.sharing.publicLinkToken}` : 'Gerando link...'}
+              value={currentWishlist.sharing?.publicLinkToken ? `${window.location.origin}/public/${currentWishlist.sharing.publicLinkToken}` : 'Gerando link...'}
               className="w-full rounded-md border bg-light-soft p-2 text-sm text-dark-light focus:outline-none focus:ring-2 focus:ring-primary-light"
               onClick={(e) => e.currentTarget.select()} // Seleciona o texto ao clicar
             />

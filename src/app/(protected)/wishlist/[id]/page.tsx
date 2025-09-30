@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useWishlist } from '@/hooks/use-wishlists';
 import { useDeleteWishlist } from '@/hooks/useDeleteWishlist';
@@ -16,11 +16,13 @@ import { useAuthStore } from '@/store/auth.store';
 import Link from 'next/link';
 import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
+import { formatDate } from '@/lib/formatters';
 
 export default function WishlistDetailPage() {
   const params = useParams();
   const { user: currentUser } = useAuthStore();
   const wishlistId = params.id as string;
+
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -32,7 +34,11 @@ export default function WishlistDetailPage() {
   const deleteWishlistMutation = useDeleteWishlist();
   const deleteItemMutation = useDeleteItem({ wishlistId });
 
-  const isOwner = currentUser?._id === wishlist?.userId?._id;
+  // Verificação de propriedade mais robusta
+  const currentUserId = currentUser?.id || currentUser?._id;
+  const wishlistOwnerId = wishlist?.ownerId || wishlist?.userId?._id || (typeof wishlist?.userId === 'string' ? wishlist?.userId : wishlist?.userId?._id);
+
+  const isOwner = currentUserId === wishlistOwnerId;
 
   // Calcular faixa de preço dos itens (antes dos returns condicionais)
   const priceRange = useMemo(() => {
@@ -80,6 +86,7 @@ export default function WishlistDetailPage() {
       }
     }
   };
+
 
 
   const formatPrice = (price?: number, currency?: string) => {
@@ -171,6 +178,8 @@ export default function WishlistDetailPage() {
             )}
             <div className="flex items-center space-x-4 text-sm text-gray-600">
               <span>Criado por <strong>{wishlist?.userId?.name || 'Usuário desconhecido'}</strong></span>
+              <span>•</span>
+              <span>Em {formatDate(wishlist?.createdAt)}</span>
               <span>•</span>
               <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                 wishlist.isPublic
@@ -353,6 +362,7 @@ export default function WishlistDetailPage() {
         item={itemToDelete}
         isLoading={deleteItemMutation.isPending}
       />
+
     </div>
   );
 }
