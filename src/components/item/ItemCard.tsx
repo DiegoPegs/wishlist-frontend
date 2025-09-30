@@ -11,6 +11,8 @@ interface ItemCardProps {
 }
 
 export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
+  // Constante para imagem de placeholder
+  const displayImageUrl = item.imageUrl || '/images/illustration-placeholder-gift.svg';
 
   // Função helper para formatar preço
   const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
@@ -59,28 +61,17 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-      <div className="p-6">
+    <div className="group bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200 min-h-[380px] flex flex-col">
+      <div className="p-6 flex-1 flex flex-col">
         {/* Imagem */}
-        <div className="mb-4">
-          {item.imageUrl ? (
-            <Image
-              src={item.imageUrl}
-              alt={item.title}
-              width={300}
-              height={200}
-              className="w-full h-48 object-cover rounded-md"
-            />
-          ) : (
-            <div className="w-full h-48 bg-gray-100 rounded-md flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <p className="text-sm">Sem imagem</p>
-              </div>
-            </div>
-          )}
+        <div className="mb-4 flex items-center justify-center overflow-hidden">
+          <Image
+            src={displayImageUrl}
+            alt={item.title}
+            width={300}
+            height={200}
+            className="w-full h-48 object-cover rounded-md"
+          />
         </div>
 
         {/* Título */}
@@ -169,10 +160,10 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
 
         {/* Botões de ação (apenas se for o dono) */}
         {isOwner && (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 mt-auto">
             <button
               onClick={() => onEdit(item.id)}
-              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+              className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
               title="Editar item"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,7 +173,7 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
             </button>
             <button
               onClick={() => onDelete(item._id)}
-              className="inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
+              className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
               title="Excluir item"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

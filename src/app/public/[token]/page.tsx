@@ -1,19 +1,21 @@
 'use client';
 
+import { use } from 'react';
 import { usePublicWishlist } from '@/hooks/usePublicWishlist';
 import { PublicItemCard } from '@/components/item/PublicItemCard';
 import { formatDate } from '@/lib/formatters';
 import { Heart, Calendar, Package, DollarSign } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 
 interface PublicWishlistPageProps {
-  params: {
+  params: Promise<{
     token: string;
-  };
+  }>;
 }
 
 export default function PublicWishlistPage({ params }: PublicWishlistPageProps) {
-  const { token } = params;
+  const { token } = use(params);
   const { data: wishlist, isLoading, isError } = usePublicWishlist(token);
 
   // Componente de loading
@@ -92,13 +94,37 @@ export default function PublicWishlistPage({ params }: PublicWishlistPageProps) 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
+        {/* Título principal */}
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Lista de Desejos de {wishlist?.ownerName || 'Usuário'}
+          </h1>
+
+          {/* CTA Banner */}
+          <div className="bg-primary/20 rounded-lg p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-2 text-gray-900">
+              Gostou da ideia? Crie sua própria Kero Wishlist!
+            </h2>
+            <p className="text-gray-700 mb-4">
+              Organize seus desejos e compartilhe com quem você ama.
+            </p>
+            <div className="flex justify-center">
+              <Link href="/register">
+                <Button variant="primary" className="font-semibold px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  Quero criar minha lista!
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+
         {/* Header da wishlist */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-6">
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 {wishlist.title}
-              </h1>
+              </h2>
               {wishlist.description && (
                 <p className="text-gray-600 text-lg">
                   {wishlist.description}

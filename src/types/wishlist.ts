@@ -11,6 +11,7 @@ export interface WishlistItem {
   imageUrl?: string;
   quantity?: number | { desired?: number };
   itemType: ItemType;
+  notes?: string;
   reservedBy?: string;
   reservedAt?: string;
   createdAt: string;

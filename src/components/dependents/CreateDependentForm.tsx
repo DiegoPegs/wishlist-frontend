@@ -10,8 +10,14 @@ import toast from 'react-hot-toast';
 
 const createDependentSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
-  birthDate: z.string().min(1, 'Data de nascimento é obrigatória'),
-  relationship: z.enum(['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other']),
+  birthDate: z.object({
+    day: z.number().min(1, 'Dia deve ser entre 1 e 31').max(31, 'Dia deve ser entre 1 e 31'),
+    month: z.number().min(1, 'Mês deve ser entre 1 e 12').max(12, 'Mês deve ser entre 1 e 12'),
+    year: z.number().min(1900, 'Ano deve ser maior que 1900').max(new Date().getFullYear(), 'Ano não pode ser no futuro').optional(),
+  }).optional(),
+  relationship: z.enum(['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other'], {
+    message: 'Por favor, selecione o parentesco.'
+  }),
 });
 
 type CreateDependentFormData = z.infer<typeof createDependentSchema>;
@@ -45,7 +51,22 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
     setError(null);
 
     try {
-      await onSubmit(data);
+      // Converter os campos de data separados em uma string de data
+      let birthDateString = '';
+      if (data.birthDate?.day && data.birthDate?.month) {
+        const year = data.birthDate.year || new Date().getFullYear();
+        const month = String(data.birthDate.month).padStart(2, '0');
+        const day = String(data.birthDate.day).padStart(2, '0');
+        birthDateString = `${year}-${month}-${day}`;
+      }
+
+      const submitData: CreateDependentData = {
+        name: data.name,
+        birthDate: birthDateString,
+        relationship: data.relationship,
+      };
+
+      await onSubmit(submitData);
       toast.success('Dependente adicionado com sucesso!');
       reset();
     } catch (err: unknown) {
@@ -76,16 +97,61 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
 
           {/* Data de Nascimento */}
           <div>
-            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Data de Nascimento *
             </label>
-            <input
-              {...register('birthDate')}
-              id="birthDate"
-              type="date"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
-            />
-            {errors.birthDate && <p className="mt-1 text-sm text-red-600">{errors.birthDate.message}</p>}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Dia */}
+              <div>
+                <label htmlFor="birthDate.day" className="block text-xs font-medium text-gray-600 mb-1">
+                  Dia
+                </label>
+                <input
+                  {...register('birthDate.day')}
+                  id="birthDate.day"
+                  type="number"
+                  min="1"
+                  max="31"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  placeholder="DD"
+                />
+                {errors.birthDate?.day && <p className="mt-1 text-xs text-red-600">{errors.birthDate.day.message}</p>}
+              </div>
+
+              {/* Mês */}
+              <div>
+                <label htmlFor="birthDate.month" className="block text-xs font-medium text-gray-600 mb-1">
+                  Mês
+                </label>
+                <input
+                  {...register('birthDate.month')}
+                  id="birthDate.month"
+                  type="number"
+                  min="1"
+                  max="12"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  placeholder="MM"
+                />
+                {errors.birthDate?.month && <p className="mt-1 text-xs text-red-600">{errors.birthDate.month.message}</p>}
+              </div>
+
+              {/* Ano */}
+              <div>
+                <label htmlFor="birthDate.year" className="block text-xs font-medium text-gray-600 mb-1">
+                  Ano (opcional)
+                </label>
+                <input
+                  {...register('birthDate.year')}
+                  id="birthDate.year"
+                  type="number"
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                  placeholder="AAAA"
+                />
+                {errors.birthDate?.year && <p className="mt-1 text-xs text-red-600">{errors.birthDate.year.message}</p>}
+              </div>
+            </div>
           </div>
 
           {/* Relacionamento */}

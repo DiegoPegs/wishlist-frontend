@@ -24,7 +24,7 @@ export function ShareWishlistModal({
   const [copied, setCopied] = useState(false);
 
   // Buscar dados atualizados da wishlist
-  const { data: updatedWishlist, isLoading: isLoadingWishlist } = useWishlist(
+  const { data: updatedWishlist } = useWishlist(
     wishlist?.id || ''
   );
 

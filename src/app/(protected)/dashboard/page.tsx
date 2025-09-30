@@ -4,18 +4,40 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { WishlistList } from '@/components/wishlist/WishlistList';
 import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
+import { DeleteWishlistModal } from '@/components/wishlist/DeleteWishlistModal';
 import { DependentSection } from '@/components/dependents/DependentSection';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import { Wishlist } from '@/types';
+import { useDeleteWishlist } from '@/hooks/useDeleteWishlist';
+import { useMyWishlists } from '@/hooks/useMyWishlists';
 
 export default function DashboardPage() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [wishlistToShare, setWishlistToShare] = useState<Wishlist | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [wishlistToDelete, setWishlistToDelete] = useState<Wishlist | null>(null);
+
+  const deleteWishlistMutation = useDeleteWishlist();
+  const { data: wishlists } = useMyWishlists();
 
   const handleShareClick = (wishlist: Wishlist) => {
     setWishlistToShare(wishlist);
     setIsShareModalOpen(true);
+  };
+
+  const handleDeleteClick = (wishlistId: string) => {
+    const wishlist = wishlists?.find(w => w.id === wishlistId);
+    if (wishlist) {
+      setWishlistToDelete(wishlist);
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (wishlistToDelete) {
+      await deleteWishlistMutation.mutateAsync(wishlistToDelete.id);
+    }
   };
 
   return (
@@ -36,7 +58,7 @@ export default function DashboardPage() {
             </Button>
           </Link>
         </div>
-        <WishlistList onShare={handleShareClick} />
+        <WishlistList onShare={handleShareClick} onDelete={handleDeleteClick} />
       </section>
 
       {/* Seção Meus Dependentes */}
@@ -51,6 +73,20 @@ export default function DashboardPage() {
             setWishlistToShare(null);
           }}
           wishlist={wishlistToShare}
+        />
+      )}
+
+      {/* Modal de Exclusão */}
+      {wishlistToDelete && (
+        <DeleteWishlistModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setWishlistToDelete(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          wishlistTitle={wishlistToDelete.title}
+          isLoading={deleteWishlistMutation.isPending}
         />
       )}
     </div>

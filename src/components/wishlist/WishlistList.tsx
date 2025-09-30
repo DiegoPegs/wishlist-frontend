@@ -9,9 +9,10 @@ import { Wishlist } from '@/types';
 
 interface WishlistListProps {
   onShare?: (wishlist: Wishlist) => void;
+  onDelete?: (wishlistId: string) => void;
 }
 
-export function WishlistList({ onShare }: WishlistListProps) {
+export function WishlistList({ onShare, onDelete }: WishlistListProps) {
   // Hook para buscar dados das wishlists
   const { data: wishlists, isLoading: wishlistsLoading, isError: wishlistsError } = useMyWishlists();
 
@@ -35,6 +36,7 @@ export function WishlistList({ onShare }: WishlistListProps) {
             wishlist={wishlist}
             isOwner={true}
             onShare={() => onShare?.(wishlist)}
+            onDelete={onDelete}
           />
         ))
       ) : (

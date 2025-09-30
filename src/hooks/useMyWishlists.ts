@@ -28,22 +28,22 @@ const fetchMyWishlists = async (): Promise<Wishlist[]> => {
 
     // Transformar dados da API para o formato esperado pelo componente
     const transformedWishlists = response.data.map((wishlist: ApiWishlist) => ({
-      _id: wishlist._id,
-      id: wishlist._id, // Usar _id como id
-      title: wishlist.title,
-      description: wishlist.description || '',
-      isPublic: wishlist.isPublic || false,
-      ownerId: wishlist.userId, // userId -> ownerId
-      ownerName: 'Usuário', // Placeholder até termos o nome do owner
-      items: wishlist.items || [],
-      sharing: {
-        isPublic: wishlist.sharing?.isPublic || false,
-        publicLink: wishlist.sharing?.publicLink,
-        publicLinkToken: wishlist.sharing?.publicLinkToken
-      },
-      createdAt: wishlist.createdAt || new Date().toISOString(),
-      updatedAt: wishlist.updatedAt || new Date().toISOString()
-    }));
+        _id: wishlist._id,
+        id: wishlist._id, // Usar _id como id
+        title: wishlist.title,
+        description: wishlist.description || '',
+        isPublic: wishlist.sharing?.isPublic || false, // Usar sharing.isPublic como fonte da verdade
+        ownerId: wishlist.userId, // userId -> ownerId
+        ownerName: 'Usuário', // Placeholder até termos o nome do owner
+        items: wishlist.items || [],
+        sharing: {
+          isPublic: wishlist.sharing?.isPublic || false,
+          publicLink: wishlist.sharing?.publicLink,
+          publicLinkToken: wishlist.sharing?.publicLinkToken
+        },
+        createdAt: wishlist.createdAt || new Date().toISOString(),
+        updatedAt: wishlist.updatedAt || new Date().toISOString()
+      }));
 
     return transformedWishlists;
   } catch (error) {

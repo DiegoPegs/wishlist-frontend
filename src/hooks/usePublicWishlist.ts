@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
-import { Wishlist, WishlistItem } from '@/types/wishlist';
+import { Wishlist } from '@/types';
+import { WishlistItem } from '@/types/wishlist';
 
 // Hook para buscar uma wishlist pública pelo token
 export function usePublicWishlist(token: string) {
@@ -13,12 +14,17 @@ export function usePublicWishlist(token: string) {
       // Transformar dados da API para o formato esperado pelo componente
       // Filtrar informações de reserva que não devem aparecer em wishlists públicas
       return {
+        _id: data._id,
         id: data._id, // Usar _id como id
         title: data.title,
         description: data.description || '',
         isPublic: data.sharing?.isPublic || false,
-        ownerId: data.userId?._id || data.userId,
-        ownerName: data.userId?.name || 'Usuário',
+        ownerId: data.ownerId || data.userId?._id || data.userId,
+        ownerName: data.ownerName || data.userId?.name || 'Usuário',
+        userId: {
+          _id: data.ownerId || data.userId?._id || data.userId,
+          name: data.ownerName || data.userId?.name || 'Usuário'
+        },
         items: (data.items || []).map((item: WishlistItem) => ({
           _id: item._id,
           id: item._id,
