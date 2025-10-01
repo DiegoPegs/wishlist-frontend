@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
+import { createDependentFormSchema, createDependentSchema, CreateDependentFormData } from '@/lib/schemas/dependent.schema';
 import { CreateDependentData } from '@/types/dependent';
-import { dependentSchema, DependentFormData } from '@/lib/schemas/dependent.schema';
 import toast from 'react-hot-toast';
 
 // Mapa de tradução para as opções de parentesco
@@ -54,30 +54,37 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<DependentFormData>({
-    resolver: zodResolver(dependentSchema),
+  } = useForm<CreateDependentFormData>({
+    resolver: zodResolver(createDependentFormSchema),
     defaultValues: {
-      relationship: 'son',
+      fullName: '',
+      birthDay: '',
+      birthMonth: '',
+      birthYear: '',
+      relationship: '',
     },
   });
 
-  const handleFormSubmit = async (data: DependentFormData) => {
+  const handleFormSubmit = async (data: CreateDependentFormData) => {
     setError(null);
 
     try {
+      // Validar os dados com o schema de validação
+      const validatedData = createDependentSchema.parse(data);
+
       // Converter os campos de data separados em uma string de data
       let birthDateString = '';
-      if (data.birthDate?.day && data.birthDate?.month) {
-        const year = data.birthDate.year || new Date().getFullYear();
-        const month = String(data.birthDate.month).padStart(2, '0');
-        const day = String(data.birthDate.day).padStart(2, '0');
+      if (validatedData.birthDay && validatedData.birthMonth) {
+        const year = validatedData.birthYear || new Date().getFullYear();
+        const month = String(validatedData.birthMonth).padStart(2, '0');
+        const day = String(validatedData.birthDay).padStart(2, '0');
         birthDateString = `${year}-${month}-${day}`;
       }
 
       const submitData: CreateDependentData = {
-        name: data.name,
+        name: validatedData.fullName,
         birthDate: birthDateString,
-        relationship: data.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
+        relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
       };
 
       await onSubmit(submitData);
@@ -96,17 +103,17 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
         <div className="space-y-6">
           {/* Nome */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
               Nome Completo *
             </label>
             <input
-              {...register('name')}
-              id="name"
+              {...register('fullName')}
+              id="fullName"
               type="text"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
               placeholder="Ex: João Silva"
             />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+            {errors.fullName && <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>}
           </div>
 
           {/* Data de Nascimento */}
@@ -117,12 +124,12 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
             <div className="grid grid-cols-3 gap-3">
               {/* Dia */}
               <div>
-                <label htmlFor="birthDate.day" className="block text-xs font-medium text-gray-600 mb-1">
+                <label htmlFor="birthDay" className="block text-xs font-medium text-gray-600 mb-1">
                   Dia
                 </label>
                 <select
-                  {...register('birthDate.day')}
-                  id="birthDate.day"
+                  {...register('birthDay')}
+                  id="birthDay"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 >
                   <option value="">Selecione</option>
@@ -132,17 +139,17 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {errors.birthDate?.day && <p className="mt-1 text-xs text-red-600">{errors.birthDate.day.message}</p>}
+                {errors.birthDay && <p className="mt-1 text-xs text-red-600">{errors.birthDay.message}</p>}
               </div>
 
               {/* Mês */}
               <div>
-                <label htmlFor="birthDate.month" className="block text-xs font-medium text-gray-600 mb-1">
+                <label htmlFor="birthMonth" className="block text-xs font-medium text-gray-600 mb-1">
                   Mês
                 </label>
                 <select
-                  {...register('birthDate.month')}
-                  id="birthDate.month"
+                  {...register('birthMonth')}
+                  id="birthMonth"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                 >
                   <option value="">Selecione</option>
@@ -152,24 +159,24 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
                     </option>
                   ))}
                 </select>
-                {errors.birthDate?.month && <p className="mt-1 text-xs text-red-600">{errors.birthDate.month.message}</p>}
+                {errors.birthMonth && <p className="mt-1 text-xs text-red-600">{errors.birthMonth.message}</p>}
               </div>
 
               {/* Ano */}
               <div>
-                <label htmlFor="birthDate.year" className="block text-xs font-medium text-gray-600 mb-1">
+                <label htmlFor="birthYear" className="block text-xs font-medium text-gray-600 mb-1">
                   Ano (opcional)
                 </label>
                 <input
-                  {...register('birthDate.year')}
-                  id="birthDate.year"
+                  {...register('birthYear')}
+                  id="birthYear"
                   type="number"
                   min="1900"
                   max={new Date().getFullYear()}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
                   placeholder="Ex: 1990"
                 />
-                {errors.birthDate?.year && <p className="mt-1 text-xs text-red-600">{errors.birthDate.year.message}</p>}
+                {errors.birthYear && <p className="mt-1 text-xs text-red-600">{errors.birthYear.message}</p>}
               </div>
             </div>
           </div>
@@ -184,6 +191,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
               id="relationship"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
             >
+              <option value="">Selecione o parentesco</option>
               {Object.entries(relationshipLabels).map(([value, label]) => (
                 <option key={value} value={value}>
                   {label}
