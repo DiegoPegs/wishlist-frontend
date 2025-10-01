@@ -57,7 +57,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
   } = useForm<DependentFormData>({
     resolver: zodResolver(dependentSchema),
     defaultValues: {
-      parentesco: 'son',
+      relationship: 'son',
     },
   });
 
@@ -77,7 +77,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
       const submitData: CreateDependentData = {
         name: data.name,
         birthDate: birthDateString,
-        relationship: data.parentesco,
+        relationship: data.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
       };
 
       await onSubmit(submitData);
@@ -176,12 +176,12 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
 
           {/* Relacionamento */}
           <div>
-            <label htmlFor="parentesco" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="relationship" className="block text-sm font-medium text-gray-700">
               Relacionamento *
             </label>
             <select
-              {...register('parentesco')}
-              id="parentesco"
+              {...register('relationship')}
+              id="relationship"
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
             >
               {Object.entries(relationshipLabels).map(([value, label]) => (
@@ -190,7 +190,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
                 </option>
               ))}
             </select>
-            {errors.parentesco && <p className="mt-1 text-sm text-red-600">{errors.parentesco.message}</p>}
+            {errors.relationship && <p className="mt-1 text-sm text-red-600">{errors.relationship.message}</p>}
           </div>
         </div>
       </div>

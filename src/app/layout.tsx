@@ -7,6 +7,7 @@ import { Toaster } from 'react-hot-toast';
 import { Providers } from '@/components/Providers';
 import { AuthProvider } from '@/components/AuthProvider';
 import { ErrorSuppressor } from '@/components/ErrorSuppressor';
+import { ClientOnly } from '@/components/ClientOnly';
 
 // 2. Configurar as fontes com as variáveis CSS
 const inter = Inter({
@@ -36,10 +37,14 @@ export default function RootLayout({
     // 3. Aplicar as variáveis na tag <html>
     <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
       <body>
-        <ErrorSuppressor />
+        <ClientOnly>
+          <ErrorSuppressor />
+        </ClientOnly>
         <Providers>
           <AuthProvider>
-            <Toaster position="top-right" />
+            <ClientOnly>
+              <Toaster position="top-right" />
+            </ClientOnly>
             {children}
           </AuthProvider>
         </Providers>

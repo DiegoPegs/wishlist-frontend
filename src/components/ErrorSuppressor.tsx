@@ -15,9 +15,21 @@ export function ErrorSuppressor() {
       originalConsoleError.apply(console, args);
     };
 
-    // Cleanup function para restaurar o console.error original
+    // Suprimir erros de hidratação causados por extensões do navegador
+    const originalConsoleWarn = console.warn;
+    console.warn = (...args) => {
+      // Filtrar warnings de hidratação causados por extensões
+      if (args[0] && typeof args[0] === 'string' &&
+          (args[0].includes('hydration') || args[0].includes('server rendered HTML'))) {
+        return;
+      }
+      originalConsoleWarn.apply(console, args);
+    };
+
+    // Cleanup function para restaurar os console originais
     return () => {
       console.error = originalConsoleError;
+      console.warn = originalConsoleWarn;
     };
   }, []);
 

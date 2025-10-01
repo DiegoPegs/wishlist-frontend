@@ -3,18 +3,27 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { dependentSchema, DependentFormData } from '@/lib/schemas/dependent.schema';
 import { useCreateDependent } from '@/hooks/use-dependents';
+import { CreateDependentData } from '@/types/dependent';
+import toast from 'react-hot-toast';
 
-const dependentSchema = z.object({
-  name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
-  birthDate: z.string().min(1, 'Data de nascimento é obrigatória'),
-  relationship: z.enum(['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other']).refine((val) => val !== undefined, {
-    message: 'Selecione o parentesco',
-  }),
-});
-
-type DependentFormData = z.infer<typeof dependentSchema>;
+// Opções para os campos de data
+const dayOptions = Array.from({ length: 31 }, (_, i) => i + 1);
+const monthOptions = [
+  { value: 1, label: 'Janeiro' },
+  { value: 2, label: 'Fevereiro' },
+  { value: 3, label: 'Março' },
+  { value: 4, label: 'Abril' },
+  { value: 5, label: 'Maio' },
+  { value: 6, label: 'Junho' },
+  { value: 7, label: 'Julho' },
+  { value: 8, label: 'Agosto' },
+  { value: 9, label: 'Setembro' },
+  { value: 10, label: 'Outubro' },
+  { value: 11, label: 'Novembro' },
+  { value: 12, label: 'Dezembro' },
+];
 
 interface AddDependentModalProps {
   onClose: () => void;
@@ -46,11 +55,28 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
   const onSubmit = async (data: DependentFormData) => {
     setIsSubmitting(true);
     try {
-      await createDependentMutation.mutateAsync(data);
+      // Converter os campos de data separados em uma string de data
+      let birthDateString = '';
+      if (data.birthDate?.day && data.birthDate?.month) {
+        const year = data.birthDate.year || new Date().getFullYear();
+        const month = String(data.birthDate.month).padStart(2, '0');
+        const day = String(data.birthDate.day).padStart(2, '0');
+        birthDateString = `${year}-${month}-${day}`;
+      }
+
+      const submitData: CreateDependentData = {
+        name: data.name,
+        birthDate: birthDateString,
+        relationship: data.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
+      };
+
+      await createDependentMutation.mutateAsync(submitData);
+      toast.success('Dependente adicionado com sucesso!');
       onSuccess?.();
       onClose();
     } catch (error) {
       console.error('Erro ao criar dependente:', error);
+      toast.error('Erro ao adicionar dependente');
     } finally {
       setIsSubmitting(false);
     }
@@ -92,23 +118,78 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
             </div>
 
             <div>
-              <label htmlFor="birthDate" className="block text-sm font-medium text-dark mb-1">
-                Data de nascimento
+              <label className="block text-sm font-medium text-dark mb-2">
+                Data de nascimento (opcional)
               </label>
-              <input
-                {...register('birthDate')}
-                id="birthDate"
-                type="date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-              />
-              {errors.birthDate && (
-                <p className="mt-1 text-sm text-red-600">{errors.birthDate.message}</p>
-              )}
+              <div className="grid grid-cols-3 gap-2">
+                {/* Dia */}
+                <div>
+                  <label htmlFor="birthDate.day" className="block text-xs font-medium text-gray-600 mb-1">
+                    Dia
+                  </label>
+                  <select
+                    {...register('birthDate.day', { valueAsNumber: true })}
+                    id="birthDate.day"
+                    className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                  >
+                    <option value="">Selecione</option>
+                    {dayOptions.map((day) => (
+                      <option key={day} value={day}>
+                        {day}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.birthDate?.day && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.day.message}</p>
+                  )}
+                </div>
+
+                {/* Mês */}
+                <div>
+                  <label htmlFor="birthDate.month" className="block text-xs font-medium text-gray-600 mb-1">
+                    Mês
+                  </label>
+                  <select
+                    {...register('birthDate.month', { valueAsNumber: true })}
+                    id="birthDate.month"
+                    className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                  >
+                    <option value="">Selecione</option>
+                    {monthOptions.map((month) => (
+                      <option key={month.value} value={month.value}>
+                        {month.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.birthDate?.month && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.month.message}</p>
+                  )}
+                </div>
+
+                {/* Ano */}
+                <div>
+                  <label htmlFor="birthDate.year" className="block text-xs font-medium text-gray-600 mb-1">
+                    Ano (opcional)
+                  </label>
+                  <input
+                    {...register('birthDate.year', { valueAsNumber: true })}
+                    id="birthDate.year"
+                    type="number"
+                    min="1900"
+                    max={new Date().getFullYear()}
+                    className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
+                    placeholder="Ex: 1990"
+                  />
+                  {errors.birthDate?.year && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.year.message}</p>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div>
               <label htmlFor="relationship" className="block text-sm font-medium text-dark mb-1">
-                Parentesco
+                Parentesco *
               </label>
               <select
                 {...register('relationship')}
