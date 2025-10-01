@@ -4,8 +4,20 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@/components/ui/Button';
-import { createDependentFormSchema, createDependentSchema, CreateDependentFormData } from '@/lib/schemas/dependent.schema';
-import { CreateDependentData } from '@/types/dependent';
+import { createDependentSchema } from '@/lib/schemas/dependent.schema';
+import { CreateDependentData as CreateDependentDataAPI } from '@/types/dependent';
+import { z } from 'zod';
+
+// Schema para o formulário (aceita strings vazias)
+const createDependentFormSchema = z.object({
+  fullName: z.string().min(3, 'O nome completo é obrigatório.'),
+  birthDay: z.string(),
+  birthMonth: z.string(),
+  birthYear: z.string(),
+  relationship: z.string().min(1, 'Selecione um parentesco válido.'),
+});
+
+type CreateDependentFormData = z.infer<typeof createDependentFormSchema>;
 import toast from 'react-hot-toast';
 
 // Mapa de tradução para as opções de parentesco
@@ -37,7 +49,7 @@ const monthOptions = [
 ];
 
 interface CreateDependentFormProps {
-  onSubmit: (data: CreateDependentData) => Promise<void>;
+  onSubmit: (data: CreateDependentDataAPI) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
@@ -81,7 +93,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
         birthDateString = `${year}-${month}-${day}`;
       }
 
-      const submitData: CreateDependentData = {
+      const submitData: CreateDependentDataAPI = {
         name: validatedData.fullName,
         birthDate: birthDateString,
         relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',

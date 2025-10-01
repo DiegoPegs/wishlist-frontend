@@ -3,9 +3,21 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { dependentSchema, DependentFormData } from '@/lib/schemas/dependent.schema';
+import { createDependentSchema } from '@/lib/schemas/dependent.schema';
+import { z } from 'zod';
+
+// Schema para o formulário (aceita strings vazias)
+const addDependentFormSchema = z.object({
+  fullName: z.string().min(3, 'O nome completo é obrigatório.'),
+  birthDay: z.string(),
+  birthMonth: z.string(),
+  birthYear: z.string(),
+  relationship: z.string().min(1, 'Selecione um parentesco válido.'),
+});
+
+type AddDependentFormData = z.infer<typeof addDependentFormSchema>;
 import { useCreateDependent } from '@/hooks/use-dependents';
-import { CreateDependentData } from '@/types/dependent';
+import { CreateDependentData as CreateDependentDataAPI } from '@/types/dependent';
 import toast from 'react-hot-toast';
 
 // Opções para os campos de data
@@ -48,26 +60,29 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<DependentFormData>({
-    resolver: zodResolver(dependentSchema),
+  } = useForm<AddDependentFormData>({
+    resolver: zodResolver(addDependentFormSchema),
   });
 
-  const onSubmit = async (data: DependentFormData) => {
+  const onSubmit = async (data: AddDependentFormData) => {
     setIsSubmitting(true);
     try {
+      // Validar os dados com o schema de validação
+      const validatedData = createDependentSchema.parse(data);
+
       // Converter os campos de data separados em uma string de data
       let birthDateString = '';
-      if (data.birthDate?.day && data.birthDate?.month) {
-        const year = data.birthDate.year || new Date().getFullYear();
-        const month = String(data.birthDate.month).padStart(2, '0');
-        const day = String(data.birthDate.day).padStart(2, '0');
+      if (validatedData.birthDay && validatedData.birthMonth) {
+        const year = validatedData.birthYear || new Date().getFullYear();
+        const month = String(validatedData.birthMonth).padStart(2, '0');
+        const day = String(validatedData.birthDay).padStart(2, '0');
         birthDateString = `${year}-${month}-${day}`;
       }
 
-      const submitData: CreateDependentData = {
-        name: data.name,
+      const submitData: CreateDependentDataAPI = {
+        name: validatedData.fullName,
         birthDate: birthDateString,
-        relationship: data.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
+        relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
       };
 
       await createDependentMutation.mutateAsync(submitData);
@@ -102,18 +117,18 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-dark mb-1">
+              <label htmlFor="fullName" className="block text-sm font-medium text-dark mb-1">
                 Nome completo
               </label>
               <input
-                {...register('name')}
-                id="name"
+                {...register('fullName')}
+                id="fullName"
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 placeholder="Nome do dependente"
               />
-              {errors.name && (
-                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              {errors.fullName && (
+                <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
               )}
             </div>
 
@@ -124,12 +139,12 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
               <div className="grid grid-cols-3 gap-2">
                 {/* Dia */}
                 <div>
-                  <label htmlFor="birthDate.day" className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="birthDay" className="block text-xs font-medium text-gray-600 mb-1">
                     Dia
                   </label>
                   <select
-                    {...register('birthDate.day', { valueAsNumber: true })}
-                    id="birthDate.day"
+                    {...register('birthDay')}
+                    id="birthDay"
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                   >
                     <option value="">Selecione</option>
@@ -139,19 +154,19 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                       </option>
                     ))}
                   </select>
-                  {errors.birthDate?.day && (
-                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.day.message}</p>
+                  {errors.birthDay && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthDay.message}</p>
                   )}
                 </div>
 
                 {/* Mês */}
                 <div>
-                  <label htmlFor="birthDate.month" className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="birthMonth" className="block text-xs font-medium text-gray-600 mb-1">
                     Mês
                   </label>
                   <select
-                    {...register('birthDate.month', { valueAsNumber: true })}
-                    id="birthDate.month"
+                    {...register('birthMonth')}
+                    id="birthMonth"
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                   >
                     <option value="">Selecione</option>
@@ -161,27 +176,27 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                       </option>
                     ))}
                   </select>
-                  {errors.birthDate?.month && (
-                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.month.message}</p>
+                  {errors.birthMonth && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthMonth.message}</p>
                   )}
                 </div>
 
                 {/* Ano */}
                 <div>
-                  <label htmlFor="birthDate.year" className="block text-xs font-medium text-gray-600 mb-1">
+                  <label htmlFor="birthYear" className="block text-xs font-medium text-gray-600 mb-1">
                     Ano (opcional)
                   </label>
                   <input
-                    {...register('birthDate.year', { valueAsNumber: true })}
-                    id="birthDate.year"
+                    {...register('birthYear')}
+                    id="birthYear"
                     type="number"
                     min="1900"
                     max={new Date().getFullYear()}
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                     placeholder="Ex: 1990"
                   />
-                  {errors.birthDate?.year && (
-                    <p className="mt-1 text-xs text-red-600">{errors.birthDate.year.message}</p>
+                  {errors.birthYear && (
+                    <p className="mt-1 text-xs text-red-600">{errors.birthYear.message}</p>
                   )}
                 </div>
               </div>
