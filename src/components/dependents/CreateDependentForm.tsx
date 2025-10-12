@@ -84,22 +84,23 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
       // Validar os dados com o schema de validação
       const validatedData = createDependentSchema.parse(data);
 
-      // Converter os campos de data separados em uma string de data
-      let birthDateString = '';
-      if (validatedData.birthDay && validatedData.birthMonth) {
-        const year = validatedData.birthYear || new Date().getFullYear();
-        const month = String(validatedData.birthMonth).padStart(2, '0');
-        const day = String(validatedData.birthDay).padStart(2, '0');
-        birthDateString = `${year}-${month}-${day}`;
-      }
-
-      const submitData: CreateDependentDataAPI = {
-        name: validatedData.fullName,
-        birthDate: birthDateString,
+      // 1. Prepare the payload object with the correct structure
+      const payload: CreateDependentDataAPI = {
+        fullName: validatedData.fullName,
         relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
       };
 
-      await onSubmit(submitData);
+      // 2. If date fields are filled, create the nested birthDate object
+      if (validatedData.birthDay && validatedData.birthMonth) {
+        payload.birthDate = {
+          day: validatedData.birthDay,
+          month: validatedData.birthMonth,
+          year: validatedData.birthYear, // This will be undefined if empty, which is correct
+        };
+      }
+
+      // 3. Send the correctly structured payload to the API
+      await onSubmit(payload);
       toast.success('Dependente adicionado com sucesso!');
       reset();
     } catch (err: unknown) {

@@ -12,8 +12,12 @@ export interface Dependent {
 }
 
 export interface CreateDependentData {
-  name: string;
-  birthDate: string;
+  fullName: string;
+  birthDate?: {
+    day: number;
+    month: number;
+    year?: number;
+  };
   relationship: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
 }
 

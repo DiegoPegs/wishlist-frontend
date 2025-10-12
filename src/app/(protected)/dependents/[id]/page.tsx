@@ -17,7 +17,7 @@ export default function DependentManagementPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const { data: dependent, isLoading: dependentLoading, error: dependentError } = useDependent(dependentId);
-  const { data: wishlists, isLoading: wishlistsLoading } = useDependentWishlists(dependentId);
+  const { data: wishlists, isLoading: wishlistsLoading, error: wishlistsError } = useDependentWishlists(dependentId);
   const createWishlistMutation = useCreateDependentWishlist(dependentId);
 
   const formatDate = (dateString: string) => {
@@ -61,7 +61,12 @@ export default function DependentManagementPage() {
     }
   };
 
-  if (dependentLoading) {
+  // Estados de carregamento e erro
+  const isLoading = dependentLoading || wishlistsLoading;
+  const isError = dependentError || wishlistsError || !dependent;
+
+  // Renderização de Loading
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -86,7 +91,8 @@ export default function DependentManagementPage() {
     );
   }
 
-  if (dependentError || !dependent) {
+  // Renderização de Erro
+  if (isError) {
     return (
       <div className="text-center py-12">
         <div className="mx-auto w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mb-4">
@@ -164,6 +170,7 @@ export default function DependentManagementPage() {
           </Button>
         </div>
 
+        {/* Renderização das Wishlists */}
         {wishlistsLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
@@ -179,21 +186,23 @@ export default function DependentManagementPage() {
               </div>
             ))}
           </div>
-        ) : wishlists && (wishlists.length || 0) > 0 ? (
+        ) : wishlists && wishlists.length > 0 ? (
+          // Estado de Sucesso: Wishlists encontradas
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlists.map((wishlist, index) => (
               <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} isOwner={true} />
             ))}
           </div>
         ) : (
+          // Estado Vazio: Nenhuma wishlist encontrada
           <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
             <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-dark mb-2">Nenhuma lista encontrada</h3>
-            <p className="text-gray-600 mb-6">Crie listas de desejos para {dependent.name}.</p>
+            <h3 className="text-lg font-medium text-dark mb-2">Este dependente ainda não tem listas de desejos.</h3>
+            <p className="text-gray-600 mb-6">Crie a primeira lista de desejos para {dependent.name}.</p>
             <Button
               onClick={() => setIsCreateModalOpen(true)}
               variant="primary"

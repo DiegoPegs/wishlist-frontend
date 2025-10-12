@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Wishlist } from '@/types';
 import { CreateWishlistData } from '@/types/wishlist';
+import { useAuthStore } from '@/store/auth.store';
 
 // Query Keys
 export const dependentWishlistKeys = {
@@ -12,13 +13,15 @@ export const dependentWishlistKeys = {
 
 // Hook para buscar wishlists de um dependente
 export function useDependentWishlists(dependentId: string) {
+  const { authStatus } = useAuthStore();
+
   return useQuery({
-    queryKey: dependentWishlistKeys.lists(dependentId),
+    queryKey: ['dependent-wishlists', dependentId],
     queryFn: async (): Promise<Wishlist[]> => {
       const response = await api.get(`/users/dependents/${dependentId}/wishlists`);
       return response.data;
     },
-    enabled: !!dependentId,
+    enabled: !!dependentId && authStatus === 'AUTHENTICATED',
     staleTime: 5 * 60 * 1000, // 5 minutos
   });
 }

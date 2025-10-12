@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useDependents } from '@/hooks/use-dependents';
+import { useMyDependents } from '@/hooks/useMyDependents';
 import { DependentCard } from '@/components/dependents/DependentCard';
 import { AddDependentModal } from '@/components/dependents/AddDependentModal';
 import { Button } from '@/components/ui/Button';
@@ -11,7 +11,7 @@ export function DependentSection() {
   const [showAddDependent, setShowAddDependent] = useState(false);
 
   // Hook para buscar dados dos dependentes
-  const { data: dependents, isLoading: dependentsLoading } = useDependents();
+  const { data: dependents, isLoading } = useMyDependents();
 
   return (
     <section>
@@ -19,7 +19,7 @@ export function DependentSection() {
         <div>
           <h2 className="text-xl font-bold font-display">Meus Dependentes</h2>
           <p className="text-sm text-dark-light">
-            {!dependentsLoading && dependents ? `${dependents.length} dependente(s) cadastrado(s)` : 'Carregando...'}
+            {!isLoading && dependents ? `${dependents.length} dependente(s) cadastrado(s)` : 'Carregando...'}
           </p>
         </div>
         <Button
@@ -31,7 +31,7 @@ export function DependentSection() {
         </Button>
       </div>
 
-      {dependentsLoading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(2)].map((_, i) => (
             <div key={`dependent-skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
@@ -48,8 +48,8 @@ export function DependentSection() {
         </div>
       ) : dependents && dependents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dependents.map((dependent) => (
-            <DependentCard key={dependent.id} dependent={dependent} />
+          {dependents.map((dependent, index) => (
+            <DependentCard key={dependent.id || `dependent-${index}`} dependent={dependent} />
           ))}
         </div>
       ) : (
@@ -77,7 +77,7 @@ export function DependentSection() {
           onClose={() => setShowAddDependent(false)}
           onSuccess={() => {
             setShowAddDependent(false);
-            // O hook useDependents irá atualizar automaticamente
+            // O hook useMyDependents irá atualizar automaticamente
           }}
         />
       )}
