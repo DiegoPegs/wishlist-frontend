@@ -22,18 +22,6 @@ export function useDependents() {
   });
 }
 
-// Hook para buscar um dependente específico
-export function useDependent(id: string) {
-  return useQuery({
-    queryKey: dependentKeys.list(id),
-    queryFn: async (): Promise<Dependent> => {
-      const response = await api.get(`/users/${id}`);
-      return response.data;
-    },
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000, // 5 minutos
-  });
-}
 
 // Hook para criar um dependente
 export function useCreateDependent() {
@@ -58,7 +46,7 @@ export function useUpdateDependent() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: UpdateDependentData }): Promise<Dependent> => {
-      const response = await api.put(`/users/${id}`, data);
+      const response = await api.put(`/users/dependents/${id}`, data);
       return response.data;
     },
     onSuccess: (data) => {

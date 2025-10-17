@@ -2,6 +2,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Dependent } from '@/types/dependent';
 import { AddGuardianModal } from './AddGuardianModal';
+import { formatBirthDateObject, calculateAge } from '@/lib/formatters';
 
 interface DependentCardProps {
   dependent: Dependent;
@@ -22,28 +23,8 @@ const relationshipLabels = {
 export function DependentCard({ dependent, onRemoveGuardian }: DependentCardProps) {
   const [showAddGuardianModal, setShowAddGuardianModal] = useState(false);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-
-    return age;
-  };
-
   const age = calculateAge(dependent.birthDate);
+  const formattedBirthDate = formatBirthDateObject(dependent.birthDate);
 
   return (
     <>
@@ -59,11 +40,13 @@ export function DependentCard({ dependent, onRemoveGuardian }: DependentCardProp
                   <p>
                     <span className="font-medium">Parentesco:</span> {relationshipLabels[dependent.relationship]}
                   </p>
+                  {age !== null && (
+                    <p>
+                      <span className="font-medium">Idade:</span> {age} anos
+                    </p>
+                  )}
                   <p>
-                    <span className="font-medium">Idade:</span> {age} anos
-                  </p>
-                  <p>
-                    <span className="font-medium">Nascido em:</span> {formatDate(dependent.birthDate)}
+                    <span className="font-medium">Nascido em:</span> {formattedBirthDate}
                   </p>
                 </div>
               </div>

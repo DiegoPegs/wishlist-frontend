@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-// Instância base do Axios
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -44,8 +43,5 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
-// Suprimir erros de runtime.lastError (extensões do navegador)
-// Esta verificação será feita apenas no cliente através de useEffect
 
 export default api;

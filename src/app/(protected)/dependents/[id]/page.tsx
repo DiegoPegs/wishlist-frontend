@@ -2,14 +2,16 @@
 
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
-import { useDependent } from '@/hooks/use-dependents';
+import { useDependent } from '@/hooks/useDependent';
 import { useDependentWishlists } from '@/hooks/use-dependent-wishlists';
 import { useCreateDependentWishlist } from '@/hooks/use-dependent-wishlists';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
 import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
 import { Button } from '@/components/ui/Button';
+import { formatBirthDateObject, calculateAge } from '@/lib/formatters';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { BackButton } from '@/components/ui/BackButton';
 
 export default function DependentManagementPage() {
   const params = useParams();
@@ -20,28 +22,7 @@ export default function DependentManagementPage() {
   const { data: wishlists, isLoading: wishlistsLoading, error: wishlistsError } = useDependentWishlists(dependentId);
   const createWishlistMutation = useCreateDependentWishlist(dependentId);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  const calculateAge = (birthDate: string) => {
-    const today = new Date();
-    const birth = new Date(birthDate);
-    let age = today.getFullYear() - birth.getFullYear();
-    const monthDiff = today.getMonth() - birth.getMonth();
-
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--;
-    }
-
-    return age;
-  };
-
-  const relationshipLabels = {
+  const relationshipLabels: Record<string, string> = {
     son: 'Filho',
     daughter: 'Filha',
     brother: 'Irmão',
@@ -112,45 +93,46 @@ export default function DependentManagementPage() {
   }
 
   const age = calculateAge(dependent.birthDate);
+  const formattedBirthDate = formatBirthDateObject(dependent.birthDate);
 
   return (
     <div className="space-y-6">
-      {/* Header do Dependente */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-dark mb-2">
-              {dependent.name}
-            </h1>
-            <div className="space-y-1 text-gray-600">
-              <p>
-                <span className="font-medium">Parentesco:</span> {relationshipLabels[dependent.relationship]}
-              </p>
-              <p>
-                <span className="font-medium">Idade:</span> {age} anos
-              </p>
-              <p>
-                <span className="font-medium">Nascido em:</span> {formatDate(dependent.birthDate)}
-              </p>
-            </div>
+      {/* Back Button */}
+      <BackButton />
+
+      {/* Header com título */}
+      <h1 className="text-3xl font-bold font-display">{dependent.name}</h1>
+
+      {/* Card de Perfil */}
+      <div className="bg-light rounded-lg shadow-sm p-6">
+        <h2 className="text-xl font-bold font-display mb-4">Informações</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <p className="text-sm text-dark-light">Parentesco</p>
+            <p className="font-semibold">
+              {dependent.relationship ? relationshipLabels[dependent.relationship] : 'Não informado'}
+            </p>
           </div>
-          <div className="ml-4">
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              Dependente
-            </span>
+          <div>
+            <p className="text-sm text-dark-light">Idade</p>
+            <p className="font-semibold">{age ? `${age} anos` : 'Não informada'}</p>
+          </div>
+          <div>
+            <p className="text-sm text-dark-light">Nascimento</p>
+            <p className="font-semibold">{formattedBirthDate}</p>
           </div>
         </div>
 
         {dependent.secondGuardianId && (
-          <div className="mt-4 p-3 bg-gray-50 rounded-md">
+          <div className="mt-6 p-4 bg-gray-50 rounded-md">
             <h4 className="text-sm font-medium text-gray-700 mb-1">Segundo Guardião:</h4>
             <p className="text-sm text-gray-600">{dependent.secondGuardianName}</p>
           </div>
         )}
       </div>
 
-      {/* Listas do Dependente */}
-      <div>
+      {/* Seção de Listas de Desejos */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-semibold text-dark">Listas de Desejos</h2>
@@ -195,7 +177,7 @@ export default function DependentManagementPage() {
           </div>
         ) : (
           // Estado Vazio: Nenhuma wishlist encontrada
-          <div className="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+          <div className="text-center py-12">
             <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

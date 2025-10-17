@@ -7,7 +7,11 @@ import { useAuthStore } from '@/store/auth.store';
 interface ApiDependent {
   _id: string;
   name: string;
-  birthDate: string;
+  birthDate: {
+    day: number;
+    month: number;
+    year?: number;
+  };
   relationship: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
   guardianId: string;
   guardianName: string;
