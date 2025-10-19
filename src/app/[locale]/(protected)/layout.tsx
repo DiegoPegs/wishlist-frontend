@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth.store';
-import { Header } from '@/components/Header';
+import Header from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 
 export default function ProtectedLayout({

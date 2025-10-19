@@ -19,42 +19,23 @@ type AddDependentFormData = z.infer<typeof addDependentFormSchema>;
 import { useCreateDependent } from '@/hooks/use-dependents';
 import { CreateDependentData as CreateDependentDataAPI } from '@/types/dependent';
 import toast from 'react-hot-toast';
+import { useTranslations } from '@/hooks/useTranslations';
 
 // Opções para os campos de data
 const dayOptions = Array.from({ length: 31 }, (_, i) => i + 1);
-const monthOptions = [
-  { value: 1, label: 'Janeiro' },
-  { value: 2, label: 'Fevereiro' },
-  { value: 3, label: 'Março' },
-  { value: 4, label: 'Abril' },
-  { value: 5, label: 'Maio' },
-  { value: 6, label: 'Junho' },
-  { value: 7, label: 'Julho' },
-  { value: 8, label: 'Agosto' },
-  { value: 9, label: 'Setembro' },
-  { value: 10, label: 'Outubro' },
-  { value: 11, label: 'Novembro' },
-  { value: 12, label: 'Dezembro' },
-];
+const monthKeys = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
 interface AddDependentModalProps {
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-const relationshipLabels = {
-  son: 'Filho',
-  daughter: 'Filha',
-  brother: 'Irmão',
-  sister: 'Irmã',
-  nephew: 'Sobrinho',
-  niece: 'Sobrinha',
-  other: 'Outro',
-};
+// Remover relationshipLabels hardcoded - usar traduções
 
 export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createDependentMutation = useCreateDependent();
+  const t = useTranslations('dependents');
 
   const {
     register,
@@ -87,12 +68,12 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
 
       // 3. Send the correctly structured payload to the API
       await createDependentMutation.mutateAsync(payload);
-      toast.success('Dependente adicionado com sucesso!');
+      toast.success(t('dependentAddedSuccess'));
       onSuccess?.();
       onClose();
     } catch (error) {
       console.error('Erro ao criar dependente:', error);
-      toast.error('Erro ao adicionar dependente');
+      toast.error(t('dependentAddError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -104,7 +85,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
         <div className="mt-3">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-dark">
-              Adicionar Dependente
+              {t('addDependent')}
             </h3>
             <button
               onClick={onClose}
@@ -119,14 +100,14 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium text-dark mb-1">
-                Nome completo
+                {t('fullName')}
               </label>
               <input
                 {...register('fullName')}
                 id="fullName"
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                placeholder="Nome do dependente"
+                placeholder={t('dependentNamePlaceholder')}
               />
               {errors.fullName && (
                 <p className="mt-1 text-sm text-red-600">{errors.fullName.message}</p>
@@ -135,20 +116,20 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
 
             <div>
               <label className="block text-sm font-medium text-dark mb-2">
-                Data de nascimento (opcional)
+                {t('birthDateOptional')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {/* Dia */}
                 <div>
                   <label htmlFor="birthDay" className="block text-xs font-medium text-gray-600 mb-1">
-                    Dia
+                    {t('day')}
                   </label>
                   <select
                     {...register('birthDay')}
                     id="birthDay"
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                   >
-                    <option value="">Selecione</option>
+                    <option value="">{t('select')}</option>
                     {dayOptions.map((day) => (
                       <option key={day} value={day}>
                         {day}
@@ -163,17 +144,17 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                 {/* Mês */}
                 <div>
                   <label htmlFor="birthMonth" className="block text-xs font-medium text-gray-600 mb-1">
-                    Mês
+                    {t('month')}
                   </label>
                   <select
                     {...register('birthMonth')}
                     id="birthMonth"
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
                   >
-                    <option value="">Selecione</option>
-                    {monthOptions.map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
+                    <option value="">{t('select')}</option>
+                    {monthKeys.map((monthKey, index) => (
+                      <option key={index + 1} value={index + 1}>
+                        {t(monthKey)}
                       </option>
                     ))}
                   </select>
@@ -185,7 +166,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                 {/* Ano */}
                 <div>
                   <label htmlFor="birthYear" className="block text-xs font-medium text-gray-600 mb-1">
-                    Ano (opcional)
+                    {t('yearOptional')}
                   </label>
                   <input
                     {...register('birthYear')}
@@ -194,7 +175,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                     min="1900"
                     max={new Date().getFullYear()}
                     className="w-full px-2 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary text-sm"
-                    placeholder="Ex: 1990"
+                    placeholder={t('yearPlaceholder')}
                   />
                   {errors.birthYear && (
                     <p className="mt-1 text-xs text-red-600">{errors.birthYear.message}</p>
@@ -205,17 +186,17 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
 
             <div>
               <label htmlFor="relationship" className="block text-sm font-medium text-dark mb-1">
-                Parentesco *
+                {t('relationshipRequired')}
               </label>
               <select
                 {...register('relationship')}
                 id="relationship"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               >
-                <option value="">Selecione o parentesco</option>
-                {Object.entries(relationshipLabels).map(([value, label]) => (
+                <option value="">{t('selectRelationship')}</option>
+                {['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other'].map((value) => (
                   <option key={value} value={value}>
-                    {label}
+                    {t(value)}
                   </option>
                 ))}
               </select>
@@ -230,14 +211,14 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                 onClick={onClose}
                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
               >
-                Cancelar
+                {t('cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isSubmitting ? 'Adicionando...' : 'Adicionar'}
+                {isSubmitting ? t('adding') : t('add')}
               </button>
             </div>
           </form>

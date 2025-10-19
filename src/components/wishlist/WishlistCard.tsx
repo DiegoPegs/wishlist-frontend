@@ -3,6 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Wishlist } from '@/types';
 import { formatDate } from '@/lib/formatters';
 import { fetchWishlist, wishlistKeys } from '@/hooks/use-wishlists';
+import { useTranslations } from '@/hooks/useTranslations';
+import { useLocalizedPath } from '@/hooks/useLocalizedPath';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
@@ -13,6 +15,8 @@ interface WishlistCardProps {
 
 export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: WishlistCardProps) {
   const queryClient = useQueryClient();
+  const t = useTranslations('wishlist');
+  const { getLocalizedPath } = useLocalizedPath();
 
   // Função para prefetch da wishlist no hover
   const prefetchWishlist = () => {
@@ -57,7 +61,7 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
 
 
   const formatPrice = (price?: { min?: number; max?: number } | number, currency?: string) => {
-    if (!price) return 'Preço não informado';
+    if (!price) return t('priceNotInformed');
 
     // Se for a nova estrutura de objeto
     if (typeof price === 'object') {
@@ -71,17 +75,17 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
           currency: currency || 'BRL',
         }).format(max)}`;
       } else if (min) {
-        return `A partir de ${new Intl.NumberFormat('pt-BR', {
+        return `${t('from')} ${new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: currency || 'BRL',
         }).format(min)}`;
       } else if (max) {
-        return `Até ${new Intl.NumberFormat('pt-BR', {
+        return `${t('upTo')} ${new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: currency || 'BRL',
         }).format(max)}`;
       }
-      return 'Preço não informado';
+      return t('priceNotInformed');
     }
 
     // Se for a estrutura antiga de número
@@ -134,31 +138,31 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
                 ? 'bg-green-100 text-green-800'
                 : 'bg-gray-100 text-gray-800'
             }`}>
-              {wishlist.isPublic ? 'Pública' : 'Privada'}
+              {wishlist.isPublic ? t('public') : t('private')}
             </span>
           </div>
         </div>
 
         <div className={`grid gap-4 mt-4 text-sm text-gray-600 ${isOwner ? 'grid-cols-2' : 'grid-cols-2'}`}>
           <div>
-            <span className="font-medium">Itens:</span> {wishlist.items?.length || 0}
+            <span className="font-medium">{t('items')}:</span> {wishlist.items?.length || 0}
           </div>
           <div>
-            <span className="font-medium">Valor total:</span> {formatPrice(totalValue)}
+            <span className="font-medium">{t('totalValue')}:</span> {formatPrice(totalValue)}
           </div>
           {!isOwner && (
             <div>
-              <span className="font-medium">Reservados:</span> {reservedItems}
+              <span className="font-medium">{t('reserved')}:</span> {reservedItems}
             </div>
           )}
           <div>
-            <span className="font-medium">Criado em:</span> {formatDate(wishlist.createdAt)}
+            <span className="font-medium">{t('createdAt')}:</span> {formatDate(wishlist.createdAt)}
           </div>
         </div>
 
         {(wishlist.items?.length || 0) > 0 && (
           <div className="mt-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Últimos itens:</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">{t('lastItems')}:</h4>
             <div className="space-y-1">
                 {wishlist.items?.slice(0, 3).map((item, index) => (
                 <div key={item.id || `wishlist-item-${index}`} className="flex items-center justify-between text-sm">
@@ -172,7 +176,7 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
               ))}
               {(wishlist.items?.length || 0) > 3 && (
                 <p className="text-xs text-gray-500">
-                  +{(wishlist.items?.length || 0) - 3} mais itens
+                  +{(wishlist.items?.length || 0) - 3} {t('moreItems')}
                 </p>
               )}
             </div>
@@ -181,16 +185,16 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
 
         <div className="mt-6 flex items-center justify-between">
           <Link
-            href={`/wishlist/${wishlist.id}`}
+            href={getLocalizedPath(`/wishlist/${wishlist.id}`)}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
-            Ver detalhes
+            {t('viewDetails')}
           </Link>
           <div className="flex items-center space-x-2">
             <button
               onClick={onShare}
               className="text-gray-400 hover:text-gray-600"
-              title="Compartilhar lista"
+              title={t('shareList')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -199,7 +203,7 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
             <button
               onClick={() => onDelete?.(wishlist.id)}
               className="text-gray-400 hover:text-red-600"
-              title="Excluir lista"
+              title={t('deleteList')}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

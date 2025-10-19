@@ -219,7 +219,6 @@ export const useAuthStore = create<AuthStore>()(
       onRehydrateStorage: () => (state) => {
         // Verificar se o usuário tem ID após rehidratação
         if (state?.user && (!state.user._id && !state.user.id)) {
-          console.log('Debug - Usuário sem ID após rehidratação, recarregando...');
           state.checkAuthStatus();
         }
       },

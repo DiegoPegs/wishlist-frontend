@@ -37,14 +37,13 @@ export default function NewDependentWishlistPage() {
     }
   })
 
-  const onSubmit = async (data: CreateWishlistFormData) => {
+  const onSubmit = async (_data: CreateWishlistFormData) => {
     setIsLoading(true)
     setError(null)
 
     try {
       // TODO: Implementar chamada para API para criar wishlist do dependente
       // Usar data.title e data.description quando a API for implementada
-      console.log('Dados da wishlist:', data)
 
       // Simular delay da API
       await new Promise((resolve) => setTimeout(resolve, 1000))

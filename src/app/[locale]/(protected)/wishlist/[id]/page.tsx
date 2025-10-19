@@ -17,11 +17,14 @@ import Link from 'next/link';
 import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
 import { formatDate } from '@/lib/formatters';
+import { useTranslations } from '@/hooks/useTranslations';
 
 export default function WishlistDetailPage() {
   const params = useParams();
   const { user: currentUser } = useAuthStore();
   const wishlistId = params.id as string;
+  const tCommon = useTranslations('common');
+  const tWishlist = useTranslations('wishlist');
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -76,7 +79,6 @@ export default function WishlistDetailPage() {
   };
 
   const handleDeleteConfirm = async () => {
-    console.log('Tentando deletar o item:', itemToDelete);
     if (itemToDelete) {
       try {
         await deleteItemMutation.mutateAsync(itemToDelete._id);
@@ -130,13 +132,13 @@ export default function WishlistDetailPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-dark mb-2">Erro ao carregar lista</h3>
-        <p className="text-gray-600 mb-4">Ocorreu um erro ao carregar os detalhes da lista.</p>
+        <h3 className="text-lg font-medium text-dark mb-2">{tCommon('error')}</h3>
+        <p className="text-gray-600 mb-4">{tCommon('error')}</p>
         <Link
           href="/dashboard"
           className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90"
         >
-          Voltar ao Dashboard
+          {tCommon('back')} {tCommon('dashboard')}
         </Link>
       </div>
     );
@@ -145,13 +147,13 @@ export default function WishlistDetailPage() {
   if (!wishlist) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-medium text-dark mb-2">Lista não encontrada</h3>
-        <p className="text-gray-600 mb-4">A lista que você está procurando não existe ou foi removida.</p>
+        <h3 className="text-lg font-medium text-dark mb-2">{tCommon('notFound')}</h3>
+        <p className="text-gray-600 mb-4">{tCommon('notFound')}</p>
         <Link
           href="/dashboard"
           className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90"
         >
-          Voltar ao Dashboard
+          {tCommon('back')} {tCommon('dashboard')}
         </Link>
       </div>
     );
@@ -242,11 +244,11 @@ export default function WishlistDetailPage() {
           {!isOwner && (
             <>
               <div>
-                <span className="font-medium text-gray-700">Reservados:</span>
+                <span className="font-medium text-gray-700">{tWishlist('reserved')}:</span>
                 <p className="text-lg font-semibold text-dark">{reservedItems}</p>
               </div>
               <div>
-                <span className="font-medium text-gray-700">Disponíveis:</span>
+                <span className="font-medium text-gray-700">{tWishlist('available')}:</span>
                 <p className="text-lg font-semibold text-dark">{(wishlist.items?.length || 0) - reservedItems}</p>
               </div>
             </>
@@ -256,7 +258,7 @@ export default function WishlistDetailPage() {
 
       {/* Actions */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-dark">Itens da Lista</h2>
+        <h2 className="text-xl font-semibold text-dark">{tWishlist('listItems')}</h2>
         {isOwner && (
           <button
             onClick={() => setIsAddItemModalOpen(true)}
@@ -265,7 +267,7 @@ export default function WishlistDetailPage() {
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Adicionar Item
+            {tWishlist('addItem')}
           </button>
         )}
       </div>
@@ -278,11 +280,11 @@ export default function WishlistDetailPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-dark mb-2">Nenhum item encontrado</h3>
+          <h3 className="text-lg font-medium text-dark mb-2">{tWishlist('noItemsFound')}</h3>
           <p className="text-gray-600 mb-6">
             {isOwner
-              ? 'Esta lista ainda não possui itens. Que tal adicionar o primeiro?'
-              : 'Esta lista ainda não possui itens.'
+              ? tWishlist('noItemsOwner')
+              : tWishlist('noItemsGuest')
             }
           </p>
           {isOwner && (
@@ -290,7 +292,7 @@ export default function WishlistDetailPage() {
               onClick={() => setIsAddItemModalOpen(true)}
               className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
             >
-              Adicionar primeiro item
+              {tWishlist('addFirstItem')}
             </button>
           )}
         </div>

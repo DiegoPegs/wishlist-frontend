@@ -6,20 +6,23 @@ import { DependentCard } from '@/components/dependents/DependentCard';
 import { AddDependentModal } from '@/components/dependents/AddDependentModal';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 
 export function DependentSection() {
   const [showAddDependent, setShowAddDependent] = useState(false);
 
   // Hook para buscar dados dos dependentes
   const { data: dependents, isLoading } = useMyDependents();
+  const t = useTranslations('dependents');
+  const tCommon = useTranslations('common');
 
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="text-xl font-bold font-display">Meus Dependentes</h2>
+          <h2 className="text-xl font-bold font-display">{t('title')}</h2>
           <p className="text-sm text-dark-light">
-            {!isLoading && dependents ? `${dependents.length} dependente(s) cadastrado(s)` : 'Carregando...'}
+            {!isLoading && dependents ? `${dependents.length} dependente(s) cadastrado(s)` : tCommon('loading')}
           </p>
         </div>
         <Button
@@ -27,7 +30,7 @@ export function DependentSection() {
           onClick={() => setShowAddDependent(true)}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Adicionar Dependente
+          {t('addDependent')}
         </Button>
       </div>
 
@@ -59,14 +62,14 @@ export function DependentSection() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-dark mb-2">Nenhum dependente cadastrado</h3>
-          <p className="text-gray-600 mb-6">Adicione dependentes para gerenciar suas listas de desejos.</p>
+          <h3 className="text-lg font-medium text-dark mb-2">{t('noDependents')}</h3>
+          <p className="text-gray-600 mb-6">{t('addFirstDependent')}</p>
           <Button
             onClick={() => setShowAddDependent(true)}
             variant="primary"
             className="px-6 py-3 text-base"
           >
-            Adicionar primeiro dependente
+            {t('addDependent')}
           </Button>
         </div>
       )}

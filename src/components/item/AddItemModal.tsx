@@ -5,6 +5,7 @@ import { ItemForm } from './ItemForm';
 import { CreateItemData, UpdateItemData } from '@/types/wishlist';
 import { CreateItemDto } from '@/types/item-dto';
 import { useCreateItem } from '@/hooks/use-wishlists';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface AddItemModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const createItemMutation = useCreateItem(wishlistId);
+  const t = useTranslations('item');
 
   const handleSubmit = async (data: CreateItemData | UpdateItemData) => {
     setIsLoading(true);
@@ -61,10 +63,10 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
           <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
             <div className="mb-6">
               <h3 className="text-lg font-medium text-gray-900">
-                Adicionar Item à Lista
+                {t('addItemTitle')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                Adicione um novo item à sua lista de desejos.
+                {t('addItemDescription')}
               </p>
             </div>
 
@@ -72,7 +74,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
               onSubmit={handleSubmit}
               onCancel={onClose}
               isLoading={isLoading}
-              submitLabel="Adicionar Item"
+              submitLabel={t('addItem')}
             />
           </div>
         </div>

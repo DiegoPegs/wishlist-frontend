@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     // 3. Aplicar as variáveis na tag <html>
-    <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
+    <html className={`${inter.variable} ${poppins.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning>
         <ClientOnly>
           <ErrorSuppressor />

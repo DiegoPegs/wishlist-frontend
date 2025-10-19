@@ -11,6 +11,8 @@ import { Plus } from 'lucide-react';
 import { Wishlist } from '@/types';
 import { useDeleteWishlist } from '@/hooks/useDeleteWishlist';
 import { useMyWishlists } from '@/hooks/useMyWishlists';
+import { useTranslations } from '@/hooks/useTranslations';
+import { useLocalizedPath } from '@/hooks/useLocalizedPath';
 
 export default function DashboardPage() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -20,6 +22,8 @@ export default function DashboardPage() {
 
   const deleteWishlistMutation = useDeleteWishlist();
   const { data: wishlists } = useMyWishlists();
+  const tWishlist = useTranslations('wishlist');
+  const { getLocalizedPath } = useLocalizedPath();
 
   const handleShareClick = (wishlist: Wishlist) => {
     setWishlistToShare(wishlist);
@@ -46,15 +50,15 @@ export default function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-bold font-display">Minhas Listas de Desejos</h2>
+            <h2 className="text-xl font-bold font-display">{tWishlist('title')}</h2>
             <p className="text-sm text-dark-light">
-              Gerenciando suas listas de desejos
+              {tWishlist('description')}
             </p>
           </div>
-          <Link href="/dashboard/new">
+          <Link href={getLocalizedPath("/dashboard/new")}>
             <Button variant="ghost">
               <Plus className="mr-2 h-4 w-4" />
-              Nova Lista
+              {tWishlist('addItem')}
             </Button>
           </Link>
         </div>

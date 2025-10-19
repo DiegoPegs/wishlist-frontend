@@ -28,10 +28,8 @@ function getLocalEnvVars(): Record<string, string> {
       }
     });
 
-    console.log(`✅ Carregadas ${Object.keys(envVars).length} variáveis do .env.local`);
     return envVars;
-  } catch (error) {
-    console.warn('⚠️ Arquivo .env.local não encontrado ou erro ao ler:', error);
+  } catch {
     return {};
   }
 }
@@ -42,17 +40,11 @@ function getLocalEnvVars(): Record<string, string> {
  */
 export async function loadEnvFromSSM(): Promise<Record<string, string>> {
   if (typeof window !== 'undefined') {
-    console.log('Skipping SSM fetch on client-side.');
     return {};
   }
 
   const environment = process.env.NODE_ENV || 'development';
   const ssmPath = `/app/kero-wishlist/${environment}/`;
-
-  console.log(`Buscando variáveis de ambiente do SSM para o ambiente: "${environment}"`);
-  console.log(`Caminho no SSM: ${ssmPath}`);
-  console.log(`AWS Profile: ${process.env.AWS_PROFILE || 'default'}`);
-  console.log(`AWS Region: ${process.env.AWS_REGION || 'us-east-1'}`);
 
   try {
     const client = new SSMClient({
@@ -69,8 +61,6 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
     const parameters = response.Parameters || [];
 
     if (parameters.length === 0) {
-      console.warn(`⚠️ Nenhuma variável de ambiente encontrada no SSM para o caminho: ${ssmPath}`);
-      console.log('🔄 Tentando usar variáveis do .env.local...');
       return getLocalEnvVars();
     }
 
@@ -82,23 +72,16 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
       return acc;
     }, {});
 
-    console.log('✅ Variáveis de ambiente carregadas do SSM com sucesso!');
     return envVars;
 
   } catch (error) {
-    console.error('❌ Falha ao carregar variáveis do SSM:', error);
-    console.log('🔄 Tentando usar variáveis do .env.local...');
-
     // Em desenvolvimento, usa variáveis locais como fallback
     if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ Continuando em modo desenvolvimento usando .env.local');
       return getLocalEnvVars();
     }
 
     // Em produção, falha apenas se for um erro crítico de configuração
     if (process.env.NODE_ENV === 'production') {
-      console.error('❌ Erro crítico em produção - verificando tipo de erro...');
-
       // Se for erro de credenciais, permissões ou assinatura, usa variáveis locais
       if (error instanceof Error && (
         error.message.includes('security token') ||
@@ -107,7 +90,6 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
         error.message.includes('InvalidSignature') ||
         error.message.includes('SignatureDoesNotMatch')
       )) {
-        console.warn('⚠️ Problema de credenciais/permissões AWS, usando .env.local...');
         return getLocalEnvVars();
       }
 

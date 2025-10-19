@@ -12,13 +12,7 @@ import { useAuthStore } from '@/store/auth.store'
 import { Button } from '@/components/ui/Button'
 import { BackButton } from '@/components/ui/BackButton'
 import toast from 'react-hot-toast'
-
-const loginSchema = z.object({
-  login: z.string().min(1, 'Email ou username é obrigatório'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres')
-})
-
-type LoginFormData = z.infer<typeof loginSchema>
+import { useTranslations } from '@/hooks/useTranslations'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -26,6 +20,15 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const router = useRouter()
   const { login } = useAuthStore()
+  const t = useTranslations('auth')
+  const tErrors = useTranslations('errors')
+
+  const loginSchema = z.object({
+    login: z.string().min(1, tErrors('required')),
+    password: z.string().min(6, tErrors('passwordTooShort'))
+  })
+
+type LoginFormData = z.infer<typeof loginSchema>
 
   const {
     register,
@@ -41,10 +44,13 @@ export default function LoginPage() {
 
     try {
       await login(data)
-      toast.success('Login realizado com sucesso!')
-      router.push('/dashboard')
+      toast.success(t('loginSuccess'))
+      // Redirecionar para o dashboard com o idioma atual
+      const currentPath = window.location.pathname
+      const locale = currentPath.split('/')[1] || 'pt-BR'
+      router.push(`/${locale}/dashboard`)
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao fazer login'
+      const errorMessage = err instanceof Error ? err.message : tErrors('networkError')
       setError(errorMessage)
       toast.error(errorMessage)
     } finally {
@@ -76,10 +82,10 @@ export default function LoginPage() {
               />
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              Nunca mais erre no presente
+              {t('welcomeTitle')}
             </h1>
             <p className="text-xl text-purple-100 mb-8">
-              Crie listas de desejos personalizadas e acerte na escolha dos presentes para quem você ama.
+              {t('welcomeDescription')}
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm text-purple-200">
               <div className="flex items-center gap-2">
@@ -119,10 +125,10 @@ export default function LoginPage() {
             {/* Formulário */}
             <div>
               <h2 className="text-3xl font-bold text-gray-900 text-center mb-2">
-                Bem-vindo de volta!
+                {t('welcomeBack')}
               </h2>
               <p className="text-center text-gray-600 mb-8">
-                Faça login em sua conta para continuar
+                {t('loginDescription')}
               </p>
 
               <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -130,7 +136,7 @@ export default function LoginPage() {
                   {/* Campo Email/Username */}
                   <div>
                     <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-2">
-                      E-mail ou Nome de Usuário
+                      {t('email')}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -142,7 +148,7 @@ export default function LoginPage() {
                         type="text"
                         autoComplete="username"
                         className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                        placeholder="seu@email.com ou seuusername"
+                        placeholder={t('emailPlaceholder')}
                       />
                     </div>
                     {errors.login && (
@@ -153,7 +159,7 @@ export default function LoginPage() {
                   {/* Campo Senha */}
                   <div>
                     <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                      Senha
+                      {t('password')}
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -165,7 +171,7 @@ export default function LoginPage() {
                         type={showPassword ? 'text' : 'password'}
                         autoComplete="current-password"
                         className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
-                        placeholder="Sua senha"
+                        placeholder={t('passwordPlaceholder')}
                       />
                       <button
                         type="button"
@@ -191,7 +197,7 @@ export default function LoginPage() {
                     href="/forgot-password"
                     className="text-sm font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
                   >
-                    Esqueci minha senha
+                    {t('forgotPassword')}
                   </Link>
                 </div>
 
@@ -210,19 +216,19 @@ export default function LoginPage() {
                     isLoading={isLoading}
                     className="w-full py-3 text-base font-medium"
                   >
-                    {isLoading ? 'Entrando...' : 'Entrar'}
+                    {isLoading ? t('loggingIn') : t('login')}
                   </Button>
                 </div>
 
                 {/* Link para Cadastro */}
                 <div className="text-center">
                   <p className="text-sm text-gray-600">
-                    Não tem uma conta?{' '}
+                    {t('noAccount')}{' '}
                     <Link
                       href="/register"
                       className="font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
                     >
-                      Cadastre-se gratuitamente
+                      {t('registerFree')}
                     </Link>
                   </p>
                 </div>
