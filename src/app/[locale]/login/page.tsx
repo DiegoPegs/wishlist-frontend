@@ -10,7 +10,6 @@ import Image from 'next/image'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { useAuthStore } from '@/store/auth.store'
 import { Button } from '@/components/ui/Button'
-import { BackButton } from '@/components/ui/BackButton'
 import toast from 'react-hot-toast'
 import { useTranslations } from '@/hooks/useTranslations'
 
@@ -107,10 +106,6 @@ type LoginFormData = z.infer<typeof loginSchema>
         {/* Coluna Direita - Formulário de Login */}
         <div className="lg:w-1/2 flex flex-col items-center justify-center p-8 lg:p-12">
           <div className="w-full max-w-md space-y-8">
-            {/* Botão Voltar */}
-            <div className="flex justify-start">
-              <BackButton />
-            </div>
             {/* Logo */}
             <div className="text-center">
               <Image
@@ -194,7 +189,7 @@ type LoginFormData = z.infer<typeof loginSchema>
                 {/* Link Esqueci minha senha */}
                 <div className="flex items-center justify-end">
                   <Link
-                    href="/forgot-password"
+                    href="/pt-BR/forgot-password"
                     className="text-sm font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
                   >
                     {t('forgotPassword')}
@@ -225,7 +220,7 @@ type LoginFormData = z.infer<typeof loginSchema>
                   <p className="text-sm text-gray-600">
                     {t('noAccount')}{' '}
                     <Link
-                      href="/register"
+                      href="/pt-BR/register"
                       className="font-medium text-purple-600 hover:text-purple-500 transition-colors duration-200"
                     >
                       {t('registerFree')}

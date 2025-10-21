@@ -22,13 +22,10 @@ import toast from 'react-hot-toast';
 
 // Mapa de tradução para as opções de parentesco
 const relationshipLabels = {
-  son: 'Filho',
-  daughter: 'Filha',
-  brother: 'Irmão',
-  sister: 'Irmã',
-  nephew: 'Sobrinho',
-  niece: 'Sobrinha',
-  other: 'Outro',
+  CHILD: 'Filho(a)',
+  SIBLING: 'Irmão/Irmã',
+  NEPHEW_NIECE: 'Sobrinho(a)',
+  OTHER: 'Outro',
 };
 
 // Opções para os campos de data
@@ -87,7 +84,7 @@ export const CreateDependentForm: React.FC<CreateDependentFormProps> = ({
       // 1. Prepare the payload object with the correct structure
       const payload: CreateDependentDataAPI = {
         fullName: validatedData.fullName,
-        relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
+        relationship: validatedData.relationship as 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER',
       };
 
       // 2. If date fields are filled, create the nested birthDate object

@@ -2,27 +2,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { useWishlist } from '@/hooks/use-wishlists';
-import { useDeleteWishlist } from '@/hooks/useDeleteWishlist';
-import { useDeleteItem } from '@/hooks/useDeleteItem';
+import { useDependentWishlist } from '@/hooks/use-dependent-wishlists';
+import { useDeleteDependentItem, useHardDeleteDependentWishlist } from '@/hooks/use-dependent-operations';
 import { ItemCard } from '@/components/item/ItemCard';
-import { ShareWishlistModal } from '@/components/wishlist/ShareWishlistModal';
+import { ShareDependentWishlistModal } from '@/components/wishlist/ShareDependentWishlistModal';
 import { EditWishlistModal } from '@/components/wishlist/EditWishlistModal';
 import { DeleteWishlistModal } from '@/components/wishlist/DeleteWishlistModal';
 import { AddItemModal } from '@/components/item/AddItemModal';
 import { EditItemModal } from '@/components/item/EditItemModal';
 import { DeleteItemModal } from '@/components/item/DeleteItemModal';
-import { useAuthStore } from '@/store/auth.store';
 import Link from 'next/link';
 import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
 import { formatDate } from '@/lib/formatters';
 import { useTranslations } from '@/hooks/useTranslations';
+import toast from 'react-hot-toast';
 
-export default function WishlistDetailPage() {
+export default function DependentWishlistDetailPage() {
   const params = useParams();
-  const { user: currentUser } = useAuthStore();
-  const wishlistId = params.id as string;
+  const dependentId = params.id as string;
+  const wishlistId = params.wishlistId as string;
   const tCommon = useTranslations('common');
   const tWishlist = useTranslations('wishlist');
 
@@ -33,17 +32,11 @@ export default function WishlistDetailPage() {
   const [editingItem, setEditingItem] = useState<WishlistItem | null>(null);
   const [itemToDelete, setItemToDelete] = useState<WishlistItem | null>(null);
 
-  const { data: wishlist, isLoading, error } = useWishlist(wishlistId);
-  const deleteWishlistMutation = useDeleteWishlist();
-  const deleteItemMutation = useDeleteItem({ wishlistId });
+  const { data: wishlist, isLoading, error } = useDependentWishlist(dependentId, wishlistId);
+  const deleteWishlistMutation = useHardDeleteDependentWishlist(dependentId);
+  const deleteItemMutation = useDeleteDependentItem(dependentId);
 
-  // Verificação de propriedade mais robusta
-  const currentUserId = currentUser?.id || currentUser?._id;
-  const wishlistOwnerId = wishlist?.ownerId || wishlist?.userId?._id || (typeof wishlist?.userId === 'string' ? wishlist?.userId : wishlist?.userId?._id);
-
-  const isOwner = currentUserId === wishlistOwnerId;
-
-  // Calcular faixa de preço dos itens (antes dos returns condicionais)
+  // Calcular faixa de preço dos itens
   const priceRange = useMemo(() => {
     if (!wishlist?.items || wishlist.items.length === 0) {
       return null;
@@ -73,23 +66,25 @@ export default function WishlistDetailPage() {
   const handleDeleteWishlist = async () => {
     try {
       await deleteWishlistMutation.mutateAsync(wishlistId);
+      toast.success('Lista de desejos excluída com sucesso!');
     } catch (error) {
       console.error('Erro ao excluir wishlist:', error);
+      toast.error('Erro ao excluir lista de desejos');
     }
   };
 
   const handleDeleteConfirm = async () => {
     if (itemToDelete) {
       try {
-        await deleteItemMutation.mutateAsync(itemToDelete._id);
+        await deleteItemMutation.mutateAsync({ itemId: itemToDelete._id });
         setItemToDelete(null);
+        toast.success('Item excluído com sucesso!');
       } catch (error) {
         console.error('Erro ao excluir item:', error);
+        toast.error('Erro ao excluir item');
       }
     }
   };
-
-
 
   const formatPrice = (price?: number, currency?: string) => {
     if (!price) return 'Preço não informado';
@@ -135,10 +130,10 @@ export default function WishlistDetailPage() {
         <h3 className="text-lg font-medium text-dark mb-2">{tCommon('error')}</h3>
         <p className="text-gray-600 mb-4">{tCommon('error')}</p>
         <Link
-          href="/pt-BR/dashboard"
+          href={`/pt-BR/dependents/${dependentId}`}
           className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90"
         >
-          {tCommon('back')} {tCommon('dashboard')}
+          Voltar ao Dependente
         </Link>
       </div>
     );
@@ -150,10 +145,10 @@ export default function WishlistDetailPage() {
         <h3 className="text-lg font-medium text-dark mb-2">{tCommon('notFound')}</h3>
         <p className="text-gray-600 mb-4">{tCommon('notFound')}</p>
         <Link
-          href="/pt-BR/dashboard"
+          href={`/pt-BR/dependents/${dependentId}`}
           className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90"
         >
-          {tCommon('back')} {tCommon('dashboard')}
+          Voltar ao Dependente
         </Link>
       </div>
     );
@@ -164,7 +159,9 @@ export default function WishlistDetailPage() {
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <BackButton />
+      <Link href={`/pt-BR/dependents/${dependentId}`}>
+        <BackButton />
+      </Link>
 
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -193,41 +190,37 @@ export default function WishlistDetailPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            {isOwner && (
-              <>
-                <button
-                  onClick={() => setIsEditModalOpen(true)}
-                  className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                  </svg>
-                  Editar Lista
-                </button>
-                <button
-                  onClick={() => setIsShareModalOpen(true)}
-                  className="bg-secondary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary/90 flex items-center"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                  </svg>
-                  Compartilhar
-                </button>
-                <button
-                  onClick={() => setIsDeleteModalOpen(true)}
-                  className="text-gray-400 hover:text-red-600 p-2"
-                  disabled={deleteWishlistMutation.isPending}
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </>
-            )}
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Editar Lista
+            </button>
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="bg-secondary text-white px-4 py-2 rounded-md font-medium hover:bg-secondary/90 flex items-center"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+              </svg>
+              Compartilhar
+            </button>
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="text-gray-400 hover:text-red-600 p-2"
+              disabled={deleteWishlistMutation.isPending}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
           </div>
         </div>
 
-        <div className={`mt-6 grid gap-4 text-sm ${isOwner ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+        <div className="mt-6 grid gap-4 text-sm grid-cols-2 md:grid-cols-3">
           <div>
             <span className="font-medium text-gray-700">Total de itens:</span>
             <p className="text-lg font-semibold text-dark">{wishlist.items?.length || 0}</p>
@@ -241,35 +234,25 @@ export default function WishlistDetailPage() {
               }
             </p>
           </div>
-          {!isOwner && (
-            <>
-              <div>
-                <span className="font-medium text-gray-700">{tWishlist('reserved')}:</span>
-                <p className="text-lg font-semibold text-dark">{reservedItems}</p>
-              </div>
-              <div>
-                <span className="font-medium text-gray-700">{tWishlist('available')}:</span>
-                <p className="text-lg font-semibold text-dark">{(wishlist.items?.length || 0) - reservedItems}</p>
-              </div>
-            </>
-          )}
+          <div>
+            <span className="font-medium text-gray-700">{tWishlist('reserved')}:</span>
+            <p className="text-lg font-semibold text-dark">{reservedItems}</p>
+          </div>
         </div>
       </div>
 
       {/* Actions */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-dark">{tWishlist('listItems')}</h2>
-        {isOwner && (
-          <button
-            onClick={() => setIsAddItemModalOpen(true)}
-            className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            {tWishlist('addItem')}
-          </button>
-        )}
+        <button
+          onClick={() => setIsAddItemModalOpen(true)}
+          className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
+        >
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
+          {tWishlist('addItem')}
+        </button>
       </div>
 
       {/* Items Grid */}
@@ -282,19 +265,14 @@ export default function WishlistDetailPage() {
           </div>
           <h3 className="text-lg font-medium text-dark mb-2">{tWishlist('noItemsFound')}</h3>
           <p className="text-gray-600 mb-6">
-            {isOwner
-              ? tWishlist('noItemsOwner')
-              : tWishlist('noItemsGuest')
-            }
+            {tWishlist('noItemsOwner')}
           </p>
-          {isOwner && (
-            <button
-              onClick={() => setIsAddItemModalOpen(true)}
-              className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
-            >
-              {tWishlist('addFirstItem')}
-            </button>
-          )}
+          <button
+            onClick={() => setIsAddItemModalOpen(true)}
+            className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
+          >
+            {tWishlist('addFirstItem')}
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -302,7 +280,7 @@ export default function WishlistDetailPage() {
             <ItemCard
               key={item._id || `item-${index}`}
               item={item}
-              isOwner={isOwner}
+              isOwner={true}
               onEdit={() => setEditingItem(item)}
               onDelete={() => setItemToDelete(item)}
             />
@@ -318,15 +296,17 @@ export default function WishlistDetailPage() {
           wishlistId={wishlist.id}
           currentTitle={wishlist.title}
           currentDescription={wishlist.description}
+          dependentId={dependentId}
         />
       )}
 
       {/* Modal de Compartilhamento */}
       {wishlist && (
-        <ShareWishlistModal
+        <ShareDependentWishlistModal
           isOpen={isShareModalOpen}
           onClose={() => setIsShareModalOpen(false)}
           wishlist={wishlist}
+          dependentId={dependentId}
         />
       )}
 
@@ -338,6 +318,7 @@ export default function WishlistDetailPage() {
           onConfirm={handleDeleteWishlist}
           wishlistTitle={wishlist.title}
           isLoading={deleteWishlistMutation.isPending}
+          isPermanent={true}
         />
       )}
 
@@ -346,6 +327,7 @@ export default function WishlistDetailPage() {
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
         wishlistId={wishlistId}
+        dependentId={dependentId}
       />
 
       {/* Modal de Editar Item */}
@@ -354,6 +336,7 @@ export default function WishlistDetailPage() {
         item={editingItem}
         onClose={() => setEditingItem(null)}
         wishlistId={wishlistId}
+        dependentId={dependentId}
       />
 
       {/* Modal de Excluir Item */}

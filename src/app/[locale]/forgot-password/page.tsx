@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
             </p>
             <div className="mt-6 space-y-2">
               <Link
-                href="/login"
+                href="/pt-BR/login"
                 className="block font-medium text-primary hover:text-primary/80"
               >
                 Voltar para o login
@@ -126,7 +126,7 @@ export default function ForgotPasswordPage() {
 
             <div className="text-center">
               <Link
-                href="/login"
+                href="/pt-BR/login"
                 className="font-medium text-primary hover:text-primary/80"
               >
                 Voltar para o login

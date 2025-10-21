@@ -37,7 +37,7 @@ export default function NewDependentWishlistPage() {
     }
   })
 
-  const onSubmit = async (_data: CreateWishlistFormData) => {
+  const onSubmit = async () => {
     setIsLoading(true)
     setError(null)
 

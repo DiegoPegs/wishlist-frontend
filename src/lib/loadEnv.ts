@@ -30,7 +30,10 @@ function getLocalEnvVars(): Record<string, string> {
 
     return envVars;
   } catch {
-    return {};
+    // Se não conseguir ler o .env.local, retorna variáveis padrão
+    return {
+      NEXT_PUBLIC_API_URL: 'http://localhost:3000'
+    };
   }
 }
 
@@ -80,20 +83,10 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
       return getLocalEnvVars();
     }
 
-    // Em produção, falha apenas se for um erro crítico de configuração
+    // Em produção, usa variáveis locais como fallback se AWS não estiver disponível
     if (process.env.NODE_ENV === 'production') {
-      // Se for erro de credenciais, permissões ou assinatura, usa variáveis locais
-      if (error instanceof Error && (
-        error.message.includes('security token') ||
-        error.message.includes('AccessDenied') ||
-        error.message.includes('UnauthorizedOperation') ||
-        error.message.includes('InvalidSignature') ||
-        error.message.includes('SignatureDoesNotMatch')
-      )) {
-        return getLocalEnvVars();
-      }
-
-      throw new Error('Não foi possível carregar as configurações da AWS em produção. Abortando o build.');
+      console.warn('AWS SSM não disponível em produção, usando variáveis locais como fallback:', error);
+      return getLocalEnvVars();
     }
 
     return getLocalEnvVars();

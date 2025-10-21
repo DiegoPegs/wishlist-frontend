@@ -54,7 +54,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
       // 1. Prepare the payload object with the correct structure
       const payload: CreateDependentDataAPI = {
         fullName: validatedData.fullName,
-        relationship: validatedData.relationship as 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other',
+        relationship: validatedData.relationship as 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER',
       };
 
       // 2. If date fields are filled, create the nested birthDate object
@@ -194,7 +194,7 @@ export function AddDependentModal({ onClose, onSuccess }: AddDependentModalProps
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 <option value="">{t('selectRelationship')}</option>
-                {['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other'].map((value) => (
+                {['CHILD', 'SIBLING', 'NEPHEW_NIECE', 'OTHER'].map((value) => (
                   <option key={value} value={value}>
                     {t(value)}
                   </option>

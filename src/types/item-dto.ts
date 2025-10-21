@@ -14,6 +14,7 @@ export interface CreateItemDto {
     desired: number;
   };
   itemType: 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
+  notes?: string;
 }
 
 export interface UpdateItemDto {
@@ -30,4 +31,13 @@ export interface UpdateItemDto {
     desired: number;
   };
   itemType?: 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
+  notes?: string;
+}
+
+export interface UpdateItemQuantityDto {
+  desired: number;
+}
+
+export interface MarkItemAsReceivedDto {
+  quantityReceived: number;
 }

@@ -6,7 +6,7 @@ export interface Dependent {
     month: number;
     year?: number;
   };
-  relationship: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
+  relationship: 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER';
   guardianId: string;
   guardianName: string;
   secondGuardianId?: string;
@@ -22,13 +22,13 @@ export interface CreateDependentData {
     month: number;
     year?: number;
   };
-  relationship: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
+  relationship: 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER';
 }
 
 export interface UpdateDependentData {
   name?: string;
   birthDate?: string;
-  relationship?: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
+  relationship?: 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER';
 }
 
 export interface AddGuardianData {

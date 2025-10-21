@@ -9,18 +9,24 @@ import { AuthProvider } from '@/components/AuthProvider';
 import { ErrorSuppressor } from '@/components/ErrorSuppressor';
 import { ClientOnly } from '@/components/ClientOnly';
 
-// 2. Configurar as fontes com as variáveis CSS
+// 2. Configurar as fontes com as variáveis CSS e fallbacks robustos
 const inter = Inter({
   subsets: ['latin'],
-  variable: '--font-inter', // Define a variável CSS para a fonte Inter
+  variable: '--font-inter',
   display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  preload: true,
+  adjustFontFallback: true,
 });
 
 const poppins = Poppins({
   subsets: ['latin'],
   weight: ['500', '700', '800'],
-  variable: '--font-poppins', // Define a variável CSS para a fonte Poppins
+  variable: '--font-poppins',
   display: 'swap',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {

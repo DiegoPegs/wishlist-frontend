@@ -26,6 +26,20 @@ export default async (): Promise<NextConfig> => {
       dangerouslyAllowSVG: true,
       contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     },
+    // Configuração para suprimir warnings de fontes durante desenvolvimento
+    experimental: {
+      optimizePackageImports: ['lucide-react'],
+    },
+    // Configuração para lidar com falhas de download de fontes
+    webpack: (config, { dev }) => {
+      if (dev) {
+        // Suprimir warnings de fontes durante desenvolvimento
+        config.infrastructureLogging = {
+          level: 'error',
+        };
+      }
+      return config;
+    },
   };
 
   return withNextIntl(nextConfig);

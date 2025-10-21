@@ -48,7 +48,7 @@ export function WishlistList({ onShare, onDelete }: WishlistListProps) {
           </div>
           <h3 className="text-lg font-medium text-dark mb-2">Nenhuma lista encontrada</h3>
           <p className="text-gray-600 mb-6">Você ainda não criou nenhuma lista de desejos.</p>
-          <Link href="/dashboard/new">
+          <Link href="/pt-BR/dashboard/new">
             <Button variant="primary" className="px-6 py-3 text-base">
               Criar primeira lista
             </Button>

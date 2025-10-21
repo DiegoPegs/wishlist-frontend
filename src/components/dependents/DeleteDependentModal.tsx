@@ -2,26 +2,26 @@
 
 import { useState } from 'react';
 import { X, AlertTriangle } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 
-interface DeleteWishlistModalProps {
+interface DeleteDependentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  wishlistTitle: string;
+  dependentName: string;
   isLoading?: boolean;
-  dependentId?: string; // Nova prop opcional
-  isPermanent?: boolean; // Nova prop para diferenciar entre soft e hard delete
 }
 
-export function DeleteWishlistModal({
+export function DeleteDependentModal({
   isOpen,
   onClose,
   onConfirm,
-  wishlistTitle,
+  dependentName,
   isLoading = false,
-  isPermanent = false,
-}: DeleteWishlistModalProps) {
+}: DeleteDependentModalProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const t = useTranslations('dependents');
+  const tCommon = useTranslations('common');
 
   const handleConfirm = async () => {
     setIsDeleting(true);
@@ -29,7 +29,7 @@ export function DeleteWishlistModal({
       await onConfirm();
       onClose();
     } catch (error) {
-      console.error('Erro ao excluir wishlist:', error);
+      console.error('Erro ao excluir dependente:', error);
     } finally {
       setIsDeleting(false);
     }
@@ -47,7 +47,7 @@ export function DeleteWishlistModal({
               <AlertTriangle className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">
-              {isPermanent ? 'Excluir Permanentemente' : 'Excluir Wishlist'}
+              {t('deleteDependentTitle')}
             </h3>
           </div>
           <button
@@ -62,15 +62,12 @@ export function DeleteWishlistModal({
         {/* Content */}
         <div className="mb-6">
           <p className="text-gray-600 mb-4">
-            Tem certeza que deseja {isPermanent ? 'excluir permanentemente' : 'excluir'} a wishlist{' '}
-            <span className="font-semibold text-gray-900">&ldquo;{wishlistTitle}&rdquo;</span>?
+            {t('deleteDependentConfirm')}{' '}
+            <span className="font-semibold text-gray-900">&ldquo;{dependentName}&rdquo;</span>?
           </p>
           <div className="bg-red-50 border border-red-200 rounded-md p-3">
             <p className="text-sm text-red-800">
-              <strong>Atenção:</strong> {isPermanent
-                ? 'Esta ação não pode ser desfeita. Todos os itens da wishlist serão permanentemente excluídos.'
-                : 'Esta ação pode ser desfeita posteriormente através da funcionalidade de restauração.'
-              }
+              <strong>{tCommon('error')}:</strong> {t('deleteDependentWarning')}
             </p>
           </div>
         </div>
@@ -82,7 +79,7 @@ export function DeleteWishlistModal({
             disabled={isDeleting || isLoading}
             className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Cancelar
+            {tCommon('cancel')}
           </button>
           <button
             onClick={handleConfirm}
@@ -92,10 +89,10 @@ export function DeleteWishlistModal({
             {isDeleting || isLoading ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                {isPermanent ? 'Excluindo permanentemente...' : 'Excluindo...'}
+                {t('deleting')}
               </>
             ) : (
-              isPermanent ? 'Sim, Excluir Permanentemente' : 'Sim, Excluir'
+              t('deleteDependentButton')
             )}
           </button>
         </div>

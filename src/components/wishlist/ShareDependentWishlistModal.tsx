@@ -1,44 +1,60 @@
 'use client';
 
-import { Wishlist } from '@/types/wishlist';
+import { Wishlist } from '@/types';
 import { Modal } from '@/components/ui/Modal';
-import { useUpdateWishlistSharing } from '@/hooks/useUpdateWishlistSharing';
-import { useWishlist } from '@/hooks/use-wishlists';
+import { useUpdateDependentWishlistSharing } from '@/hooks/use-dependent-wishlists';
+import { useDependentWishlist } from '@/hooks/use-dependent-wishlists';
 import { Switch } from '@/components/ui/Switch';
 import { Button } from '@/components/ui/Button';
 import { Clipboard, Check, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-interface ShareWishlistModalProps {
+interface ShareDependentWishlistModalProps {
   isOpen: boolean;
   onClose: () => void;
   wishlist: Wishlist | null;
+  dependentId: string;
 }
 
-export function ShareWishlistModal({
+export function ShareDependentWishlistModal({
   isOpen,
   onClose,
   wishlist,
-}: ShareWishlistModalProps) {
+  dependentId,
+}: ShareDependentWishlistModalProps) {
   const [copied, setCopied] = useState(false);
 
-  // Buscar dados atualizados da wishlist
-  const { data: updatedWishlist } = useWishlist(
+  // Buscar dados atualizados da wishlist do dependente
+  const { data: updatedWishlist } = useDependentWishlist(
+    dependentId,
     wishlist?.id || ''
   );
 
-  const { mutate, isPending } = useUpdateWishlistSharing();
+  const { mutate, isPending } = useUpdateDependentWishlistSharing(dependentId);
 
   // Usar dados atualizados se disponíveis, senão usar os dados passados como prop
   const currentWishlist = updatedWishlist || wishlist;
 
   const handleToggleSharing = (isPublic: boolean) => {
-    if (currentWishlist) {
+    if (currentWishlist && currentWishlist.id) {
+      console.log('🔍 handleToggleSharing debug:', {
+        currentWishlist,
+        currentWishlistId: currentWishlist.id,
+        isPublic,
+        dependentId
+      });
+
       mutate({
         wishlistId: currentWishlist.id,
         data: { isPublic },
       });
+    } else {
+      console.error('❌ Erro: currentWishlist ou currentWishlist.id está undefined:', {
+        currentWishlist,
+        currentWishlistId: currentWishlist?.id
+      });
+      toast.error('Erro: ID da wishlist não encontrado');
     }
   };
 

@@ -2,19 +2,48 @@
 
 import { useState } from 'react';
 import { useMyDependents } from '@/hooks/useMyDependents';
+import { useDeleteDependent } from '@/hooks/use-dependents';
 import { DependentCard } from '@/components/dependents/DependentCard';
 import { AddDependentModal } from '@/components/dependents/AddDependentModal';
+import { DeleteDependentModal } from '@/components/dependents/DeleteDependentModal';
 import { Button } from '@/components/ui/Button';
 import { Plus } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
+import { Dependent } from '@/types/dependent';
+import { toast } from 'react-hot-toast';
 
 export function DependentSection() {
   const [showAddDependent, setShowAddDependent] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [dependentToDelete, setDependentToDelete] = useState<Dependent | null>(null);
 
   // Hook para buscar dados dos dependentes
   const { data: dependents, isLoading } = useMyDependents();
+  const deleteDependentMutation = useDeleteDependent();
   const t = useTranslations('dependents');
   const tCommon = useTranslations('common');
+
+  const handleDeleteClick = (dependentId: string) => {
+    const dependent = dependents?.find(d => d.id === dependentId);
+    if (dependent) {
+      setDependentToDelete(dependent);
+      setIsDeleteModalOpen(true);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (dependentToDelete) {
+      try {
+        await deleteDependentMutation.mutateAsync(dependentToDelete.id);
+        toast.success(t('dependentDeletedSuccess'));
+        setIsDeleteModalOpen(false);
+        setDependentToDelete(null);
+      } catch (error) {
+        console.error('Erro ao excluir dependente:', error);
+        toast.error(t('dependentDeleteError'));
+      }
+    }
+  };
 
   return (
     <section>
@@ -52,7 +81,11 @@ export function DependentSection() {
       ) : dependents && dependents.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dependents.map((dependent, index) => (
-            <DependentCard key={dependent.id || `dependent-${index}`} dependent={dependent} />
+            <DependentCard
+              key={dependent.id || `dependent-${index}`}
+              dependent={dependent}
+              onDelete={handleDeleteClick}
+            />
           ))}
         </div>
       ) : (
@@ -82,6 +115,20 @@ export function DependentSection() {
             setShowAddDependent(false);
             // O hook useMyDependents irá atualizar automaticamente
           }}
+        />
+      )}
+
+      {/* Modal para excluir dependente */}
+      {dependentToDelete && (
+        <DeleteDependentModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setDependentToDelete(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          dependentName={dependentToDelete.name}
+          isLoading={deleteDependentMutation.isPending}
         />
       )}
     </section>

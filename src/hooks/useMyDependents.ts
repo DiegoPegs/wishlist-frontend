@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { Dependent } from '@/types/dependent';
 import { useAuthStore } from '@/store/auth.store';
+import { dependentKeys } from './use-dependents';
 
 // Tipo para os dados brutos da API
 interface ApiDependent {
@@ -51,7 +52,7 @@ export const useMyDependents = () => {
   const { authStatus } = useAuthStore();
 
   const query = useQuery({
-    queryKey: ['my-dependents'],
+    queryKey: dependentKeys.mine(),
     queryFn: fetchMyDependents,
     enabled: authStatus === 'AUTHENTICATED', // Evita race condition
     staleTime: 5 * 60 * 1000, // 5 minutos

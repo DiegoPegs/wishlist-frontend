@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X } from 'lucide-react';
 import { useUpdateWishlist } from '@/hooks/useUpdateWishlist';
+import { useUpdateDependentWishlist } from '@/hooks/use-dependent-operations';
 import toast from 'react-hot-toast';
 
 const editWishlistSchema = z.object({
@@ -21,6 +22,7 @@ interface EditWishlistModalProps {
   wishlistId: string;
   currentTitle: string;
   currentDescription?: string;
+  dependentId?: string; // Nova prop opcional
 }
 
 export function EditWishlistModal({
@@ -29,9 +31,11 @@ export function EditWishlistModal({
   wishlistId,
   currentTitle,
   currentDescription = '',
+  dependentId,
 }: EditWishlistModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const updateWishlistMutation = useUpdateWishlist(wishlistId);
+  const updateDependentWishlistMutation = useUpdateDependentWishlist(dependentId || '');
 
   const {
     register,
@@ -54,10 +58,21 @@ export function EditWishlistModal({
 
     setIsLoading(true);
     try {
-      await updateWishlistMutation.mutateAsync({
+      const updateData = {
         title: data.title.trim(),
         description: data.description?.trim() || undefined,
-      });
+      };
+
+      // Usar hook apropriado baseado na presença de dependentId
+      if (dependentId) {
+        await updateDependentWishlistMutation.mutateAsync({
+          wishlistId,
+          data: updateData,
+        });
+      } else {
+        await updateWishlistMutation.mutateAsync(updateData);
+      }
+
       toast.success('Lista atualizada com sucesso!');
       onClose();
     } catch (error: unknown) {

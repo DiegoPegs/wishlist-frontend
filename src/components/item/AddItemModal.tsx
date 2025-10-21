@@ -5,21 +5,25 @@ import { ItemForm } from './ItemForm';
 import { CreateItemData, UpdateItemData } from '@/types/wishlist';
 import { CreateItemDto } from '@/types/item-dto';
 import { useCreateItem } from '@/hooks/use-wishlists';
+import { useCreateDependentItem } from '@/hooks/use-dependent-operations';
 import { useTranslations } from '@/hooks/useTranslations';
 
 interface AddItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   wishlistId: string;
+  dependentId?: string; // Nova prop opcional
 }
 
 export const AddItemModal: React.FC<AddItemModalProps> = ({
   isOpen,
   onClose,
   wishlistId,
+  dependentId,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const createItemMutation = useCreateItem(wishlistId);
+  const createDependentItemMutation = useCreateDependentItem(dependentId || '');
   const t = useTranslations('item');
 
   const handleSubmit = async (data: CreateItemData | UpdateItemData) => {
@@ -27,18 +31,24 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({
     try {
       // Mapear dados do formulário para o DTO do backend
       const payload: CreateItemDto = {
-        title: data.title || '', // Agora usando title diretamente
+        title: data.title || '',
         description: data.description,
+        notes: data.notes,
         itemType: data.itemType || 'SPECIFIC_PRODUCT',
-        quantity: data.quantity ? { desired: Number(data.quantity) } : undefined, // Estruturado como objeto
+        quantity: data.quantity ? { desired: Number(data.quantity) } : undefined,
         price: data.price,
         currency: data.currency,
-        // Envia link e imageUrl apenas se não forem vazios
-        ...(data.url && data.url.trim() !== '' && { link: data.url }),
-        ...(data.imageUrl && data.imageUrl.trim() !== '' && { imageUrl: data.imageUrl }),
+        link: data.url, // url -> link
+        imageUrl: data.imageUrl,
       };
 
-      await createItemMutation.mutateAsync(payload);
+      // Usar hook apropriado baseado na presença de dependentId
+      if (dependentId) {
+        await createDependentItemMutation.mutateAsync({ wishlistId, data: data as CreateItemData });
+      } else {
+        await createItemMutation.mutateAsync(payload);
+      }
+
       onClose();
     } catch (error) {
       throw error; // Re-throw para o ItemForm tratar

@@ -87,7 +87,7 @@ export default function RegisterPage() {
             </p>
             <div className="mt-6">
               <Link
-                href="/login"
+                href="/pt-BR/login"
                 className="font-medium text-primary hover:text-primary/80"
               >
                 Voltar para o login

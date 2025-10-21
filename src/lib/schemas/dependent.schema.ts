@@ -21,7 +21,7 @@ export const createDependentSchema = z.object({
   // A mensagem de erro é passada diretamente no segundo argumento.
   // Isso cobre o caso do valor inicial ser '', que não é um membro do enum.
   relationship: z.enum(
-    ['son', 'daughter', 'brother', 'sister', 'nephew', 'niece', 'other'],
+    ['CHILD', 'SIBLING', 'NEPHEW_NIECE', 'OTHER'],
     {
       message: 'Selecione um parentesco válido.',
     }

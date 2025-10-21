@@ -5,31 +5,47 @@ import { useParams } from 'next/navigation';
 import { useDependent } from '@/hooks/useDependent';
 import { useDependentWishlists } from '@/hooks/use-dependent-wishlists';
 import { useCreateDependentWishlist } from '@/hooks/use-dependent-wishlists';
+import { useHardDeleteDependentWishlist } from '@/hooks/use-dependent-operations';
 import { WishlistCard } from '@/components/wishlist/WishlistCard';
 import { CreateWishlistModal } from '@/components/wishlist/CreateWishlistModal';
+import { ShareDependentWishlistModal } from '@/components/wishlist/ShareDependentWishlistModal';
+import { DeleteWishlistModal } from '@/components/wishlist/DeleteWishlistModal';
 import { Button } from '@/components/ui/Button';
 import { formatBirthDateObject, calculateAge } from '@/lib/formatters';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { BackButton } from '@/components/ui/BackButton';
+import { Wishlist } from '@/types';
 
 export default function DependentManagementPage() {
   const params = useParams();
   const dependentId = params.id as string;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(null);
 
   const { data: dependent, isLoading: dependentLoading, error: dependentError } = useDependent(dependentId);
   const { data: wishlists, isLoading: wishlistsLoading, error: wishlistsError } = useDependentWishlists(dependentId);
   const createWishlistMutation = useCreateDependentWishlist(dependentId);
+  const deleteWishlistMutation = useHardDeleteDependentWishlist(dependentId);
+
+  // Debug logs
+  console.log('🔍 Debug página dependente:', {
+    dependentId,
+    dependent,
+    dependentLoading,
+    dependentError,
+    wishlists,
+    wishlistsLoading,
+    wishlistsError
+  });
 
   const relationshipLabels: Record<string, string> = {
-    son: 'Filho',
-    daughter: 'Filha',
-    brother: 'Irmão',
-    sister: 'Irmã',
-    nephew: 'Sobrinho',
-    niece: 'Sobrinha',
-    other: 'Outro',
+    CHILD: 'Filho(a)',
+    SIBLING: 'Irmão/Irmã',
+    NEPHEW_NIECE: 'Sobrinho(a)',
+    OTHER: 'Outro',
   };
 
   const handleCreateWishlist = async (data: { title: string; description?: string }) => {
@@ -39,6 +55,30 @@ export default function DependentManagementPage() {
       setIsCreateModalOpen(false);
     } catch (error) {
       throw error; // Re-throw para o modal tratar
+    }
+  };
+
+  const handleShareWishlist = (wishlist: Wishlist) => {
+    setSelectedWishlist(wishlist);
+    setIsShareModalOpen(true);
+  };
+
+  const handleDeleteWishlist = (wishlist: Wishlist) => {
+    setSelectedWishlist(wishlist);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedWishlist) {
+      try {
+        await deleteWishlistMutation.mutateAsync(selectedWishlist.id);
+        toast.success('Lista de desejos excluída com sucesso!');
+        setIsDeleteModalOpen(false);
+        setSelectedWishlist(null);
+      } catch (error) {
+        console.error('Erro ao excluir wishlist:', error);
+        toast.error('Erro ao excluir lista de desejos');
+      }
     }
   };
 
@@ -83,7 +123,7 @@ export default function DependentManagementPage() {
         </div>
         <h3 className="text-lg font-medium text-dark mb-2">Erro ao carregar dependente</h3>
         <p className="text-gray-600 mb-4">Ocorreu um erro ao carregar os dados do dependente.</p>
-        <Link href="/dashboard">
+        <Link href="/pt-BR/dashboard">
           <Button variant="primary">
             Voltar ao Dashboard
           </Button>
@@ -153,47 +193,73 @@ export default function DependentManagementPage() {
         </div>
 
         {/* Renderização das Wishlists */}
-        {wishlistsLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={`wishlist-skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
-                <div className="p-6">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
-                  <div className="space-y-2">
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+        {(() => {
+          console.log('🔍 Renderização wishlists:', {
+            wishlistsLoading,
+            wishlists,
+            wishlistsLength: wishlists?.length,
+            wishlistsError,
+            wishlistsType: typeof wishlists,
+            wishlistsIsArray: Array.isArray(wishlists),
+            wishlistsFirstItem: wishlists?.[0]
+          });
+
+          if (wishlistsLoading) {
+            console.log('📱 Mostrando skeleton loading');
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(3)].map((_, i) => (
+                  <div key={`wishlist-skeleton-${i}`} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
+                    <div className="p-6">
+                      <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-1/2 mb-4"></div>
+                      <div className="space-y-2">
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                        <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : wishlists && wishlists.length > 0 ? (
-          // Estado de Sucesso: Wishlists encontradas
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {wishlists.map((wishlist, index) => (
-              <WishlistCard key={wishlist.id || wishlist._id || `wishlist-${index}`} wishlist={wishlist} isOwner={true} />
-            ))}
-          </div>
-        ) : (
-          // Estado Vazio: Nenhuma wishlist encontrada
-          <div className="text-center py-12">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-dark mb-2">Este dependente ainda não tem listas de desejos.</h3>
-            <p className="text-gray-600 mb-6">Crie a primeira lista de desejos para {dependent.name}.</p>
-            <Button
-              onClick={() => setIsCreateModalOpen(true)}
-              variant="primary"
-              className="px-6 py-3 text-base"
-            >
-              Criar primeira lista
-            </Button>
-          </div>
-        )}
+            );
+          } else if (wishlists && wishlists.length > 0) {
+            console.log('📱 Mostrando wishlists:', wishlists);
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {wishlists.map((wishlist, index) => (
+                  <WishlistCard
+                    key={wishlist.id || wishlist._id || `wishlist-${index}`}
+                    wishlist={wishlist}
+                    isOwner={true}
+                    dependentId={dependentId}
+                    onShare={() => handleShareWishlist(wishlist)}
+                    onDelete={() => handleDeleteWishlist(wishlist)}
+                  />
+                ))}
+              </div>
+            );
+          } else {
+            console.log('📱 Mostrando estado vazio');
+            return (
+              <div className="text-center py-12">
+                <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-dark mb-2">Este dependente ainda não tem listas de desejos.</h3>
+                <p className="text-gray-600 mb-6">Crie a primeira lista de desejos para {dependent.name}.</p>
+                <Button
+                  onClick={() => setIsCreateModalOpen(true)}
+                  variant="primary"
+                  className="px-6 py-3 text-base"
+                >
+                  Criar primeira lista
+                </Button>
+              </div>
+            );
+          }
+        })()}
       </div>
 
       {/* Modal de Criação de Wishlist */}
@@ -207,6 +273,34 @@ export default function DependentManagementPage() {
         titlePlaceholder={`Ex: Lista de Aniversário do ${dependent?.name}`}
         descriptionPlaceholder={`Descreva a lista de desejos para ${dependent?.name}...`}
       />
+
+      {/* Modal de Compartilhamento */}
+      {selectedWishlist && (
+        <ShareDependentWishlistModal
+          isOpen={isShareModalOpen}
+          onClose={() => {
+            setIsShareModalOpen(false);
+            setSelectedWishlist(null);
+          }}
+          wishlist={selectedWishlist}
+          dependentId={dependentId}
+        />
+      )}
+
+      {/* Modal de Exclusão */}
+      {selectedWishlist && (
+        <DeleteWishlistModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedWishlist(null);
+          }}
+          onConfirm={handleConfirmDelete}
+          wishlistTitle={selectedWishlist.title}
+          isLoading={deleteWishlistMutation.isPending}
+          isPermanent={true}
+        />
+      )}
     </div>
   );
 }

@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
             </p>
             <div className="mt-6">
               <Link
-                href="/login"
+                href="/pt-BR/login"
                 className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
               >
                 Fazer Login

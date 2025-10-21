@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Link from 'next/link';
+import { Trash2 } from 'lucide-react';
 import { Dependent } from '@/types/dependent';
 import { AddGuardianModal } from './AddGuardianModal';
 import { formatBirthDateObject, calculateAge } from '@/lib/formatters';
@@ -10,9 +11,10 @@ interface DependentCardProps {
   dependent: Dependent;
   onAddGuardian?: (dependentId: string) => void;
   onRemoveGuardian?: (dependentId: string) => void;
+  onDelete?: (dependentId: string) => void;
 }
 
-export function DependentCard({ dependent, onRemoveGuardian }: DependentCardProps) {
+export function DependentCard({ dependent, onRemoveGuardian, onDelete }: DependentCardProps) {
   const [showAddGuardianModal, setShowAddGuardianModal] = useState(false);
   const t = useTranslations('dependents');
   const { getLocalizedPath } = useLocalizedPath();
@@ -103,6 +105,20 @@ export function DependentCard({ dependent, onRemoveGuardian }: DependentCardProp
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </button>
+
+                {onDelete && (
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDelete(dependent.id);
+                    }}
+                    className="text-gray-400 hover:text-red-600"
+                    title={t('deleteDependentTooltip')}
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>

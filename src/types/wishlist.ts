@@ -1,5 +1,11 @@
 export type ItemType = 'SPECIFIC_PRODUCT' | 'ONGOING_SUGGESTION';
 
+export interface ItemQuantity {
+  desired: number;
+  reserved?: number;
+  received?: number;
+}
+
 export interface WishlistItem {
   _id: string;
   id: string;
@@ -9,7 +15,8 @@ export interface WishlistItem {
   currency?: string;
   link?: string;
   imageUrl?: string;
-  quantity?: number | { desired?: number };
+  quantity?: ItemQuantity;
+  receivedQuantity?: number;
   itemType: ItemType;
   notes?: string;
   reservedBy?: string;
@@ -33,6 +40,7 @@ export interface Wishlist {
   ownerName: string;
   items: WishlistItem[];
   sharing: WishlistSharing;
+  status?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +63,7 @@ export interface UpdateWishlistSharingData {
 export interface CreateItemData {
   title: string;
   description?: string;
+  notes?: string;
   price?: {
     min?: number;
     max?: number;
@@ -69,6 +78,7 @@ export interface CreateItemData {
 export interface UpdateItemData {
   title?: string;
   description?: string;
+  notes?: string;
   price?: {
     min?: number;
     max?: number;
@@ -78,6 +88,14 @@ export interface UpdateItemData {
   imageUrl?: string;
   quantity?: number;
   itemType?: ItemType;
+}
+
+export interface UpdateItemQuantityData {
+  desired: number;
+}
+
+export interface MarkItemAsReceivedData {
+  quantityReceived: number;
 }
 
 export interface ReservationData {

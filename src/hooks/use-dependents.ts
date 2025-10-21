@@ -36,6 +36,8 @@ export function useCreateDependent() {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });
       queryClient.invalidateQueries({ queryKey: ['me'] });
       queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+      // Forçar refetch da query
+      queryClient.refetchQueries({ queryKey: dependentKeys.mine() });
     },
   });
 }
@@ -64,7 +66,7 @@ export function useDeleteDependent() {
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      await api.delete(`/users/dependents/${id}`);
+      await api.delete(`/users/dependents/${id}/permanent`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: dependentKeys.mine() });

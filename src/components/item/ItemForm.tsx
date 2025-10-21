@@ -12,6 +12,7 @@ import toast from 'react-hot-toast';
 const itemFormSchema = z.object({
   title: z.string().min(1, 'Nome do item é obrigatório'),
   description: z.string().optional(),
+  notes: z.string().optional(),
   price: z.object({
     min: z.number().min(0, 'Preço mínimo deve ser maior ou igual a zero').optional(),
     max: z.number().min(0, 'Preço máximo deve ser maior ou igual a zero').optional(),
@@ -64,11 +65,18 @@ export const ItemForm: React.FC<ItemFormProps> = ({
     setError(null);
 
     try {
-      // Se for ONGOING_SUGGESTION, remover quantity dos dados
-      const submitData = { ...data };
-      if (data.itemType === 'ONGOING_SUGGESTION') {
-        delete submitData.quantity;
-      }
+      // Mapear dados do formulário para o formato esperado pelos DTOs
+      const submitData: CreateItemData | UpdateItemData = {
+        title: data.title,
+        description: data.description,
+        notes: data.notes,
+        price: data.price,
+        currency: data.currency,
+        url: data.url, // Manter como 'url' no formulário, será mapeado para 'link' no DTO
+        imageUrl: data.imageUrl,
+        quantity: data.itemType === 'SPECIFIC_PRODUCT' ? data.quantity : undefined,
+        itemType: data.itemType,
+      };
 
       await onSubmit(submitData);
       toast.success('Item salvo com sucesso!');
@@ -150,6 +158,21 @@ export const ItemForm: React.FC<ItemFormProps> = ({
               placeholder="Descreva o item..."
             />
             {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>}
+          </div>
+
+          {/* Notas */}
+          <div>
+            <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
+              Notas Adicionais
+            </label>
+            <textarea
+              {...register('notes')}
+              id="notes"
+              rows={2}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              placeholder="Notas especiais sobre o item..."
+            />
+            {errors.notes && <p className="mt-1 text-sm text-red-600">{errors.notes.message}</p>}
           </div>
 
           {/* Preço */}

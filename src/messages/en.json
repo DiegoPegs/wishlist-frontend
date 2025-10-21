@@ -131,6 +131,14 @@
     "add": "Add",
     "dependentAddedSuccess": "Dependent added successfully!",
     "dependentAddError": "Error adding dependent",
+    "dependentDeletedSuccess": "Dependent deleted successfully!",
+    "dependentDeleteError": "Error deleting dependent",
+    "deleteDependentTitle": "Delete Dependent",
+    "deleteDependentConfirm": "Are you sure you want to delete the dependent",
+    "deleteDependentWarning": "This action cannot be undone. The dependent and all their wishlists and items will be permanently deleted.",
+    "deleteDependentButton": "Yes, Delete",
+    "deleting": "Deleting...",
+    "deleteDependentTooltip": "Delete dependent",
     "january": "January",
     "february": "February",
     "march": "March",
@@ -143,6 +151,10 @@
     "october": "October",
     "november": "November",
     "december": "December",
+    "CHILD": "Child",
+    "SIBLING": "Sibling",
+    "NEPHEW_NIECE": "Nephew/Niece",
+    "OTHER": "Other",
     "son": "Son",
     "daughter": "Daughter",
     "brother": "Brother",
@@ -155,6 +167,11 @@
     "addItemTitle": "Add Item to List",
     "addItemDescription": "Add a new item to your wishlist.",
     "addItem": "Add Item"
+  },
+  "header": {
+    "appName": "Kero Wishlist",
+    "notifications": "Notifications",
+    "notificationsClicked": "Notifications icon clicked!"
   },
   "errors": {
     "required": "This field is required",

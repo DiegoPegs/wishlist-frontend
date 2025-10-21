@@ -11,9 +11,10 @@ interface WishlistCardProps {
   isOwner?: boolean;
   onShare?: () => void;
   onDelete?: (wishlistId: string) => void;
+  dependentId?: string; // Novo prop para identificar se é wishlist de dependente
 }
 
-export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: WishlistCardProps) {
+export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete, dependentId }: WishlistCardProps) {
   const queryClient = useQueryClient();
   const t = useTranslations('wishlist');
   const { getLocalizedPath } = useLocalizedPath();
@@ -185,7 +186,10 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete }: Wi
 
         <div className="mt-6 flex items-center justify-between">
           <Link
-            href={getLocalizedPath(`/wishlist/${wishlist.id}`)}
+            href={dependentId
+              ? getLocalizedPath(`/dependents/${dependentId}/wishlist/${wishlist.id}`)
+              : getLocalizedPath(`/wishlist/${wishlist.id}`)
+            }
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
           >
             {t('viewDetails')}

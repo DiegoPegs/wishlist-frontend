@@ -3,6 +3,8 @@
 import { ItemForm } from './ItemForm';
 import { useUpdateItem } from '@/hooks/useUpdateItem';
 import { useChangeItemQuantity } from '@/hooks/useChangeItemQuantity';
+import { useUpdateDependentItem } from '@/hooks/use-dependent-operations';
+import { useUpdateDependentItemQuantity } from '@/hooks/use-dependent-operations';
 import { WishlistItem } from '@/types/wishlist';
 
 // Função helper para validar URL
@@ -21,17 +23,21 @@ interface EditItemModalProps {
   isOpen: boolean;
   onClose: () => void;
   wishlistId: string;
+  dependentId?: string; // Nova prop opcional
 }
 
-export function EditItemModal({ item, isOpen, onClose, wishlistId }: EditItemModalProps) {
+export function EditItemModal({ item, isOpen, onClose, wishlistId, dependentId }: EditItemModalProps) {
   const updateItemMutation = useUpdateItem({ wishlistId });
   const changeQuantityMutation = useChangeItemQuantity({ wishlistId });
+  const updateDependentItemMutation = useUpdateDependentItem(dependentId || '');
+  const updateDependentItemQuantityMutation = useUpdateDependentItemQuantity(dependentId || '');
 
   // Função para obter dados iniciais do item
   const getInitialData = (item: WishlistItem) => {
     return {
       title: item.title,
       description: item.description || '',
+      notes: item.notes || '',
       price: typeof item.price === 'object' ? item.price :
              typeof item.price === 'number' ? { min: item.price } : undefined,
       currency: item.currency || 'BRL',
@@ -53,14 +59,15 @@ export function EditItemModal({ item, isOpen, onClose, wishlistId }: EditItemMod
       const payload: {
         title: string;
         description?: string;
-        price?: number | { min?: number; max?: number };
+        notes?: string;
+        price?: { min?: number; max?: number };
         link?: string;
         imageUrl?: string;
-        notes?: string;
       } = {
         title: data.title,
         description: data.description,
-        price: data.price,
+        notes: data.notes,
+        price: typeof data.price === 'object' ? data.price : undefined,
       };
 
       // Só incluir link se for uma URL válida
@@ -73,23 +80,35 @@ export function EditItemModal({ item, isOpen, onClose, wishlistId }: EditItemMod
         payload.imageUrl = data.imageUrl;
       }
 
-      // Só incluir notes se description for diferente de vazio
-      if (data.description && data.description.trim() !== '') {
-        payload.notes = data.description;
-      }
-
-      // Atualizar item geral
-      await updateItemMutation.mutateAsync({
-        itemId: item._id,
-        data: payload,
-      });
-
-      // Se a quantidade mudou e é SPECIFIC_PRODUCT, atualizar quantidade separadamente
-      if (data.itemType === 'SPECIFIC_PRODUCT' && data.quantity && data.quantity !== getInitialData(item).quantity) {
-        await changeQuantityMutation.mutateAsync({
+      // Usar hook apropriado baseado na presença de dependentId
+      if (dependentId) {
+        // Atualizar item geral
+        await updateDependentItemMutation.mutateAsync({
           itemId: item._id,
-          data: { desired: data.quantity },
+          data: payload,
         });
+
+        // Se a quantidade mudou e é SPECIFIC_PRODUCT, atualizar quantidade separadamente
+        if (data.itemType === 'SPECIFIC_PRODUCT' && data.quantity && data.quantity !== getInitialData(item).quantity) {
+          await updateDependentItemQuantityMutation.mutateAsync({
+            itemId: item._id,
+            data: { desired: data.quantity },
+          });
+        }
+      } else {
+        // Atualizar item geral
+        await updateItemMutation.mutateAsync({
+          itemId: item._id,
+          data: payload,
+        });
+
+        // Se a quantidade mudou e é SPECIFIC_PRODUCT, atualizar quantidade separadamente
+        if (data.itemType === 'SPECIFIC_PRODUCT' && data.quantity && data.quantity !== getInitialData(item).quantity) {
+          await changeQuantityMutation.mutateAsync({
+            itemId: item._id,
+            data: { desired: data.quantity },
+          });
+        }
       }
 
       onClose();
@@ -121,7 +140,7 @@ export function EditItemModal({ item, isOpen, onClose, wishlistId }: EditItemMod
             onSubmit={handleSubmit}
             onCancel={onClose}
             initialData={getInitialData(item)}
-            isLoading={updateItemMutation.isPending || changeQuantityMutation.isPending}
+            isLoading={updateItemMutation.isPending || changeQuantityMutation.isPending || updateDependentItemMutation.isPending || updateDependentItemQuantityMutation.isPending}
             submitLabel="Salvar Alterações"
           />
         </div>

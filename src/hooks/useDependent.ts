@@ -12,7 +12,7 @@ interface ApiDependent {
     month: number;
     year?: number;
   };
-  relationship: 'son' | 'daughter' | 'brother' | 'sister' | 'nephew' | 'niece' | 'other';
+  relationship: 'CHILD' | 'SIBLING' | 'NEPHEW_NIECE' | 'OTHER';
   guardianId: string;
   guardianName: string;
   secondGuardianId?: string;

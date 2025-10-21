@@ -131,6 +131,14 @@
     "add": "Adicionar",
     "dependentAddedSuccess": "Dependente adicionado com sucesso!",
     "dependentAddError": "Erro ao adicionar dependente",
+    "dependentDeletedSuccess": "Dependente excluído com sucesso!",
+    "dependentDeleteError": "Erro ao excluir dependente",
+    "deleteDependentTitle": "Excluir Dependente",
+    "deleteDependentConfirm": "Tem certeza que deseja excluir o dependente",
+    "deleteDependentWarning": "Esta ação não pode ser desfeita. O dependente e todas as suas listas de desejos e itens serão permanentemente excluídos.",
+    "deleteDependentButton": "Sim, Excluir",
+    "deleting": "Excluindo...",
+    "deleteDependentTooltip": "Excluir dependente",
     "january": "Janeiro",
     "february": "Fevereiro",
     "march": "Março",
@@ -143,6 +151,10 @@
     "october": "Outubro",
     "november": "Novembro",
     "december": "Dezembro",
+    "CHILD": "Filho(a)",
+    "SIBLING": "Irmão/Irmã",
+    "NEPHEW_NIECE": "Sobrinho(a)",
+    "OTHER": "Outro",
     "son": "Filho",
     "daughter": "Filha",
     "brother": "Irmão",
@@ -155,6 +167,11 @@
     "addItemTitle": "Adicionar Item à Lista",
     "addItemDescription": "Adicione um novo item à sua lista de desejos.",
     "addItem": "Adicionar Item"
+  },
+  "header": {
+    "appName": "Kero Wishlist",
+    "notifications": "Notificações",
+    "notificationsClicked": "Ícone de notificações clicado!"
   },
   "errors": {
     "required": "Este campo é obrigatório",

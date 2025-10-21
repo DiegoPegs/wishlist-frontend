@@ -16,6 +16,13 @@ api.interceptors.request.use(
       const token = localStorage.getItem('accessToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('🔍 Token enviado para:', config.url, {
+          hasToken: !!token,
+          tokenLength: token.length,
+          method: config.method?.toUpperCase()
+        });
+      } else {
+        console.warn('⚠️ Nenhum token encontrado para:', config.url);
       }
     }
     return config;
