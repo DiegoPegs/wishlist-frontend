@@ -18,6 +18,7 @@ import { WishlistItem } from '@/types/wishlist';
 import { BackButton } from '@/components/ui/BackButton';
 import { formatDate } from '@/lib/formatters';
 import { useTranslations } from '@/hooks/useTranslations';
+import { useIsGuardianOfDependentOwner } from '@/hooks/useCanManage';
 
 export default function WishlistDetailPage() {
   const params = useParams();
@@ -42,6 +43,9 @@ export default function WishlistDetailPage() {
   const wishlistOwnerId = wishlist?.ownerId || wishlist?.userId?._id || (typeof wishlist?.userId === 'string' ? wishlist?.userId : wishlist?.userId?._id);
 
   const isOwner = currentUserId === wishlistOwnerId;
+
+  // Verificar se é guardião de um dependente que é o dono desta wishlist
+  const isGuardianOfDependentOwner = useIsGuardianOfDependentOwner(wishlistOwnerId);
 
   // Calcular faixa de preço dos itens (antes dos returns condicionais)
   const priceRange = useMemo(() => {
@@ -193,7 +197,7 @@ export default function WishlistDetailPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2 ml-4">
-            {isOwner && (
+            {(isOwner || isGuardianOfDependentOwner) && (
               <>
                 <button
                   onClick={() => setIsEditModalOpen(true)}
@@ -227,7 +231,7 @@ export default function WishlistDetailPage() {
           </div>
         </div>
 
-        <div className={`mt-6 grid gap-4 text-sm ${isOwner ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+        <div className={`mt-6 grid gap-4 text-sm ${(isOwner || isGuardianOfDependentOwner) ? 'grid-cols-2 md:grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
           <div>
             <span className="font-medium text-gray-700">Total de itens:</span>
             <p className="text-lg font-semibold text-dark">{wishlist.items?.length || 0}</p>
@@ -241,7 +245,7 @@ export default function WishlistDetailPage() {
               }
             </p>
           </div>
-          {!isOwner && (
+          {!(isOwner || isGuardianOfDependentOwner) && (
             <>
               <div>
                 <span className="font-medium text-gray-700">{tWishlist('reserved')}:</span>
@@ -259,7 +263,7 @@ export default function WishlistDetailPage() {
       {/* Actions */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-dark">{tWishlist('listItems')}</h2>
-        {isOwner && (
+        {(isOwner || isGuardianOfDependentOwner) && (
           <button
             onClick={() => setIsAddItemModalOpen(true)}
             className="bg-primary text-white px-4 py-2 rounded-md font-medium hover:bg-primary/90 flex items-center"
@@ -287,7 +291,7 @@ export default function WishlistDetailPage() {
               : tWishlist('noItemsGuest')
             }
           </p>
-          {isOwner && (
+          {(isOwner || isGuardianOfDependentOwner) && (
             <button
               onClick={() => setIsAddItemModalOpen(true)}
               className="bg-primary text-white px-6 py-3 rounded-md font-medium hover:bg-primary/90"
@@ -302,9 +306,10 @@ export default function WishlistDetailPage() {
             <ItemCard
               key={item._id || `item-${index}`}
               item={item}
-              isOwner={isOwner}
+              ownerId={wishlistOwnerId || ''}
               onEdit={() => setEditingItem(item)}
               onDelete={() => setItemToDelete(item)}
+              dependentId={isGuardianOfDependentOwner ? wishlistOwnerId : undefined}
             />
           ))}
         </div>
@@ -318,6 +323,7 @@ export default function WishlistDetailPage() {
           wishlistId={wishlist.id}
           currentTitle={wishlist.title}
           currentDescription={wishlist.description}
+          dependentId={isGuardianOfDependentOwner ? wishlistOwnerId : undefined}
         />
       )}
 
@@ -338,6 +344,7 @@ export default function WishlistDetailPage() {
           onConfirm={handleDeleteWishlist}
           wishlistTitle={wishlist.title}
           isLoading={deleteWishlistMutation.isPending}
+          dependentId={isGuardianOfDependentOwner ? wishlistOwnerId : undefined}
         />
       )}
 
@@ -346,6 +353,7 @@ export default function WishlistDetailPage() {
         isOpen={isAddItemModalOpen}
         onClose={() => setIsAddItemModalOpen(false)}
         wishlistId={wishlistId}
+        dependentId={isGuardianOfDependentOwner ? wishlistOwnerId : undefined}
       />
 
       {/* Modal de Editar Item */}
@@ -354,6 +362,7 @@ export default function WishlistDetailPage() {
         item={editingItem}
         onClose={() => setEditingItem(null)}
         wishlistId={wishlistId}
+        dependentId={isGuardianOfDependentOwner ? wishlistOwnerId : undefined}
       />
 
       {/* Modal de Excluir Item */}

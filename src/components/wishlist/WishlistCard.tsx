@@ -5,19 +5,22 @@ import { formatDate } from '@/lib/formatters';
 import { fetchWishlist, wishlistKeys } from '@/hooks/use-wishlists';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useLocalizedPath } from '@/hooks/useLocalizedPath';
+import { useCanManage } from '@/hooks/useCanManage';
 
 interface WishlistCardProps {
   wishlist: Wishlist;
-  isOwner?: boolean;
-  onShare?: () => void;
-  onDelete?: (wishlistId: string) => void;
+  onShare?: (dependentId?: string) => void;
+  onDelete?: (wishlistId: string, dependentId?: string) => void;
   dependentId?: string; // Novo prop para identificar se é wishlist de dependente
 }
 
-export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete, dependentId }: WishlistCardProps) {
+export function WishlistCard({ wishlist, onShare, onDelete, dependentId }: WishlistCardProps) {
   const queryClient = useQueryClient();
   const t = useTranslations('wishlist');
   const { getLocalizedPath } = useLocalizedPath();
+
+  // Usar a nova lógica canManage em vez de isOwner
+  const canManage = useCanManage(wishlist.ownerId);
 
   // Função para prefetch da wishlist no hover
   const prefetchWishlist = () => {
@@ -144,14 +147,14 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete, depe
           </div>
         </div>
 
-        <div className={`grid gap-4 mt-4 text-sm text-gray-600 ${isOwner ? 'grid-cols-2' : 'grid-cols-2'}`}>
+        <div className={`grid gap-4 mt-4 text-sm text-gray-600 ${canManage ? 'grid-cols-2' : 'grid-cols-2'}`}>
           <div>
             <span className="font-medium">{t('items')}:</span> {wishlist.items?.length || 0}
           </div>
           <div>
             <span className="font-medium">{t('totalValue')}:</span> {formatPrice(totalValue)}
           </div>
-          {!isOwner && (
+          {!canManage && (
             <div>
               <span className="font-medium">{t('reserved')}:</span> {reservedItems}
             </div>
@@ -194,26 +197,28 @@ export function WishlistCard({ wishlist, isOwner = true, onShare, onDelete, depe
           >
             {t('viewDetails')}
           </Link>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={onShare}
-              className="text-gray-400 hover:text-gray-600"
-              title={t('shareList')}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => onDelete?.(wishlist.id)}
-              className="text-gray-400 hover:text-red-600"
-              title={t('deleteList')}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-          </div>
+          {canManage && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => onShare?.(dependentId)}
+                className="text-gray-400 hover:text-gray-600"
+                title={t('shareList')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => onDelete?.(wishlist.id, dependentId)}
+                className="text-gray-400 hover:text-red-600"
+                title={t('deleteList')}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

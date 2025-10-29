@@ -77,7 +77,7 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
 
     return envVars;
 
-  } catch (error) {
+  } catch {
     // Em desenvolvimento, usa variáveis locais como fallback
     if (process.env.NODE_ENV === 'development') {
       return getLocalEnvVars();
@@ -85,7 +85,6 @@ export async function loadEnvFromSSM(): Promise<Record<string, string>> {
 
     // Em produção, usa variáveis locais como fallback se AWS não estiver disponível
     if (process.env.NODE_ENV === 'production') {
-      console.warn('AWS SSM não disponível em produção, usando variáveis locais como fallback:', error);
       return getLocalEnvVars();
     }
 

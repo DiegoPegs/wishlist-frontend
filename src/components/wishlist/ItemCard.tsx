@@ -4,28 +4,32 @@ import { WishlistItem } from '@/types/wishlist';
 import { ReserveItemModal } from './ReserveItemModal';
 import { useReserveItem } from '@/hooks/use-wishlists';
 import { useAuthStore } from '@/store/auth.store';
+import { useCanManage } from '@/hooks/useCanManage';
 import toast from 'react-hot-toast';
 
 interface ItemCardProps {
   item: WishlistItem;
   ownerId: string; // ID do dono da wishlist
-  isOwner?: boolean;
   onReserve?: (itemId: string, quantity: number, message?: string) => void;
-  onEdit?: (itemId: string) => void;
-  onDelete?: (itemId: string) => void;
+  onEdit?: (itemId: string, dependentId?: string) => void;
+  onDelete?: (itemId: string, dependentId?: string) => void;
+  dependentId?: string; // Novo prop opcional
 }
 
 export function ItemCard({
   item,
   ownerId,
-  isOwner = false,
   onReserve,
   onEdit,
-  onDelete
+  onDelete,
+  dependentId
 }: ItemCardProps) {
   const [showReserveModal, setShowReserveModal] = useState(false);
   const { user } = useAuthStore();
   const reserveItemMutation = useReserveItem();
+
+  // Usar a nova lógica canManage em vez de isOwner
+  const canManage = useCanManage(ownerId);
 
   // Verificar se o usuário logado é diferente do dono da wishlist
   const canReserve = user && user.id !== ownerId && !item.reservedBy;
@@ -107,12 +111,17 @@ export function ItemCard({
                 {item.title}
               </h3>
               {item.description && (
+                <p className="text-gray-600 text-sm mb-2 line-clamp-2">
+                  <span className="font-medium">Descrição:</span> {item.description}
+                </p>
+              )}
+              {item.notes && (
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                  {item.description}
+                  <span className="font-medium">Notas Adicionais:</span> {item.notes}
                 </p>
               )}
             </div>
-            {!isOwner && item.reservedBy && (
+            {!canManage && item.reservedBy && (
               <div className="ml-4">
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                   Reservado
@@ -140,7 +149,7 @@ export function ItemCard({
             <div>
               <span className="font-medium">Quantidade:</span> {getQuantity(item.quantity)}
             </div>
-            {!isOwner && item.reservedBy && (
+            {!canManage && item.reservedBy && (
               <>
                 <div>
                   <span className="font-medium">Reservado por:</span> {item.reservedBy}
@@ -167,7 +176,7 @@ export function ItemCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              {!isOwner && canReserve && (
+              {!canManage && canReserve && (
                 <button
                   onClick={() => setShowReserveModal(true)}
                   className="bg-secondary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
@@ -176,9 +185,9 @@ export function ItemCard({
                 </button>
               )}
 
-              {isOwner && onEdit && (
+              {canManage && onEdit && (
                 <button
-                  onClick={() => onEdit(item.id)}
+                  onClick={() => onEdit(item.id, dependentId)}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,9 +196,9 @@ export function ItemCard({
                 </button>
               )}
 
-              {isOwner && onDelete && (
+              {canManage && onDelete && (
                 <button
-                  onClick={() => onDelete(item.id)}
+                  onClick={() => onDelete(item.id, dependentId)}
                   className="text-gray-400 hover:text-red-600"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

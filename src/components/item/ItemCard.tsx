@@ -2,15 +2,20 @@ import Image from 'next/image';
 import { Users } from 'lucide-react';
 import { WishlistItem } from '@/types/wishlist';
 import { formatDate } from '@/lib/formatters';
+import { useCanManage } from '@/hooks/useCanManage';
 
 interface ItemCardProps {
   item: WishlistItem;
-  isOwner: boolean;
-  onEdit: (itemId: string) => void;
-  onDelete: (itemId: string) => void;
+  ownerId: string; // ID do dono da wishlist
+  onEdit: (itemId: string, dependentId?: string) => void;
+  onDelete: (itemId: string, dependentId?: string) => void;
+  dependentId?: string; // Novo prop opcional
 }
 
-export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
+export function ItemCard({ item, ownerId, onEdit, onDelete, dependentId }: ItemCardProps) {
+  // Usar a nova lógica canManage em vez de isOwner
+  const canManage = useCanManage(ownerId);
+
   // Constante para imagem de placeholder
   const displayImageUrl = item.imageUrl || '/images/illustration-placeholder-gift.svg';
 
@@ -90,7 +95,7 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
               <>
                 <span className="font-medium text-gray-700">Desejado:</span>
                 <p className="text-gray-600">{getQuantity(item.quantity)}</p>
-                {!isOwner && item.reservedBy && (
+                {!canManage && item.reservedBy && (
                   <>
                     <span className="font-medium text-gray-700 mt-1 block">Reservados:</span>
                     <p className="text-gray-600">1</p>
@@ -106,11 +111,19 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
           </div>
         </div>
 
-        {/* Notas */}
+        {/* Descrição */}
         {item.description && (
           <div className="mb-4">
-            <span className="font-medium text-gray-700 text-sm">Notas:</span>
+            <span className="font-medium text-gray-700 text-sm">Descrição:</span>
             <p className="text-gray-600 text-sm mt-1 line-clamp-3">{item.description}</p>
+          </div>
+        )}
+
+        {/* Notas Adicionais */}
+        {item.notes && (
+          <div className="mb-4">
+            <span className="font-medium text-gray-700 text-sm">Notas Adicionais:</span>
+            <p className="text-gray-600 text-sm mt-1 line-clamp-3">{item.notes}</p>
           </div>
         )}
 
@@ -139,7 +152,7 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
         </div>
 
         {/* Informações de reserva (apenas se não for o dono) */}
-        {!isOwner && item.reservedBy && (
+        {!canManage && item.reservedBy && (
           <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
             <div className="flex items-center gap-2 mb-1">
               <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,11 +171,11 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
           </div>
         )}
 
-        {/* Botões de ação (apenas se for o dono) */}
-        {isOwner && (
+        {/* Botões de ação (apenas se puder gerenciar) */}
+        {canManage && (
           <div className="flex items-center justify-end gap-2 mt-auto">
             <button
-              onClick={() => onEdit(item.id)}
+              onClick={() => onEdit(item.id, dependentId)}
               className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
               title="Editar item"
             >
@@ -172,7 +185,7 @@ export function ItemCard({ item, isOwner, onEdit, onDelete }: ItemCardProps) {
               Editar
             </button>
             <button
-              onClick={() => onDelete(item._id)}
+              onClick={() => onDelete(item._id, dependentId)}
               className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 inline-flex items-center gap-1 px-3 py-2 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-md transition-colors"
               title="Excluir item"
             >

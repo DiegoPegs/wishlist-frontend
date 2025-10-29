@@ -280,9 +280,10 @@ export default function DependentWishlistDetailPage() {
             <ItemCard
               key={item._id || `item-${index}`}
               item={item}
-              isOwner={true}
+              ownerId={wishlist.ownerId || dependentId}
               onEdit={() => setEditingItem(item)}
               onDelete={() => setItemToDelete(item)}
+              dependentId={dependentId}
             />
           ))}
         </div>

@@ -162,7 +162,8 @@ export function useUpdateDependentItem(dependentId: string) {
       await api.put(`/users/dependents/${dependentId}/items/${itemId}`, dto);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+      // Invalidar todas as queries relacionadas a dependentes
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
@@ -180,7 +181,8 @@ export function useDeleteDependentItem(dependentId: string) {
       await api.delete(`/users/dependents/${dependentId}/items/${itemId}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+      // Invalidar todas as queries relacionadas a dependentes
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
@@ -201,10 +203,11 @@ export function useUpdateDependentItemQuantity(dependentId: string) {
         desired: data.desired,
       };
 
-      await api.put(`/users/dependents/${dependentId}/items/${itemId}/quantity`, dto);
+      await api.patch(`/users/dependents/${dependentId}/items/${itemId}/quantity`, dto);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+      // Invalidar todas as queries relacionadas a dependentes
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });
@@ -228,7 +231,8 @@ export function useMarkDependentItemAsReceived(dependentId: string) {
       await api.post(`/users/dependents/${dependentId}/items/${itemId}/mark-received`, dto);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.lists(dependentId) });
+      // Invalidar todas as queries relacionadas a dependentes
+      queryClient.invalidateQueries({ queryKey: dependentWishlistKeys.all });
       queryClient.invalidateQueries({ queryKey: ['wishlists'] });
     },
   });

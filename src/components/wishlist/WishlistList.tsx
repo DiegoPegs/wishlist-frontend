@@ -34,7 +34,6 @@ export function WishlistList({ onShare, onDelete }: WishlistListProps) {
           <WishlistCard
             key={wishlist._id}
             wishlist={wishlist}
-            isOwner={true}
             onShare={() => onShare?.(wishlist)}
             onDelete={onDelete}
           />

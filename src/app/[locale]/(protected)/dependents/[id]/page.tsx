@@ -230,7 +230,6 @@ export default function DependentManagementPage() {
                   <WishlistCard
                     key={wishlist.id || wishlist._id || `wishlist-${index}`}
                     wishlist={wishlist}
-                    isOwner={true}
                     dependentId={dependentId}
                     onShare={() => handleShareWishlist(wishlist)}
                     onDelete={() => handleDeleteWishlist(wishlist)}
