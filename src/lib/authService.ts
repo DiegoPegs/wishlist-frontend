@@ -46,4 +46,12 @@ export const authService = {
     const response = await api.post('/auth/refresh');
     return response.data;
   },
+
+  resendVerificationEmail: async (): Promise<void> => {
+    await api.post('/auth/resend-verification');
+  },
+
+  confirmRegistration: async (username: string, code: string): Promise<void> => {
+    await api.post('/auth/confirm-registration', { username, code });
+  },
 };

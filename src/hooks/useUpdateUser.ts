@@ -77,6 +77,7 @@ export function useUpdateUser() {
         email: data.email,
         name: data.name,
         birthDate: data.birthDate,
+        language: data.language,
         emailVerified: data.emailVerified || data.isEmailVerified || false,
         createdAt: data.createdAt || new Date().toISOString(),
         updatedAt: data.updatedAt || new Date().toISOString(),

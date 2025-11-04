@@ -2,19 +2,25 @@
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/auth.store';
 import { ChangePasswordForm } from '@/components/user/ChangePasswordForm';
 import { useUpdateUser, UpdateUserData } from '@/hooks/useUpdateUser';
 import { UpdateProfileDto } from '@/types/auth-dto';
 import { formatBirthDate } from '@/lib/dateUtils';
+import { useResendVerificationEmail } from '@/hooks/useResendVerificationEmail';
+import { ConfirmRegistrationModal } from '@/components/user/ConfirmRegistrationModal';
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
+  const queryClient = useQueryClient();
   const updateUserMutation = useUpdateUser();
+  const resendEmailMutation = useResendVerificationEmail();
 
   const {
     register,
@@ -268,9 +274,29 @@ export default function ProfilePage() {
                   )}
                 </span>
                 {!user?.emailVerified && (
-                  <button className="text-xs text-blue-600 hover:text-blue-800 underline">
-                    Verificar agora
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => resendEmailMutation.mutate()}
+                      disabled={resendEmailMutation.isPending}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {resendEmailMutation.isPending ? 'Enviando...' : 'Reenviar código'}
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      onClick={() => setShowConfirmModal(true)}
+                      className="text-xs text-purple-600 hover:text-purple-800 underline"
+                    >
+                      Inserir código
+                    </button>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      onClick={() => queryClient.invalidateQueries({ queryKey: ['user', 'profile'] })}
+                      className="text-xs text-green-600 hover:text-green-800 underline"
+                    >
+                      Atualizar status
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -342,6 +368,15 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Confirmação de Registro */}
+      {user?.username && (
+        <ConfirmRegistrationModal
+          isOpen={showConfirmModal}
+          onClose={() => setShowConfirmModal(false)}
+          username={user.username}
+        />
+      )}
     </div>
   );
 }

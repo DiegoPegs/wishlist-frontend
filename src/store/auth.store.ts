@@ -52,6 +52,7 @@ export const useAuthStore = create<AuthStore>()(
             id: userId,
             email: userProfile.email,
             name: userProfile.name,
+            language: userProfile.language,
             emailVerified: userProfile.emailVerified || userProfile.isEmailVerified || false,
             createdAt: userProfile.createdAt || new Date().toISOString(),
             updatedAt: userProfile.updatedAt || new Date().toISOString(),
@@ -62,6 +63,11 @@ export const useAuthStore = create<AuthStore>()(
           // Salvar dados do usuário no localStorage
           if (typeof window !== 'undefined') {
             localStorage.setItem('user', JSON.stringify(user));
+
+            // Se o usuário tem idioma definido, salvar no cookie
+            if (user.language) {
+              document.cookie = `user-language=${user.language}; path=/; max-age=31536000`;
+            }
           }
         } catch (error) {
           console.error('Login error:', error);
@@ -156,6 +162,7 @@ export const useAuthStore = create<AuthStore>()(
                   id: userId,
                   email: userProfile.email,
                   name: userProfile.name,
+                  language: userProfile.language,
                   emailVerified: userProfile.emailVerified || userProfile.isEmailVerified || false,
                   createdAt: userProfile.createdAt || new Date().toISOString(),
                   updatedAt: userProfile.updatedAt || new Date().toISOString(),
@@ -165,6 +172,11 @@ export const useAuthStore = create<AuthStore>()(
 
                 // Atualizar dados no localStorage
                 localStorage.setItem('user', JSON.stringify(user));
+
+                // Se o usuário tem idioma definido, salvar no cookie
+                if (user.language) {
+                  document.cookie = `user-language=${user.language}; path=/; max-age=31536000`;
+                }
               } catch (error) {
                 // Token inválido ou expirado, limpar dados
                 console.error('Token inválido:', error);

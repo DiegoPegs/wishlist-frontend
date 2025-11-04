@@ -3,11 +3,13 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  username?: string;
   birthDate?: {
     day: number;
     month: number;
     year?: number;
   };
+  language?: string;
   emailVerified: boolean;
   createdAt: string;
   updatedAt: string;

@@ -47,6 +47,10 @@ export interface UpdateProfileDto {
   };
 }
 
+export interface UpdateLanguageDto {
+  language: string;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken?: string;
@@ -70,6 +74,7 @@ export interface UserProfile {
     month: number;
     year?: number;
   };
+  language?: string;
   emailVerified?: boolean;
   isEmailVerified?: boolean;
   createdAt?: string;
